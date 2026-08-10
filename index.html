@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dock Talk — South Fork Specials, From People Who'd Know</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Dock Talk is where South Fork restaurants post today's specials and neighbors follow the places they trust — no delivery, no ads, no ratings from strangers.">
+<meta property="og:title" content="Dock Talk — What's good tonight, from people who'd know">
+<meta property="og:description" content="South Fork restaurants post today's specials. Neighbors follow the places they trust. No delivery, no ads, no coupons.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231F2E2B'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23BF4425'%3E%E2%9A%93%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600&family=Source+Sans+3:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1F2E2B;
+    --paper:#EFE6D2;
+    --paper-light:#F7F2E7;
+    --wood:#B08B5A;
+    --buoy:#BF4425;
+    --bay:#3E6259;
+    --line: rgba(31,46,43,0.18);
+    --line-soft: rgba(31,46,43,0.10);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper-light);
+    font-family:'Source Sans 3', sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+  .label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--buoy);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  h1,h2,h3{font-family:'Fraunces', serif;margin:0;}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(247,242,231,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 28px;
+  }
+  .wordmark{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:-0.3px;
+  }
+  .wordmark em{font-style:italic;font-weight:500;color:var(--buoy);}
+  .nav-links{display:flex;gap:28px;align-items:center;}
+  .nav-links a{
+    font-size:13px;text-decoration:none;color:var(--ink);
+    text-transform:uppercase;letter-spacing:0.5px;font-weight:600;
+    opacity:0.75;
+  }
+  .nav-links a:hover{opacity:1;}
+  .btn{
+    display:inline-block;
+    font-family:'Source Sans 3', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.3px;
+    padding:11px 20px;
+    border-radius:2px;
+    text-decoration:none;
+    cursor:pointer;
+    border:none;
+  }
+  .btn-primary{background:var(--buoy);color:var(--paper-light);}
+  .btn-primary:hover{background:#a83a20;}
+  .btn-outline{background:transparent;color:var(--ink);border:1px solid var(--ink);}
+  .btn-outline:hover{background:var(--ink);color:var(--paper-light);}
+  .btn-bay{background:var(--bay);color:var(--paper-light);}
+  .btn-bay:hover{background:#31514a;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:78px 0 60px 0;}
+  .hero .wrap{
+    display:grid;grid-template-columns:1.15fr 0.85fr;gap:50px;align-items:center;
+  }
+  .hero .eyebrow{
+    font-size:11px;text-transform:uppercase;letter-spacing:2px;
+    color:var(--bay);font-weight:700;margin-bottom:16px;
+  }
+  .hero h1{
+    font-size:44px;font-weight:600;line-height:1.1;letter-spacing:-0.5px;
+    margin-bottom:18px;
+  }
+  .hero p.lede{
+    font-size:16.5px;line-height:1.6;color:rgba(31,46,43,0.82);
+    max-width:480px;margin-bottom:28px;
+  }
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;}
+
+  /* signature pinned card */
+  .card-wrap{position:relative;padding-top:16px;}
+  .pin{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:14px;height:14px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #e0533a, var(--buoy));
+    box-shadow:0 2px 3px rgba(0,0,0,0.35);z-index:2;
+  }
+  .special-card{
+    background:#fff;border:1px solid rgba(0,0,0,0.08);
+    box-shadow:0 14px 30px rgba(0,0,0,0.18);
+    transform:rotate(-2deg);
+    padding:22px 22px 20px 22px;
+    animation:settle 0.7s ease-out;
+  }
+  @keyframes settle{
+    from{opacity:0;transform:rotate(-9deg) translateY(-14px);}
+    to{opacity:1;transform:rotate(-2deg) translateY(0);}
+  }
+  .special-card .tag{
+    display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:1px;
+    background:var(--bay);color:var(--paper-light);padding:3px 8px;border-radius:2px;
+    margin-bottom:10px;
+  }
+  .special-card h3{font-size:19px;font-weight:600;margin:0 0 8px 0;}
+  .special-card .note{
+    font-family:'Caveat', cursive;font-size:22px;line-height:1.25;
+    color:var(--ink);margin:0 0 10px 0;
+  }
+  .special-card .meta{
+    display:flex;justify-content:space-between;font-size:11px;
+    color:rgba(31,46,43,0.55);border-top:1px dashed var(--line);padding-top:8px;
+  }
+  .special-card .follow{
+    display:inline-block;margin-top:12px;font-size:10px;text-transform:uppercase;
+    letter-spacing:0.5px;border:1px solid var(--bay);color:var(--bay);
+    padding:3px 9px;border-radius:20px;
+  }
+
+  /* ---------- feed strip ---------- */
+  .strip-section{padding:10px 0 64px 0;}
+  .strip-header{text-align:center;margin-bottom:26px;}
+  .strip-header h2{font-size:22px;font-weight:600;}
+  .strip{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
+  }
+  .mini-card{
+    background:#fff;border:1px solid rgba(0,0,0,0.07);
+    box-shadow:0 6px 14px rgba(0,0,0,0.08);
+    padding:16px 16px 14px 16px;
+  }
+  .mini-card .tag{
+    display:inline-block;font-size:9px;text-transform:uppercase;letter-spacing:1px;
+    background:var(--wood);color:#fff;padding:2px 7px;border-radius:2px;margin-bottom:8px;
+  }
+  .mini-card h4{font-size:15px;font-weight:600;margin:0 0 6px 0;font-family:'Fraunces',serif;}
+  .mini-card p{
+    font-family:'Caveat', cursive;font-size:18px;line-height:1.2;margin:0 0 8px 0;
+  }
+  .mini-card .meta{font-size:10.5px;color:rgba(31,46,43,0.5);}
+
+  /* ---------- thesis ---------- */
+  .thesis-section{background:var(--paper);padding:64px 0;}
+  .thesis-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:40px;
+  }
+  .thesis-grid .quote{
+    font-family:'Fraunces', serif;font-style:italic;font-weight:500;
+    font-size:23px;line-height:1.4;
+  }
+  .thesis-grid .what-it-is{font-size:15px;line-height:1.6;max-width:440px;}
+  .thesis-grid .what-it-is strong{
+    display:block;font-family:'Fraunces', serif;font-style:normal;
+    font-weight:600;font-size:17px;margin-bottom:8px;
+  }
+
+  /* ---------- compare ---------- */
+  .compare-section{padding:64px 0;}
+  .compare-section .center-label{text-align:center;margin-bottom:30px;}
+  .compare-section .center-label h2{font-size:24px;font-weight:600;}
+  .compare-grid{
+    display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);
+    max-width:760px;margin:0 auto;
+  }
+  .compare-col{padding:22px 28px;}
+  .compare-col.feels{border-right:1px solid var(--line);}
+  .compare-col h4{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 14px 0;}
+  .compare-col.feels h4{color:var(--bay);}
+  .compare-col.not h4{color:rgba(31,46,43,0.45);}
+  .compare-col ul{margin:0;padding:0;list-style:none;}
+  .compare-col li{
+    font-size:13.5px;line-height:1.5;padding:7px 0;
+    border-bottom:1px dotted var(--line-soft);
+  }
+  .compare-col li:last-child{border-bottom:none;}
+  .compare-col.not li{color:rgba(31,46,43,0.55);}
+
+  /* ---------- audience sections ---------- */
+  .audience{padding:70px 0;border-top:1px solid var(--line);}
+  .audience .wrap{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+  .audience h2{font-size:30px;font-weight:600;margin-bottom:16px;}
+  .audience .lede{font-size:15px;line-height:1.6;color:rgba(31,46,43,0.8);margin-bottom:22px;}
+  .audience ol{margin:0;padding:0 0 0 20px;}
+  .audience li{font-size:14px;line-height:1.6;padding:6px 0;}
+  .audience li::marker{font-family:'Fraunces',serif;font-weight:600;color:var(--buoy);}
+
+  .form-card{
+    background:#fff;border:1px solid var(--line);padding:28px 28px 26px 28px;
+  }
+  .form-card h3{font-size:17px;font-weight:600;margin-bottom:6px;}
+  .form-card .sub{font-size:12.5px;color:rgba(31,46,43,0.55);margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;
+    font-weight:700;margin-bottom:6px;color:var(--bay);
+  }
+  .field input, .field select{
+    width:100%;padding:10px 12px;border:1px solid var(--line);
+    background:var(--paper-light);font-family:'Source Sans 3', sans-serif;
+    font-size:14px;border-radius:2px;
+  }
+  .field input:focus, .field select:focus{outline:2px solid var(--bay);outline-offset:1px;}
+  .form-card button{width:100%;padding:12px;font-size:13.5px;margin-top:6px;}
+  .thanks{
+    display:none;text-align:center;padding:30px 10px;
+  }
+  .thanks .big{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:8px;}
+  .thanks p{font-size:13.5px;color:rgba(31,46,43,0.65);}
+
+  /* ---------- where ---------- */
+  .where-section{background:var(--ink);color:var(--paper-light);padding:56px 0;text-align:center;}
+  .where-section .label{color:var(--buoy);}
+  .where-section h2{font-size:24px;font-weight:600;margin-bottom:20px;}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+  .chip{
+    font-size:13px;padding:7px 16px;border:1px solid rgba(247,242,231,0.35);
+    border-radius:20px;color:var(--paper-light);
+  }
+
+  /* ---------- footer ---------- */
+  footer{padding:30px 0;}
+  footer .wrap{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;text-transform:uppercase;letter-spacing:1px;
+    color:rgba(31,46,43,0.45);
+  }
+
+  @media (max-width:840px){
+    .hero .wrap, .thesis-grid, .compare-grid, .audience .wrap{grid-template-columns:1fr;}
+    .strip{grid-template-columns:1fr;}
+    .hero h1{font-size:32px;}
+    .nav-links{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="wordmark">DOCK <em>TALK</em></div>
+    <div class="nav-links">
+      <a href="#restaurants">For Restaurants</a>
+      <a href="#diners">For Diners</a>
+      <a href="#where">Where</a>
+    </div>
+    <a href="#restaurants" class="btn btn-primary">Get Early Access</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">South Fork, NY · Hampton Bays to Montauk</div>
+      <h1>Know what's good tonight — before you get in the car.</h1>
+      <p class="lede">Dock Talk is where South Fork restaurants post today's specials, and neighbors follow the places — and eventually the people — they already trust. No delivery, no ordering, no ratings from strangers.</p>
+      <div class="cta-row">
+        <a href="#restaurants" class="btn btn-primary">I run a restaurant</a>
+        <a href="#diners" class="btn btn-outline">I just want the tips</a>
+      </div>
+    </div>
+    <div class="card-wrap">
+      <div class="pin"></div>
+      <div class="special-card">
+        <span class="tag">Happy Hour · 4–7pm</span>
+        <h3>Harbor House Fish Co.</h3>
+        <p class="note">Half off oysters til 7 — the raw bar just shucked a fresh batch of littlenecks too.</p>
+        <div class="meta">
+          <span>Posted by Dana · 4:12pm</span>
+          <span>0.8 mi away</span>
+        </div>
+        <span class="follow">Following</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="strip-section">
+  <div class="wrap">
+    <div class="strip-header">
+      <div class="label" style="text-align:center;">Tonight, Nearby</div>
+      <h2>What's actually on the board right now</h2>
+    </div>
+    <div class="strip">
+      <div class="mini-card">
+        <span class="tag">Lunch</span>
+        <h4>Bay Street Lobster Shack</h4>
+        <p>Lobster roll special, $18, while the tide's in.</p>
+        <div class="meta">Posted 11:40am</div>
+      </div>
+      <div class="mini-card">
+        <span class="tag">Dinner</span>
+        <h4>Osteria Del Porto</h4>
+        <p>Off-menu striped bass tonight — ask for it by name.</p>
+        <div class="meta">Posted 5:05pm</div>
+      </div>
+      <div class="mini-card">
+        <span class="tag">Late Night</span>
+        <h4>The Tin Roof</h4>
+        <p>Kitchen's open til midnight, half-off flatbreads after 10.</p>
+        <div class="meta">Posted 9:52pm</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="thesis-section">
+  <div class="wrap thesis-grid">
+    <div>
+      <div class="label">The Insight</div>
+      <p class="quote">The South Fork already runs on word of mouth — a text from a friend, a tip from the bartender, the specials board nobody photographs. Big delivery apps were built to remove the human from the transaction. Dock Talk puts it back.</p>
+    </div>
+    <div>
+      <div class="label">What It Is</div>
+      <p class="what-it-is"><strong>A place for restaurants to post today's specials the way they'd tell a regular — and for locals to hear it first.</strong>
+      No delivery, no ordering, no ratings from strangers. Just what's on, right now, from restaurants you already follow.</p>
+    </div>
+  </div>
+</section>
+
+<section class="compare-section">
+  <div class="wrap">
+    <div class="center-label">
+      <div class="label" style="text-align:center;">Why It's Different</div>
+      <h2>Not another delivery app</h2>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-col feels">
+        <h4>Feels Like</h4>
+        <ul>
+          <li>A tip from someone who actually eats there</li>
+          <li>Following a favorite restaurant — and later, a favorite bartender</li>
+          <li>A quiet, well-timed nudge</li>
+          <li>The local paper's specials column, digitized</li>
+        </ul>
+      </div>
+      <div class="compare-col not">
+        <h4>Not</h4>
+        <ul>
+          <li>A coupon marketplace</li>
+          <li>An algorithm ranking who paid the most</li>
+          <li>A push-notification firehose</li>
+          <li>A delivery app with reviews bolted on</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="audience" id="restaurants">
+  <div class="wrap">
+    <div>
+      <div class="label">For Restaurants</div>
+      <h2>Post it like you'd tell a regular.</h2>
+      <p class="lede">Free to join, free to post — forever. We're hand-picking the first 30 restaurants on the South Fork before this opens to anyone else.</p>
+      <ol>
+        <li>Post today's special — a photo, one line, done in under 30 seconds</li>
+        <li>It reaches everyone already following you, instantly</li>
+        <li>No commission, no vouchers, no fee per post — ever</li>
+      </ol>
+    </div>
+    <div class="form-card">
+      <h3>Claim your spot</h3>
+      <p class="sub">We'll reach out personally before this opens to anyone else.</p>
+      <form id="restaurantForm" data-formspree="https://formspree.io/f/YOUR_FORM_ID" onsubmit="return submitForm(event, this, 'restaurantThanks')">
+        <div class="field">
+          <label for="rName">Your name</label>
+          <input id="rName" name="name" type="text" required>
+        </div>
+        <div class="field">
+          <label for="rRestaurant">Restaurant name</label>
+          <input id="rRestaurant" name="restaurant" type="text" required>
+        </div>
+        <div class="field">
+          <label for="rTown">Town</label>
+          <select id="rTown" name="town" required>
+            <option value="">Select a town</option>
+            <option>Hampton Bays</option>
+            <option>Westhampton</option>
+            <option>Southampton</option>
+            <option>Sag Harbor</option>
+            <option>East Hampton</option>
+            <option>Amagansett</option>
+            <option>Montauk</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rEmail">Email</label>
+          <input id="rEmail" name="email" type="email" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Request early access</button>
+      </form>
+      <div class="thanks" id="restaurantThanks">
+        <div class="big">You're on the list.</div>
+        <p>We'll be in touch before this opens to anyone else.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="audience" id="diners" style="background:var(--paper);">
+  <div class="wrap">
+    <div>
+      <div class="label">For Diners</div>
+      <h2>Hear about it first.</h2>
+      <p class="lede">No ads, no aggregate strangers rating a place you already trust. Just the restaurants you follow, telling you what's on.</p>
+      <ol>
+        <li>Follow the places you actually go to</li>
+        <li>See what's on, filtered by lunch, happy hour, dinner, or late night</li>
+        <li>Get one nudge — only when someone you follow posts</li>
+      </ol>
+    </div>
+    <div class="form-card">
+      <h3>Get the first invite</h3>
+      <p class="sub">We're rolling out town by town — tell us where you are.</p>
+      <form id="dinerForm" data-formspree="https://formspree.io/f/YOUR_FORM_ID_2" onsubmit="return submitForm(event, this, 'dinerThanks')">
+        <div class="field">
+          <label for="dTown">Town</label>
+          <select id="dTown" name="town" required>
+            <option value="">Select a town</option>
+            <option>Hampton Bays</option>
+            <option>Westhampton</option>
+            <option>Southampton</option>
+            <option>Sag Harbor</option>
+            <option>East Hampton</option>
+            <option>Amagansett</option>
+            <option>Montauk</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dEmail">Email</label>
+          <input id="dEmail" name="email" type="email" required>
+        </div>
+        <button type="submit" class="btn btn-bay">Notify me at launch</button>
+      </form>
+      <div class="thanks" id="dinerThanks">
+        <div class="big">You're on the list.</div>
+        <p>We'll let you know the moment your town goes live.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="where-section" id="where">
+  <div class="wrap">
+    <div class="label" style="text-align:center;">Where</div>
+    <h2>Rolling out town by town</h2>
+    <div class="chips">
+      <span class="chip">Hampton Bays</span>
+      <span class="chip">Westhampton</span>
+      <span class="chip">Southampton</span>
+      <span class="chip">Sag Harbor</span>
+      <span class="chip">East Hampton</span>
+      <span class="chip">Amagansett</span>
+      <span class="chip">Montauk</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Dock Talk — built on the South Fork, for the South Fork</span>
+    <span style="display:flex;gap:18px;align-items:center;">
+      <a href="privacy.html" style="text-decoration:none;">Privacy</a>
+      <a href="terms.html" style="text-decoration:none;">Terms</a>
+      <span>2026</span>
+    </span>
+  </div>
+</footer>
+
+<script>
+  async function submitForm(e, form, thanksId){
+    e.preventDefault();
+    const endpoint = form.getAttribute('data-formspree');
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    try{
+      const formData = new FormData(form);
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+      });
+      if(res.ok){
+        form.style.display = 'none';
+        document.getElementById(thanksId).style.display = 'block';
+      } else {
+        throw new Error('Submission failed');
+      }
+    } catch(err){
+      btn.textContent = originalText;
+      btn.disabled = false;
+      alert("Something went wrong sending that — mind trying again in a moment?");
+    }
+    return false;
+  }
+</script>
+
+</body>
+</html>
