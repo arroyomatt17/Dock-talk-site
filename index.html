@@ -259,6 +259,33 @@
     .hero h1{font-size:32px;}
     .nav-links{display:none;}
   }
+
+  /* ---------- region toggle ---------- */
+  .nav-right{display:flex;align-items:center;gap:16px;}
+  .region-toggle{
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:20px;
+    overflow:hidden;
+    background:var(--paper-light);
+  }
+  .rt-btn{
+    font-family:'Source Sans 3', sans-serif;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border:none;
+    background:transparent;
+    color:var(--ink);
+    cursor:pointer;
+    opacity:0.55;
+    transition:opacity .15s, background .15s;
+  }
+  .rt-btn:hover{opacity:0.85;}
+  .rt-btn.active{background:var(--bay);color:var(--paper-light);opacity:1;}
+  @media(max-width:720px){
+    .region-toggle{margin-left:auto;}
+  }
 </style>
 </head>
 <body>
@@ -267,36 +294,42 @@
   <div class="wrap">
     <div class="wordmark">DOCK <em>TALK</em></div>
     <div class="nav-links">
-      <a href="#restaurants">For Restaurants</a>
-      <a href="#diners">For Diners</a>
-      <a href="#where">Where</a>
+      <a href="#diners" data-i="navDiners">For Diners</a>
+      <a href="#restaurants" data-i="navRestaurants">For Restaurants</a>
+      <a href="#where" data-i="navWhere">Where</a>
     </div>
-    <a href="#restaurants" class="btn btn-primary">Get Early Access</a>
+    <div class="nav-right">
+      <div class="region-toggle">
+        <button class="rt-btn active" id="rtUs" onclick="setRegion('us')">🇺🇸 US</button>
+        <button class="rt-btn" id="rtCr" onclick="setRegion('cr')">🇨🇷 CR</button>
+      </div>
+      <a href="#restaurants" class="btn btn-primary" data-i="navCta">Get Early Access</a>
+    </div>
   </div>
 </nav>
 
 <section class="hero">
   <div class="wrap">
     <div>
-      <div class="eyebrow">South Fork, NY · Hampton Bays to Montauk</div>
-      <h1>Know what's good tonight — before you get in the car.</h1>
-      <p class="lede">Dock Talk is where South Fork restaurants post today's specials, and neighbors follow the places — and eventually the people — they already trust. No delivery, no ordering, no ratings from strangers.</p>
+      <div class="eyebrow" data-i="heroEyebrow">South Fork, NY · Hampton Bays to Montauk</div>
+      <h1 data-i="heroTitle">Know what's good tonight — before you get in the car.</h1>
+      <p class="lede" data-i="heroLede">Dock Talk is where South Fork restaurants post today's specials, and neighbors follow the places — and eventually the people — they already trust. No delivery, no ordering, no ratings from strangers.</p>
       <div class="cta-row">
-        <a href="#restaurants" class="btn btn-primary">I run a restaurant</a>
-        <a href="#diners" class="btn btn-outline">I just want the tips</a>
+        <a href="#restaurants" class="btn btn-primary" data-i="heroCta1">I run a restaurant</a>
+        <a href="#diners" class="btn btn-outline" data-i="heroCta2">I just want the tips</a>
       </div>
     </div>
     <div class="card-wrap">
       <div class="pin"></div>
       <div class="special-card">
-        <span class="tag">Happy Hour · 4–7pm</span>
-        <h3>Harbor House Fish Co.</h3>
-        <p class="note">Half off oysters til 7 — the raw bar just shucked a fresh batch of littlenecks too.</p>
+        <span class="tag" data-i="cardTag">Happy Hour · 4–7pm</span>
+        <h3 data-i="cardName">Harbor House Fish Co.</h3>
+        <p class="note" data-i="cardNote">Half off oysters til 7 — the raw bar just shucked a fresh batch of littlenecks too.</p>
         <div class="meta">
-          <span>Posted by Dana · 4:12pm</span>
-          <span>0.8 mi away</span>
+          <span data-i="cardBy">Posted by Dana · 4:12pm</span>
+          <span data-i="cardDist">0.8 mi away</span>
         </div>
-        <span class="follow">Following</span>
+        <span class="follow" data-i="cardFollow">Following</span>
       </div>
     </div>
   </div>
@@ -305,27 +338,27 @@
 <section class="strip-section">
   <div class="wrap">
     <div class="strip-header">
-      <div class="label" style="text-align:center;">Tonight, Nearby</div>
-      <h2>What's actually on the board right now</h2>
+      <div class="label" style="text-align:center;" data-i="stripLabel">Tonight, Nearby</div>
+      <h2 data-i="stripTitle">What's actually on the board</h2>
     </div>
     <div class="strip">
       <div class="mini-card">
-        <span class="tag">Lunch</span>
-        <h4>Bay Street Lobster Shack</h4>
-        <p>Lobster roll special, $18, while the tide's in.</p>
-        <div class="meta">Posted 11:40am</div>
+        <span class="tag" data-i="slotLunch">Lunch</span>
+        <h4 data-i="m1name">Bay Street Lobster Shack</h4>
+        <p data-i="m1text">Lobster roll special, $18, while the tide's in.</p>
+        <div class="meta" data-i="m1time">Posted 11:40am</div>
       </div>
       <div class="mini-card">
-        <span class="tag">Dinner</span>
-        <h4>Osteria Del Porto</h4>
-        <p>Off-menu striped bass tonight — ask for it by name.</p>
-        <div class="meta">Posted 5:05pm</div>
+        <span class="tag" data-i="slotDinner">Dinner</span>
+        <h4 data-i="m2name">Osteria Del Porto</h4>
+        <p data-i="m2text">Off-menu striped bass tonight — ask for it by name.</p>
+        <div class="meta" data-i="m2time">Posted 5:05pm</div>
       </div>
       <div class="mini-card">
-        <span class="tag">Late Night</span>
-        <h4>The Tin Roof</h4>
-        <p>Kitchen's open til midnight, half-off flatbreads after 10.</p>
-        <div class="meta">Posted 9:52pm</div>
+        <span class="tag" data-i="slotLate">Late Night</span>
+        <h4 data-i="m3name">The Tin Roof</h4>
+        <p data-i="m3text">Kitchen's open til midnight, half-off flatbreads after 10.</p>
+        <div class="meta" data-i="m3time">Posted 9:52pm</div>
       </div>
     </div>
   </div>
@@ -334,12 +367,12 @@
 <section class="thesis-section">
   <div class="wrap thesis-grid">
     <div>
-      <div class="label">The Insight</div>
-      <p class="quote">The South Fork already runs on word of mouth — a text from a friend, a tip from the bartender, the specials board nobody photographs. Big delivery apps were built to remove the human from the transaction. Dock Talk puts it back.</p>
+      <div class="label" data-i="insightLabel">The Insight</div>
+      <p class="quote" data-i="insightBody">The South Fork already runs on word of mouth — a text from a friend, a tip from the bartender, the specials board nobody photographs. Big delivery apps were built to remove the human from the transaction. Dock Talk puts it back.</p>
     </div>
     <div>
-      <div class="label">What It Is</div>
-      <p class="what-it-is"><strong>A place for restaurants to post today's specials the way they'd tell a regular — and for locals to hear it first.</strong>
+      <div class="label" data-i="whatLabel">What It Is</div>
+      <p class="what-it-is" data-ihtml="whatBody"><strong>A place for restaurants to post today's specials the way they'd tell a regular — and for locals to hear it first.</strong>
       No delivery, no ordering, no ratings from strangers. Just what's on, right now, from restaurants you already follow.</p>
     </div>
   </div>
@@ -348,101 +381,50 @@
 <section class="compare-section">
   <div class="wrap">
     <div class="center-label">
-      <div class="label" style="text-align:center;">Why It's Different</div>
-      <h2>Not another delivery app</h2>
+      <div class="label" style="text-align:center;" data-i="cmpLabel">Why It's Different</div>
+      <h2 data-i="cmpTitle">Not another delivery app</h2>
     </div>
     <div class="compare-grid">
       <div class="compare-col feels">
-        <h4>Feels Like</h4>
+        <h4 data-i="feelsLike">Feels Like</h4>
         <ul>
-          <li>A tip from someone who actually eats there</li>
-          <li>Following a favorite restaurant — and later, a favorite bartender</li>
-          <li>A quiet, well-timed nudge</li>
-          <li>The local paper's specials column, digitized</li>
+          <li data-i="f1">A tip from someone who actually eats there</li>
+          <li data-i="f2">Following a favorite restaurant — and later, a favorite bartender</li>
+          <li data-i="f3">A quiet, well-timed nudge</li>
+          <li data-i="f4">The local paper's specials column, digitized</li>
         </ul>
       </div>
       <div class="compare-col not">
-        <h4>Not</h4>
+        <h4 data-i="notLabel">Not</h4>
         <ul>
-          <li>A coupon marketplace</li>
-          <li>An algorithm ranking who paid the most</li>
-          <li>A push-notification firehose</li>
-          <li>A delivery app with reviews bolted on</li>
+          <li data-i="n1">A coupon marketplace</li>
+          <li data-i="n2">An algorithm ranking who paid the most</li>
+          <li data-i="n3">A push-notification firehose</li>
+          <li data-i="n4">A delivery app with reviews bolted on</li>
         </ul>
       </div>
     </div>
   </div>
 </section>
 
-<section class="audience" id="restaurants">
+<section class="audience" id="diners">
   <div class="wrap">
     <div>
-      <div class="label">For Restaurants</div>
-      <h2>Post it like you'd tell a regular.</h2>
-      <p class="lede">Free to join, free to post — forever. We're hand-picking the first 30 restaurants on the South Fork before this opens to anyone else.</p>
+      <div class="label" data-i="dinersLabel">For Diners</div>
+      <h2 data-i="dinersTitle">Hear about it first.</h2>
+      <p class="lede" data-i="dinersLede">No ads, no aggregate strangers rating a place you already trust. Just the restaurants you follow, telling you what's on.</p>
       <ol>
-        <li>Post today's special — a photo, one line, done in under 30 seconds</li>
-        <li>It reaches everyone already following you, instantly</li>
-        <li>No commission, no vouchers, no fee per post — ever</li>
+        <li data-i="d1">Follow the places you actually go to</li>
+        <li data-i="d2">See what's on, filtered by lunch, happy hour, dinner, or late night</li>
+        <li data-i="d3">Get one nudge — only when someone you follow posts</li>
       </ol>
     </div>
     <div class="form-card">
-      <h3>Claim your spot</h3>
-      <p class="sub">We'll reach out personally before this opens to anyone else.</p>
-      <form id="restaurantForm" data-formspree="https://formspree.io/f/xaewezqg" onsubmit="return submitForm(event, this, 'restaurantThanks')">
-        <div class="field">
-          <label for="rName">Your name</label>
-          <input id="rName" name="name" type="text" required>
-        </div>
-        <div class="field">
-          <label for="rRestaurant">Restaurant name</label>
-          <input id="rRestaurant" name="restaurant" type="text" required>
-        </div>
-        <div class="field">
-          <label for="rTown">Town</label>
-          <select id="rTown" name="town" required>
-            <option value="">Select a town</option>
-            <option>Hampton Bays</option>
-            <option>Westhampton</option>
-            <option>Southampton</option>
-            <option>Sag Harbor</option>
-            <option>East Hampton</option>
-            <option>Amagansett</option>
-            <option>Montauk</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="rEmail">Email</label>
-          <input id="rEmail" name="email" type="email" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Request early access</button>
-      </form>
-      <div class="thanks" id="restaurantThanks">
-        <div class="big">You're on the list.</div>
-        <p>We'll be in touch before this opens to anyone else.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="audience" id="diners" style="background:var(--paper);">
-  <div class="wrap">
-    <div>
-      <div class="label">For Diners</div>
-      <h2>Hear about it first.</h2>
-      <p class="lede">No ads, no aggregate strangers rating a place you already trust. Just the restaurants you follow, telling you what's on.</p>
-      <ol>
-        <li>Follow the places you actually go to</li>
-        <li>See what's on, filtered by lunch, happy hour, dinner, or late night</li>
-        <li>Get one nudge — only when someone you follow posts</li>
-      </ol>
-    </div>
-    <div class="form-card">
-      <h3>Get the first invite</h3>
-      <p class="sub">We're rolling out town by town — tell us where you are.</p>
+      <h3 data-i="dinerFormTitle">Get the first invite</h3>
+      <p class="sub" data-i="dinerFormSub">We're rolling out town by town — tell us where you are.</p>
       <form id="dinerForm" data-formspree="https://formspree.io/f/myegeaey" onsubmit="return submitForm(event, this, 'dinerThanks')">
         <div class="field">
-          <label for="dTown">Town</label>
+          <label for="dTown" data-i="lblTown">Town</label>
           <select id="dTown" name="town" required>
             <option value="">Select a town</option>
             <option>Hampton Bays</option>
@@ -455,14 +437,65 @@
           </select>
         </div>
         <div class="field">
-          <label for="dEmail">Email</label>
+          <label for="dEmail" data-i="lblEmail">Email</label>
           <input id="dEmail" name="email" type="email" required>
         </div>
-        <button type="submit" class="btn btn-bay">Notify me at launch</button>
+        <button type="submit" class="btn btn-bay" data-i="dinerSubmit">Notify me at launch</button>
       </form>
       <div class="thanks" id="dinerThanks">
-        <div class="big">You're on the list.</div>
-        <p>We'll let you know the moment your town goes live.</p>
+        <div class="big" data-i="thanksBig">You're on the list.</div>
+        <p data-i="dinerThanksSub">We'll let you know the moment your town goes live.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="audience" id="restaurants" style="background:var(--paper);">
+  <div class="wrap">
+    <div>
+      <div class="label" data-i="restLabel">For Restaurants</div>
+      <h2 data-i="restTitle">Post it like you'd tell a regular.</h2>
+      <p class="lede" data-i="restLede">Free to join, free to post — forever. We're hand-picking the first 30 restaurants on the South Fork before this opens to anyone else.</p>
+      <ol>
+        <li data-i="r1">Post today's special — a photo, one line, done in under 30 seconds</li>
+        <li data-i="r2">It reaches everyone already following you, instantly</li>
+        <li data-i="r3">No commission, no vouchers, no fee per post — ever</li>
+      </ol>
+    </div>
+    <div class="form-card">
+      <h3 data-i="restFormTitle">Claim your spot</h3>
+      <p class="sub" data-i="restFormSub">We'll reach out personally before this opens to anyone else.</p>
+      <form id="restaurantForm" data-formspree="https://formspree.io/f/xaewezqg" onsubmit="return submitForm(event, this, 'restaurantThanks')">
+        <div class="field">
+          <label for="rName" data-i="lblName">Your name</label>
+          <input id="rName" name="name" type="text" required>
+        </div>
+        <div class="field">
+          <label for="rRestaurant" data-i="lblRest">Restaurant name</label>
+          <input id="rRestaurant" name="restaurant" type="text" required>
+        </div>
+        <div class="field">
+          <label for="rTown" data-i="lblTown2">Town</label>
+          <select id="rTown" name="town" required>
+            <option value="">Select a town</option>
+            <option>Hampton Bays</option>
+            <option>Westhampton</option>
+            <option>Southampton</option>
+            <option>Sag Harbor</option>
+            <option>East Hampton</option>
+            <option>Amagansett</option>
+            <option>Montauk</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rEmail" data-i="lblEmail2">Email</label>
+          <input id="rEmail" name="email" type="email" required>
+        </div>
+        <button type="submit" class="btn btn-primary" data-i="restSubmit">Request early access</button>
+      </form>
+      <div class="thanks" id="restaurantThanks">
+        <div class="big" data-i="thanksBig2">You're on the list.</div>
+        <p data-i="restThanksSub">We'll be in touch before this opens to anyone else.</p>
       </div>
     </div>
   </div>
@@ -470,11 +503,11 @@
 
 <section class="where-section" id="where">
   <div class="wrap">
-    <div class="label" style="text-align:center;">Where</div>
-    <h2>Rolling out town by town</h2>
+    <div class="label" style="text-align:center;" data-i="whereLabel">Where</div>
+    <h2 data-i="whereTitle">Rolling out town by town</h2>
     <div class="chips">
-      <span class="chip">Hampton Bays</span>
       <span class="chip">Westhampton</span>
+      <span class="chip">Hampton Bays</span>
       <span class="chip">Southampton</span>
       <span class="chip">Sag Harbor</span>
       <span class="chip">East Hampton</span>
@@ -486,44 +519,203 @@
 
 <footer>
   <div class="wrap">
-    <span>Dock Talk — built on the South Fork, for the South Fork</span>
+    <span data-i="footTag">Dock Talk — built on the South Fork, for the South Fork</span>
     <span style="display:flex;gap:18px;align-items:center;">
-      <a href="privacy.html" style="text-decoration:none;">Privacy</a>
-      <a href="terms.html" style="text-decoration:none;">Terms</a>
+      <a href="privacy.html" style="text-decoration:none;" data-i="footPrivacy">Privacy</a>
+      <a href="terms.html" style="text-decoration:none;" data-i="footTerms">Terms</a>
       <span>2026</span>
     </span>
   </div>
 </footer>
 
 <script>
-  async function submitForm(e, form, thanksId){
-    e.preventDefault();
-    const endpoint = form.getAttribute('data-formspree');
-    const btn = form.querySelector('button[type="submit"]');
-    const originalText = btn.textContent;
-    btn.textContent = 'Sending...';
-    btn.disabled = true;
+/* ══════════════ REGION CONTENT ══════════════ */
+const TOWNS = {
+  us:["Westhampton","Hampton Bays","Southampton","Sag Harbor","East Hampton","Amagansett","Montauk"],
+  cr:["Tamarindo","Nosara","Sámara","Playas del Coco","Playa Flamingo","Potrero","Liberia"]
+};
 
-    try{
-      const formData = new FormData(form);
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
-        headers: { 'Accept': 'application/json' }
-      });
-      if(res.ok){
-        form.style.display = 'none';
-        document.getElementById(thanksId).style.display = 'block';
-      } else {
-        throw new Error('Submission failed');
-      }
-    } catch(err){
-      btn.textContent = originalText;
-      btn.disabled = false;
-      alert("Something went wrong sending that — mind trying again in a moment?");
+const COPY = {
+us:{
+  htmlLang:"en", docTitle:"Dock Talk — South Fork Specials, From People Who'd Know",
+  navDiners:"For Diners", navRestaurants:"For Restaurants", navWhere:"Where", navCta:"Get Early Access",
+  heroEyebrow:"South Fork, NY · Hampton Bays to Montauk",
+  heroTitle:"Know what's good tonight — before you get in the car.",
+  heroLede:"Dock Talk is where South Fork restaurants post today's specials, and neighbors follow the places — and eventually the people — they already trust. No delivery, no ordering, no ratings from strangers.",
+  heroCta1:"I run a restaurant", heroCta2:"I just want the tips",
+  cardTag:"Happy Hour · 4–7pm", cardName:"Harbor House Fish Co.",
+  cardNote:"Half off oysters til 7 — the raw bar just shucked a fresh batch of littlenecks too.",
+  cardBy:"Posted by Dana · 4:12pm", cardDist:"0.8 mi away", cardFollow:"Following",
+  stripLabel:"Tonight, Nearby", stripTitle:"What's actually on the board",
+  slotLunch:"Lunch", slotDinner:"Dinner", slotLate:"Late Night",
+  m1name:"Bay Street Lobster Shack", m1text:"Lobster roll special, $18, while the tide's in.", m1time:"Posted 11:40am",
+  m2name:"Osteria Del Porto", m2text:"Off-menu striped bass tonight — ask for it by name.", m2time:"Posted 5:05pm",
+  m3name:"The Tin Roof", m3text:"Kitchen's open til midnight, half-off flatbreads after 10.", m3time:"Posted 9:52pm",
+  insightLabel:"The Insight",
+  insightBody:"The South Fork already runs on word of mouth — a text from a friend, a tip from the bartender, the specials board nobody photographs. Big delivery apps were built to remove the human from the transaction. Dock Talk puts it back.",
+  whatLabel:"What It Is",
+  whatBody:"<strong>A place for restaurants to post today's specials the way they'd tell a regular — and for locals to hear it first.</strong> No delivery, no ordering, no ratings from strangers. Just what's on, right now, from restaurants you already follow.",
+  cmpLabel:"Why It's Different", cmpTitle:"Not another delivery app",
+  feelsLike:"Feels Like",
+  f1:"A tip from someone who actually eats there",
+  f2:"Following a favorite restaurant — and later, a favorite bartender",
+  f3:"A quiet, well-timed nudge",
+  f4:"The local paper's specials column, digitized",
+  notLabel:"Not",
+  n1:"A coupon marketplace", n2:"An algorithm ranking who paid the most",
+  n3:"A push-notification firehose", n4:"A delivery app with reviews bolted on",
+  dinersLabel:"For Diners", dinersTitle:"Hear about it first.",
+  dinersLede:"No ads, no aggregate strangers rating a place you already trust. Just the restaurants you follow, telling you what's on.",
+  d1:"Follow the places you actually go to",
+  d2:"See what's on, filtered by lunch, happy hour, dinner, or late night",
+  d3:"Get one nudge — only when someone you follow posts",
+  dinerFormTitle:"Get the first invite", dinerFormSub:"We're rolling out town by town — tell us where you are.",
+  lblTown:"Town", lblEmail:"Email", dinerSubmit:"Notify me at launch",
+  thanksBig:"You're on the list.", dinerThanksSub:"We'll let you know the moment your town goes live.",
+  restLabel:"For Restaurants", restTitle:"Post it like you'd tell a regular.",
+  restLede:"Free to join, free to post — forever. We're hand-picking the first 30 restaurants on the South Fork before this opens to anyone else.",
+  r1:"Post today's special — a photo, one line, done in under 30 seconds",
+  r2:"It reaches everyone already following you, instantly",
+  r3:"No commission, no vouchers, no fee per post — ever",
+  restFormTitle:"Claim your spot", restFormSub:"We'll reach out personally before this opens to anyone else.",
+  lblName:"Your name", lblRest:"Restaurant name", lblTown2:"Town", lblEmail2:"Email",
+  restSubmit:"Request early access",
+  thanksBig2:"You're on the list.", restThanksSub:"We'll be in touch before this opens to anyone else.",
+  whereLabel:"Where", whereTitle:"Rolling out town by town",
+  footTag:"Dock Talk — built on the South Fork, for the South Fork",
+  footPrivacy:"Privacy", footTerms:"Terms",
+  selectTown:"Select a town", sending:"Sending...",
+  errMsg:"Something went wrong sending that — mind trying again in a moment?"
+},
+cr:{
+  htmlLang:"es", docTitle:"Dock Talk — Especiales de Guanacaste, de quien sí sabe",
+  navDiners:"Para vecinos", navRestaurants:"Para restaurantes", navWhere:"Dónde", navCta:"Acceso anticipado",
+  heroEyebrow:"Guanacaste, Costa Rica · De Tamarindo a Liberia",
+  heroTitle:"Sabé qué está bueno hoy — antes de salir de la casa.",
+  heroLede:"Dock Talk es donde los restaurantes de Guanacaste publican el especial del día, y los vecinos siguen los lugares — y con el tiempo, a la gente — en los que ya confían. Sin delivery, sin pedidos, sin calificaciones de desconocidos.",
+  heroCta1:"Tengo un restaurante", heroCta2:"Solo quiero los datos",
+  cardTag:"Happy Hour · 4–6pm", cardName:"Rancho Marea",
+  cardNote:"Ceviche 2x1 hasta el atardecer — la corvina llegó fresquita esta mañana.",
+  cardBy:"Publicado por Marisol · 4:12pm", cardDist:"a 1,2 km", cardFollow:"Siguiendo",
+  stripLabel:"Hoy, cerca de vos", stripTitle:"Lo que está en la pizarra ahora",
+  slotLunch:"Almuerzo", slotDinner:"Cena", slotLate:"Noche",
+  m1name:"Soda La Ceiba", m1text:"Casado del día con pollo a la plancha — ₡3.500, con fresco de cas.", m1time:"Publicado 11:40am",
+  m2name:"Olas de Nosara", m2text:"Pargo rojo entero al horno de leña — solo quedan 8 esta noche.", m2time:"Publicado 5:05pm",
+  m3name:"Bar Tropical", m3text:"Cocina abierta hasta medianoche, patacones a mitad de precio después de las 10.", m3time:"Publicado 9:52pm",
+  insightLabel:"La idea",
+  insightBody:"Guanacaste ya funciona de boca en boca — un mensaje de un amigo, el dato del bartender, la pizarra que nadie fotografía. Las apps grandes de delivery se construyeron para sacar a la persona de la transacción. Dock Talk la vuelve a poner.",
+  whatLabel:"Qué es",
+  whatBody:"<strong>Un lugar para que los restaurantes publiquen el especial del día como se lo contarían a un cliente de siempre — y para que la gente del pueblo se entere primero.</strong> Sin delivery, sin pedidos, sin calificaciones de desconocidos. Solo: qué hay, ahora mismo, de los restaurantes que ya seguís.",
+  cmpLabel:"Por qué es distinto", cmpTitle:"No es otra app de delivery",
+  feelsLike:"Se siente como",
+  f1:"El dato de alguien que sí come ahí",
+  f2:"Seguir a tu restaurante favorito — y luego, a tu bartender favorito",
+  f3:"Un aviso tranquilo y a buena hora",
+  f4:"La pizarra del pueblo, digitalizada",
+  notLabel:"No es",
+  n1:"Un mercado de cupones", n2:"Un algoritmo que ordena según quién pagó más",
+  n3:"Una lluvia de notificaciones", n4:"Una app de delivery con reseñas encima",
+  dinersLabel:"Para vecinos", dinersTitle:"Enterate primero.",
+  dinersLede:"Sin anuncios, sin desconocidos calificando un lugar en el que ya confiás. Solo los restaurantes que seguís, contándote qué hay.",
+  d1:"Seguí los lugares a los que de verdad vas",
+  d2:"Mirá qué hay, filtrado por almuerzo, happy hour, cena o noche",
+  d3:"Un solo aviso — solo cuando publica alguien que seguís",
+  dinerFormTitle:"Recibí la primera invitación", dinerFormSub:"Vamos pueblo por pueblo — contanos dónde estás.",
+  lblTown:"Pueblo", lblEmail:"Correo", dinerSubmit:"Avisame cuando abra",
+  thanksBig:"Ya estás en la lista.", dinerThanksSub:"Te avisamos apenas tu pueblo esté activo.",
+  restLabel:"Para restaurantes", restTitle:"Publicalo como se lo contarías a un cliente de siempre.",
+  restLede:"Gratis para unirse, gratis para publicar — siempre. Estamos escogiendo a mano los primeros 30 restaurantes de Guanacaste antes de abrir esto a todos.",
+  r1:"Publicá el especial de hoy — una foto, una línea, listo en menos de 30 segundos",
+  r2:"Le llega al instante a todos los que ya te siguen",
+  r3:"Sin comisión, sin cupones, sin cobro por publicación — nunca",
+  restFormTitle:"Apartá tu lugar", restFormSub:"Te contactamos personalmente antes de abrir esto a todos.",
+  lblName:"Tu nombre", lblRest:"Nombre del restaurante", lblTown2:"Pueblo", lblEmail2:"Correo",
+  restSubmit:"Pedir acceso anticipado",
+  thanksBig2:"Ya estás en la lista.", restThanksSub:"Te contactamos antes de abrir esto a todos.",
+  whereLabel:"Dónde", whereTitle:"Vamos pueblo por pueblo",
+  footTag:"Dock Talk — hecho en Guanacaste, para Guanacaste",
+  footPrivacy:"Privacidad", footTerms:"Términos",
+  selectTown:"Seleccioná un pueblo", sending:"Enviando...",
+  errMsg:"Algo salió mal al enviar — ¿probás de nuevo en un momento?"
+}
+};
+
+let region = 'us';
+
+function setRegion(r){
+  region = r;
+  const C = COPY[r];
+
+  document.documentElement.lang = C.htmlLang;
+  document.title = C.docTitle;
+
+  document.querySelectorAll('[data-i]').forEach(el=>{
+    const v = C[el.getAttribute('data-i')];
+    if(v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('[data-ihtml]').forEach(el=>{
+    const v = C[el.getAttribute('data-ihtml')];
+    if(v !== undefined) el.innerHTML = v;
+  });
+
+  // town dropdowns + chips
+  ['dTown','rTown'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML = `<option value="">${C.selectTown}</option>` +
+      TOWNS[r].map(t=>`<option>${t}</option>`).join('');
+  });
+  const chips = document.querySelector('.chips');
+  if(chips) chips.innerHTML = TOWNS[r].map(t=>`<span class="chip">${t}</span>`).join('\n');
+
+  // toggle state
+  document.getElementById('rtUs').classList.toggle('active', r==='us');
+  document.getElementById('rtCr').classList.toggle('active', r==='cr');
+
+  try{ localStorage.setItem('dt-region', r); }catch(e){}
+}
+
+/* ══════════════ FORM SUBMIT ══════════════ */
+async function submitForm(e, form, thanksId){
+  e.preventDefault();
+  const endpoint = form.getAttribute('data-formspree');
+  const btn = form.querySelector('button[type="submit"]');
+  const originalText = btn.textContent;
+  btn.textContent = COPY[region].sending;
+  btn.disabled = true;
+
+  try{
+    const formData = new FormData(form);
+    formData.append('region', region === 'us' ? 'South Fork' : 'Guanacaste');
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+    if(res.ok){
+      form.style.display = 'none';
+      document.getElementById(thanksId).style.display = 'block';
+    } else {
+      throw new Error('Submission failed');
     }
-    return false;
+  } catch(err){
+    btn.textContent = originalText;
+    btn.disabled = false;
+    alert(COPY[region].errMsg);
   }
+  return false;
+}
+
+/* ══════════════ INIT ══════════════ */
+(function(){
+  let start = 'us';
+  try{
+    const saved = localStorage.getItem('dt-region');
+    if(saved === 'us' || saved === 'cr') start = saved;
+    else if((navigator.language||'').toLowerCase().startsWith('es')) start = 'cr';
+  }catch(e){}
+  setRegion(start);
+})();
 </script>
 
 </body>
