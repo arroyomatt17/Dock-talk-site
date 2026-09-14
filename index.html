@@ -36,6 +36,8 @@ html,body{min-height:100%;background:var(--sand-light);color:var(--ink);font-fam
 .nav-login{font-size:13px;color:var(--sea);background:none;border:1px solid var(--line);padding:7px 16px;
   border-radius:20px;cursor:pointer;font-family:inherit;font-weight:600;display:none;}
 .nav-login:hover{background:var(--sea-light);}
+.nav-login.nav-avatar{border-radius:50%;width:34px;height:34px;padding:0;line-height:32px;text-align:center;background:var(--sea);color:#fff;border:none;font-size:12px;}
+.nav-login.nav-avatar:hover{background:var(--forest);}
 .lang-select{font-size:12.5px;font-family:inherit;font-weight:600;color:var(--ink);background:#fff;
   border:1px solid var(--line);border-radius:20px;padding:7px 10px;cursor:pointer;outline:none;}
 
@@ -375,7 +377,7 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
         <h3 data-i18n="dinerWelcomeTitle"></h3>
         <p data-i18n="dinerWelcomeBody"></p>
       </div>
-      <button class="btn btn-sea" style="margin-top:6px;" onclick="continueToDinerApp()" data-i18n="dinerWelcomeCta"></button>
+      <button class="btn btn-sea" style="margin-top:6px;" onclick="showStep('stepDiner')" data-i18n="dinerWelcomeCta"></button>
       <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:14px;">
         <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="startOverDinerSignup()" data-i18n="dinerEditInfo"></span>
       </p>
@@ -388,12 +390,16 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
         <label data-i18n="email"></label>
         <input id="lEmail" type="email" placeholder="you@restaurant.com">
       </div>
+      <div class="field">
+        <label data-i18n="password"></label>
+        <input id="lPassword" type="password" placeholder="••••••••">
+      </div>
       <br>
-      <button class="btn btn-sea" onclick="submitLogin()" data-i18n="sendCode"></button>
+      <button class="btn btn-sea" onclick="submitLogin()" data-i18n="restaurantLoginCta"></button>
       <div class="status-msg" id="loginStatus"></div>
       <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
         <span data-i18n="newRestaurant"></span>
-        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepSignup')" data-i18n="signUp"></span>
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepSignup')" data-i18n="restaurantSignUpCta"></span>
       </p>
       <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:16px;text-align:center;">
         <p style="margin-top:14px;">
@@ -405,8 +411,42 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
     <div class="r-card step" id="stepSignup">
       <h2 data-i18n="claimSpot"></h2>
       <div class="r-sub" data-i18n="claimSub"></div>
+      <div class="field">
+        <label data-i18n="yourName"></label>
+        <input id="rsName" type="text" placeholder="">
+      </div>
+      <div class="field">
+        <label data-i18n="yourTown"></label>
+        <select id="rsTown"></select>
+      </div>
+      <div class="field">
+        <label data-i18n="yourPhone"></label>
+        <input id="rsPhone" type="tel" placeholder="">
+      </div>
+      <div class="field">
+        <label data-i18n="email"></label>
+        <input id="rsEmail" type="email" placeholder="you@restaurant.com">
+      </div>
+      <div class="field">
+        <label data-i18n="password"></label>
+        <input id="rsPassword" type="password" placeholder="••••••••">
+      </div>
       <br>
-      <a class="btn btn-sea" style="display:block;text-align:center;text-decoration:none;" href="mailto:arroyo.matt17@gmail.com?subject=Dock%20Talk%20-%20Restaurant%20signup&body=Restaurant%20name%3A%0ATown%3A%0APhone%3A%0A" data-i18n="emailUsCta"></a><button class="btn-ghost btn-sm btn" style="width:auto;margin-top:10px;" onclick="showStep('stepLogin')" data-i18n="logIn"></button>
+      <button class="btn btn-sea" onclick="submitRestaurantSignup()" data-i18n="restaurantSignupCta"></button>
+      <div class="status-msg" id="restaurantSignupStatus"></div>
+      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
+        <span data-i18n="alreadyHaveAccount"></span>
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepLogin')" data-i18n="logIn"></span>
+      </p>
+    </div>
+
+    <div class="r-card step" id="stepRestaurantWelcome">
+      <div class="pending-box">
+        <div class="pending-icon">🌴</div>
+        <h3 data-i18n="restaurantWelcomeTitle"></h3>
+        <p data-i18n="restaurantWelcomeBody"></p>
+      </div>
+      <button class="btn btn-sea" style="margin-top:6px;" onclick="showStep('stepLogin')" data-i18n="restaurantWelcomeCta"></button>
     </div>
 
     <div class="r-card step" id="stepVerify">
@@ -504,7 +544,7 @@ hours:"Hours",location:"Location",phone:"Phone",menu:"Menu",
 notListed:"Not listed",
 dinerJoin:"Get the first invite",dinerSub:"We'll tell you when restaurants near you post something good. No spam, no ads.",dinerTownHint:"We'll start with specials in your town.",dinerCta:"Join the list",restaurantInstead:"Run a restaurant?",restaurantSignIn:"Sign in as a restaurant",backToDiner:"← Back to diner sign-up",dinerDoneTitle:"You're on the list",dinerDoneBody:"We'll email you when {town} restaurants start posting.",enterEmail:"Enter a valid email.",selectTown:"Select your town.",addPhoto:"Photo (optional)",choosePhoto:"Add a photo",changePhoto:"Change photo",photoHint:"A quick phone shot works better than a stock image.",forDiners:"For diners",forRestaurants:"For restaurants",welcomeBack:"Welcome back",loginSub:"Enter your email and we'll send you a magic link.",
 sendCode:"Send magic link",newRestaurant:"New restaurant? ",signUp:"Learn more",
-claimSpot:"Want Dock Talk at your restaurant?",claimSub:"We onboard restaurants personally — reach out and we'll get you set up with a login in minutes.",emailUsCta:"Email us to get set up",
+claimSpot:"Want Dock Talk at your restaurant?",claimSub:"Create your own login below — once we verify your restaurant you can start posting.",emailUsCta:"Email us to get set up",restaurantLoginCta:"Log in",restaurantSignUpCta:"Sign up",yourPhone:"Phone",restaurantSignupCta:"Create restaurant account",restaurantWelcomeTitle:"Account created",restaurantWelcomeBody:"Log in anytime to check your status. Once we verify your restaurant, you'll be able to post specials right away.",restaurantWelcomeCta:"Go to log in",
 restaurantName:"Restaurant name",yourName:"Your name",town:"Town",email:"Email",
 
 sendVerification:"Send verification code",haveAccount:"Already have an account? ",logIn:"Back to login",
@@ -524,7 +564,7 @@ noAccount:"No restaurant found for that email. We onboard restaurants personally
 enterPhone:"Enter your phone number.",fullCode:"Enter the full 6-digit code.",enterLoginEmail:"Enter a valid email.",
 linkSent:"Link sent — check your inbox (and spam folder).",pendingApproval:"Your account is under review. We'll be in touch shortly.",
 loadError:"Couldn't load that right now — try again in a moment.",
-dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you trust and come back anytime.",dinerAcctCta:"Log in",password:"Password",enterPassword:"Enter your password.",badLogin:"That email and password don't match. Try again, or sign up below.",newDiner:"New here?",dinerSignUp:"Create an account",dinerSignupTitle:"Create your account",dinerSignupSub:"Tell us a bit about you — it only takes a minute.",yourName:"Your name",yourTown:"Your town",dinerSignupCta:"Create account",alreadyHaveAccount:"Already have an account?",dinerLogIn:"Log in",passwordTooShort:"Password must be at least 6 characters.",dinerWelcomeTitle:"Thanks — we've got it",dinerWelcomeBody:"We've received your info and we're setting up your account. You're already in — dig in and save your favorites.",dinerWelcomeCta:"Continue to Dock Talk",dinerEditInfo:"Need to fix something? Re-enter your info",
+dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you trust and come back anytime.",dinerAcctCta:"Log in",password:"Password",enterPassword:"Enter your password.",badLogin:"That email and password don't match. Try again, or sign up below.",newDiner:"New here?",dinerSignUp:"Create an account",dinerSignupTitle:"Create your account",dinerSignupSub:"Tell us a bit about you — it only takes a minute.",yourName:"Your name",yourTown:"Your town",dinerSignupCta:"Create account",alreadyHaveAccount:"Already have an account?",dinerLogIn:"Log in",passwordTooShort:"Password must be at least 6 characters.",dinerWelcomeTitle:"Account created",dinerWelcomeBody:"Log in with your new email and password to start browsing and saving your favorites.",dinerWelcomeCta:"Go to log in",dinerEditInfo:"Need to fix something? Re-enter your info",navLogIn:"Log in",
 myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites"},
 
@@ -723,7 +763,6 @@ let selTowns=new Set(), selSlots=new Set(), showFavoritesOnly=false;
 let currentRestaurant=null, detailR=null, activeIcons=new Set(), history=['screenIntro'], feedCache=[];
 let pendingLoginEmail=null, gateIntent='diner';
 let currentDiner=null, favoritesSet=new Set();
-let dinerJustSignedUp=false;
 
 /* ══════════ i18n APPLY ══════════ */
 function setLang(l){
@@ -746,6 +785,7 @@ function setLang(l){
   if(document.getElementById('photoBtnText')) renderPhotoThumb();
   fillSelect('pSlot',t('slots'),t('selectOpt'));
   fillSelect('dsTown',TOWNS,t('selectTown'));
+  fillSelect('rsTown',TOWNS,t('selectTown'));
   buildSample(); buildFilters();
   if(document.getElementById('screenDiner').classList.contains('active')) loadFeed();
   if(detailR && document.getElementById('screenDetail').classList.contains('active')) openDetail(detailR.id);
@@ -903,15 +943,28 @@ async function loadFavoritesScreen(){
       <div class="fc-meta"><span>${esc(r.town)}</span></div>
     </div>`).join('');
 }
+function initialsFor(name,email){
+  if(name && name.trim()){
+    const parts=name.trim().split(/\s+/);
+    const first=parts[0][0]||'';
+    const last=parts.length>1?parts[parts.length-1][0]:'';
+    return (first+last).toUpperCase();
+  }
+  return (email||'?').slice(0,2).toUpperCase();
+}
 function refreshNavLogin(){
   const btn=document.getElementById('navLogin');
   if(!btn) return;
   if(currentDiner){
-    btn.textContent='♥ '+t('myFavorites');
+    btn.textContent=initialsFor(currentDiner.name, currentDiner.email);
+    btn.title=t('myFavorites');
+    btn.classList.add('nav-avatar');
     btn.onclick=()=>goScreen('screenFavorites');
   } else {
-    btn.textContent=t('logIn');
-    btn.onclick=()=>goScreen('screenGate');
+    btn.classList.remove('nav-avatar');
+    btn.removeAttribute('title');
+    btn.textContent=t('navLogIn');
+    btn.onclick=()=>{ goScreen('screenGate'); showStep('stepDiner'); };
   }
 }
 
@@ -1028,42 +1081,57 @@ async function submitDinerSignup(){
   if(password.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
-  dinerJustSignedUp = true;
   const {error} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
-  if(error){ dinerJustSignedUp = false; console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  await sb.auth.signOut();
   st.textContent='';
+  showStep('stepDinerWelcome');
 }
 
-function continueToDinerApp(){
-  dinerJustSignedUp = false;
-  goScreen('screenDiner'); buildFilters(); loadFeed();
+/* ══════════ RESTAURANT ACCOUNT (Supabase email+password, self-serve signup — pending until approved) ══════════ */
+async function submitRestaurantSignup(){
+  const name = document.getElementById('rsName').value.trim();
+  const town = document.getElementById('rsTown').value;
+  const phone = document.getElementById('rsPhone').value.trim();
+  const email = document.getElementById('rsEmail').value.trim();
+  const password = document.getElementById('rsPassword').value;
+  const st = document.getElementById('restaurantSignupStatus');
+  if(!name || !town || !email || !email.includes('@') || !password){ st.textContent=t('fillAll'); st.className='status-msg err'; return; }
+  if(password.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  const {error:signUpError} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
+  if(signUpError){ console.error(signUpError); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  const {error:insertError} = await sb.from('restaurants').insert({region:'us', name, town, phone: phone||null, email, status:'pending'});
+  if(insertError){ console.error(insertError); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  await sb.auth.signOut();
+  st.textContent='';
+  showStep('stepRestaurantWelcome');
 }
 
-/* ══════════ AUTH (Supabase, shared by diners [password] and restaurants [magic link]) ══════════ */
+/* ══════════ AUTH (Supabase, email+password for both diners and restaurants — magic link reserved for future use) ══════════ */
 function showStep(id){
   document.querySelectorAll('.r-card.step').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if(id==='stepDiner' || id==='stepDinerSignup' || id==='stepDinerWelcome') gateIntent='diner';
-  else if(id==='stepLogin' || id==='stepSignup') gateIntent='restaurant';
+  else if(id==='stepLogin' || id==='stepSignup' || id==='stepRestaurantWelcome') gateIntent='restaurant';
   document.getElementById('gateTagline').textContent=gateIntent==='diner'?t('forDiners'):t('forRestaurants');
 }
 
 async function submitLogin(){
   const email=document.getElementById('lEmail').value.trim();
+  const password=document.getElementById('lPassword').value;
   const st=document.getElementById('loginStatus');
   if(!email || !email.includes('@')){st.textContent=t('enterLoginEmail');st.className='status-msg err';return;}
+  if(!password){st.textContent=t('enterPassword');st.className='status-msg err';return;}
   if(!sbReady()){st.textContent=t('loadError');st.className='status-msg err';return;}
-  st.textContent=t('sending'); st.className='status-msg';
-  pendingLoginEmail=email;
-  const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: window.location.href.split('#')[0]}});
-  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
-  document.getElementById('verifySub').textContent=t('verifySubTxt');
-  showStep('stepVerify');
+  st.textContent=t('checking'); st.className='status-msg';
+  const {error} = await sb.auth.signInWithPassword({email, password});
+  if(error){ console.error(error); st.textContent=t('badLogin'); st.className='status-msg err'; return; }
   st.textContent='';
 }
 
-// Called on page load, and whenever Supabase reports an auth state change
-// (e.g. after the user clicks the magic-link email and lands back here signed in).
+// Called on page load, and whenever Supabase reports an auth state change.
 async function handleSession(session){
   if(!session || !sbReady()){ return; }
   const email=session.user.email;
@@ -1076,14 +1144,11 @@ async function handleSession(session){
     return;
   }
   // No restaurant matches this email — treat them as a diner account.
-  currentDiner={id:session.user.id, email};
+  currentDiner={id:session.user.id, email, name:session.user.user_metadata?.name || ''};
   await loadFavorites();
   refreshNavLogin();
   const active=document.querySelector('.screen.active')?.id;
-  if(active==='screenGate'){
-    if(dinerJustSignedUp){ showStep('stepDinerWelcome'); return; }
-    goScreen('screenDiner');
-  }
+  if(active==='screenGate'){ goScreen('screenDiner'); }
   else if(active==='screenDiner'){ buildFilters(); loadFeed(); }
 }
 
