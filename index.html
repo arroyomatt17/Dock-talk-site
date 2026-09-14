@@ -2,721 +2,1082 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dock Talk — South Fork Specials, From People Who'd Know</title>
+<title>Dock Talk — Riptide</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Dock Talk is where South Fork restaurants post today's specials and neighbors follow the places they trust — no delivery, no ads, no ratings from strangers.">
-<meta property="og:title" content="Dock Talk — What's good tonight, from people who'd know">
-<meta property="og:description" content="South Fork restaurants post today's specials. Neighbors follow the places they trust. No delivery, no ads, no coupons.">
-<meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231F2E2B'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23BF4425'%3E%E2%9A%93%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600&family=Source+Sans+3:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-  :root{
-    --ink:#1F2E2B;
-    --paper:#EFE6D2;
-    --paper-light:#F7F2E7;
-    --wood:#B08B5A;
-    --buoy:#BF4425;
-    --bay:#3E6259;
-    --line: rgba(31,46,43,0.18);
-    --line-soft: rgba(31,46,43,0.10);
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--paper-light);
-    font-family:'Source Sans 3', sans-serif;
-    color:var(--ink);
-    -webkit-font-smoothing:antialiased;
-  }
-  a{color:inherit;}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
-  .label{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:2px;
-    color:var(--buoy);
-    font-weight:700;
-    margin-bottom:10px;
-  }
-  h1,h2,h3{font-family:'Fraunces', serif;margin:0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0F3B3A;
+  --sand:#FBEFD6;
+  --sand-light:#FFF9EC;
+  --sea:#0E9A9A;
+  --sea-light:rgba(14,154,154,0.10);
+  --forest:#2E8B57;
+  --sunset:#F2683C;
+  --sunset-light:rgba(242,104,60,0.11);
+  --palm:#C9A227;
+  --line:rgba(15,59,58,0.14);
+  --line-soft:rgba(15,59,58,0.07);
+  --muted:rgba(15,59,58,0.52);
+  --radius:10px;
+}
+html,body{min-height:100%;background:var(--sand-light);color:var(--ink);font-family:'Source Sans 3',sans-serif;-webkit-font-smoothing:antialiased;}
 
-  /* ---------- nav ---------- */
-  nav{
-    position:sticky;top:0;z-index:50;
-    background:rgba(247,242,231,0.92);
-    backdrop-filter:blur(6px);
-    border-bottom:1px solid var(--line);
-  }
-  nav .wrap{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:16px 28px;
-  }
-  .wordmark{
-    font-family:'Fraunces', serif;
-    font-weight:700;
-    font-size:22px;
-    letter-spacing:-0.3px;
-  }
-  .wordmark em{font-style:italic;font-weight:500;color:var(--buoy);}
-  .nav-links{display:flex;gap:28px;align-items:center;}
-  .nav-links a{
-    font-size:13px;text-decoration:none;color:var(--ink);
-    text-transform:uppercase;letter-spacing:0.5px;font-weight:600;
-    opacity:0.75;
-  }
-  .nav-links a:hover{opacity:1;}
-  .btn{
-    display:inline-block;
-    font-family:'Source Sans 3', sans-serif;
-    font-weight:700;
-    font-size:13px;
-    letter-spacing:0.3px;
-    padding:11px 20px;
-    border-radius:2px;
-    text-decoration:none;
-    cursor:pointer;
-    border:none;
-  }
-  .btn-primary{background:var(--buoy);color:var(--paper-light);}
-  .btn-primary:hover{background:#a83a20;}
-  .btn-outline{background:transparent;color:var(--ink);border:1px solid var(--ink);}
-  .btn-outline:hover{background:var(--ink);color:var(--paper-light);}
-  .btn-bay{background:var(--bay);color:var(--paper-light);}
-  .btn-bay:hover{background:#31514a;}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,249,236,0.95);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;}
+.wordmark{font-family:'Fraunces',serif;font-weight:700;font-size:22px;letter-spacing:-0.3px;}
+.wordmark em{font-style:italic;font-weight:500;color:var(--sunset);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-back{font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;display:none;}
+.nav-back:hover{color:var(--ink);}
+.nav-login{font-size:13px;color:var(--sea);background:none;border:1px solid var(--line);padding:7px 16px;
+  border-radius:20px;cursor:pointer;font-family:inherit;font-weight:600;display:none;}
+.nav-login:hover{background:var(--sea-light);}
+.lang-select{font-size:12.5px;font-family:inherit;font-weight:600;color:var(--ink);background:#fff;
+  border:1px solid var(--line);border-radius:20px;padding:7px 10px;cursor:pointer;outline:none;}
 
-  /* ---------- hero ---------- */
-  .hero{padding:78px 0 60px 0;}
-  .hero .wrap{
-    display:grid;grid-template-columns:1.15fr 0.85fr;gap:50px;align-items:center;
-  }
-  .hero .eyebrow{
-    font-size:11px;text-transform:uppercase;letter-spacing:2px;
-    color:var(--bay);font-weight:700;margin-bottom:16px;
-  }
-  .hero h1{
-    font-size:44px;font-weight:600;line-height:1.1;letter-spacing:-0.5px;
-    margin-bottom:18px;
-  }
-  .hero p.lede{
-    font-size:16.5px;line-height:1.6;color:rgba(31,46,43,0.82);
-    max-width:480px;margin-bottom:28px;
-  }
-  .cta-row{display:flex;gap:14px;flex-wrap:wrap;}
+.screen{display:none;animation:fadeUp 0.22s ease;}
+.screen.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 
-  /* signature pinned card */
-  .card-wrap{position:relative;padding-top:16px;}
-  .pin{
-    position:absolute;top:0;left:50%;transform:translateX(-50%);
-    width:14px;height:14px;border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #e0533a, var(--buoy));
-    box-shadow:0 2px 3px rgba(0,0,0,0.35);z-index:2;
-  }
-  .special-card{
-    background:#fff;border:1px solid rgba(0,0,0,0.08);
-    box-shadow:0 14px 30px rgba(0,0,0,0.18);
-    transform:rotate(-2deg);
-    padding:22px 22px 20px 22px;
-    animation:settle 0.7s ease-out;
-  }
-  @keyframes settle{
-    from{opacity:0;transform:rotate(-9deg) translateY(-14px);}
-    to{opacity:1;transform:rotate(-2deg) translateY(0);}
-  }
-  .special-card .tag{
-    display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:1px;
-    background:var(--bay);color:var(--paper-light);padding:3px 8px;border-radius:2px;
-    margin-bottom:10px;
-  }
-  .special-card h3{font-size:19px;font-weight:600;margin:0 0 8px 0;}
-  .special-card .note{
-    font-family:'Caveat', cursive;font-size:22px;line-height:1.25;
-    color:var(--ink);margin:0 0 10px 0;
-  }
-  .special-card .meta{
-    display:flex;justify-content:space-between;font-size:11px;
-    color:rgba(31,46,43,0.55);border-top:1px dashed var(--line);padding-top:8px;
-  }
-  .special-card .follow{
-    display:inline-block;margin-top:12px;font-size:10px;text-transform:uppercase;
-    letter-spacing:0.5px;border:1px solid var(--bay);color:var(--bay);
-    padding:3px 9px;border-radius:20px;
-  }
+.intro{max-width:640px;margin:0 auto;padding:52px 24px 80px;}
+.intro-headline{font-family:'Fraunces',serif;font-weight:600;font-size:38px;line-height:1.1;letter-spacing:-0.5px;margin-bottom:14px;}
+.intro-headline em{font-style:italic;font-weight:500;color:var(--sea);}
+.intro-sub{font-size:15.5px;line-height:1.6;color:rgba(15,59,58,0.75);max-width:440px;margin-bottom:36px;}
+.sample-cards{position:relative;height:150px;margin-bottom:40px;}
+.sc{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;
+  opacity:0;position:absolute;top:0;left:0;right:0;transform:translateY(6px);
+  transition:opacity 0.6s ease, transform 0.6s ease;pointer-events:none;}
+.sc.sc-active{opacity:0.45;transform:translateY(0);}
+.sc-tag{display:inline-block;font-size:9px;text-transform:uppercase;letter-spacing:1px;background:var(--palm);color:#fff;padding:2px 8px;border-radius:3px;margin-bottom:8px;}
+.sc-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600;margin-bottom:5px;}
+.sc-text{font-family:'Caveat',cursive;font-size:20px;line-height:1.2;}
+.sc-meta{font-size:10.5px;color:var(--muted);margin-top:7px;}
+.cta-block{display:flex;flex-direction:column;}
+.btn-enter{display:block;width:100%;padding:16px;text-align:center;font-family:inherit;font-weight:700;font-size:15px;
+  border:none;border-radius:8px;cursor:pointer;transition:opacity 0.15s;}
+.btn-enter-diner{background:var(--sunset);color:#fff;}
+.btn-enter-diner:hover{opacity:0.88;}
+.own-restaurant{text-align:center;padding:16px 0 0 0;font-size:12.5px;color:var(--muted);}
+.own-restaurant button{background:none;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;
+  font-family:inherit;text-decoration:underline;text-underline-offset:3px;}
+.own-restaurant button:hover{color:var(--ink);}
 
-  /* ---------- feed strip ---------- */
-  .strip-section{padding:10px 0 64px 0;}
-  .strip-header{text-align:center;margin-bottom:26px;}
-  .strip-header h2{font-size:22px;font-weight:600;}
-  .strip{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
-  }
-  .mini-card{
-    background:#fff;border:1px solid rgba(0,0,0,0.07);
-    box-shadow:0 6px 14px rgba(0,0,0,0.08);
-    padding:16px 16px 14px 16px;
-  }
-  .mini-card .tag{
-    display:inline-block;font-size:9px;text-transform:uppercase;letter-spacing:1px;
-    background:var(--wood);color:#fff;padding:2px 7px;border-radius:2px;margin-bottom:8px;
-  }
-  .mini-card h4{font-size:15px;font-weight:600;margin:0 0 6px 0;font-family:'Fraunces',serif;}
-  .mini-card p{
-    font-family:'Caveat', cursive;font-size:18px;line-height:1.2;margin:0 0 8px 0;
-  }
-  .mini-card .meta{font-size:10.5px;color:rgba(31,46,43,0.5);}
+.inner{max-width:640px;margin:0 auto;padding:32px 24px 80px;}
+h1,h2,h3,h4{font-family:'Fraunces',serif;}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--sea);font-weight:700;margin-bottom:8px;}
+.page-title{font-size:26px;font-weight:600;margin-bottom:6px;}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.55;}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;}
 
-  /* ---------- thesis ---------- */
-  .thesis-section{background:var(--paper);padding:64px 0;}
-  .thesis-grid{
-    display:grid;grid-template-columns:1fr 1fr;gap:40px;
-  }
-  .thesis-grid .quote{
-    font-family:'Fraunces', serif;font-style:italic;font-weight:500;
-    font-size:23px;line-height:1.4;
-  }
-  .thesis-grid .what-it-is{font-size:15px;line-height:1.6;max-width:440px;}
-  .thesis-grid .what-it-is strong{
-    display:block;font-family:'Fraunces', serif;font-style:normal;
-    font-weight:600;font-size:17px;margin-bottom:8px;
-  }
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;color:var(--sea);margin-bottom:7px;}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1px solid var(--line);
+  background:var(--sand-light);font-family:inherit;font-size:14.5px;border-radius:6px;color:var(--ink);outline:none;transition:border-color 0.15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--sea);}
+.field textarea{resize:vertical;min-height:72px;line-height:1.5;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.hint{font-size:12px;color:var(--muted);margin-top:6px;}
 
-  /* ---------- compare ---------- */
-  .compare-section{padding:64px 0;}
-  .compare-section .center-label{text-align:center;margin-bottom:30px;}
-  .compare-section .center-label h2{font-size:24px;font-weight:600;}
-  .compare-grid{
-    display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);
-    max-width:760px;margin:0 auto;
-  }
-  .compare-col{padding:22px 28px;}
-  .compare-col.feels{border-right:1px solid var(--line);}
-  .compare-col h4{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 14px 0;}
-  .compare-col.feels h4{color:var(--bay);}
-  .compare-col.not h4{color:rgba(31,46,43,0.45);}
-  .compare-col ul{margin:0;padding:0;list-style:none;}
-  .compare-col li{
-    font-size:13.5px;line-height:1.5;padding:7px 0;
-    border-bottom:1px dotted var(--line-soft);
-  }
-  .compare-col li:last-child{border-bottom:none;}
-  .compare-col.not li{color:rgba(31,46,43,0.55);}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 22px;border:none;border-radius:6px;
+  font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity 0.15s;width:100%;}
+.btn:disabled{opacity:0.5;cursor:default;}
+.btn-sea{background:var(--sea);color:#fff;}
+.btn-sea:hover:not(:disabled){opacity:0.88;}
+.btn-sunset{background:var(--sunset);color:#fff;}
+.btn-sunset:hover:not(:disabled){opacity:0.88;}
+.btn-ghost{background:transparent;color:var(--sea);border:1px solid var(--line);width:auto;}
+.btn-ghost:hover{background:var(--sea-light);}
+.btn-sm{padding:7px 14px;font-size:12.5px;}
+.status-msg{font-size:13px;text-align:center;min-height:18px;color:var(--sea);margin-top:10px;}
+.status-msg.err{color:var(--sunset);}
 
-  /* ---------- audience sections ---------- */
-  .audience{padding:70px 0;border-top:1px solid var(--line);}
-  .audience .wrap{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
-  .audience h2{font-size:30px;font-weight:600;margin-bottom:16px;}
-  .audience .lede{font-size:15px;line-height:1.6;color:rgba(31,46,43,0.8);margin-bottom:22px;}
-  .audience ol{margin:0;padding:0 0 0 20px;}
-  .audience li{font-size:14px;line-height:1.6;padding:6px 0;}
-  .audience li::marker{font-family:'Fraunces',serif;font-weight:600;color:var(--buoy);}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.filter-btn{font-size:12.5px;padding:6px 14px;border:1px solid var(--line);border-radius:20px;background:#fff;
+  cursor:pointer;font-family:inherit;font-weight:500;transition:all 0.12s;color:var(--ink);}
+.filter-btn.active{background:var(--sea);color:#fff;border-color:var(--sea);}
+.feed-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.feed-count{font-size:12.5px;color:var(--muted);}
+.refresh-btn{font-size:12px;background:none;border:1px solid var(--line);padding:6px 12px;border-radius:20px;
+  cursor:pointer;color:var(--sea);font-family:inherit;font-weight:600;}
+.refresh-btn:hover{background:var(--sea-light);}
 
-  .form-card{
-    background:#fff;border:1px solid var(--line);padding:28px 28px 26px 28px;
-  }
-  .form-card h3{font-size:17px;font-weight:600;margin-bottom:6px;}
-  .form-card .sub{font-size:12.5px;color:rgba(31,46,43,0.55);margin-bottom:18px;}
-  .field{margin-bottom:14px;}
-  .field label{
-    display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;
-    font-weight:700;margin-bottom:6px;color:var(--bay);
-  }
-  .field input, .field select{
-    width:100%;padding:10px 12px;border:1px solid var(--line);
-    background:var(--paper-light);font-family:'Source Sans 3', sans-serif;
-    font-size:14px;border-radius:2px;
-  }
-  .field input:focus, .field select:focus{outline:2px solid var(--bay);outline-offset:1px;}
-  .form-card button{width:100%;padding:12px;font-size:13.5px;margin-top:6px;}
-  .thanks{
-    display:none;text-align:center;padding:30px 10px;
-  }
-  .thanks .big{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:8px;}
-  .thanks p{font-size:13.5px;color:rgba(31,46,43,0.65);}
+.feed-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;}
+.fc-tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;background:var(--palm);
+  color:#fff;padding:2px 8px;border-radius:3px;margin-bottom:10px;}
+.fc-name-link{display:block;font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin-bottom:6px;
+  color:var(--sea);background:none;border:none;padding:0;text-align:left;cursor:pointer;
+  text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;}
+.fc-name-link:hover{text-decoration-color:var(--sea);}
+.fc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.fc-row .fc-name-link{flex:1;}
+.fav-btn{background:none;border:none;font-size:20px;line-height:1;cursor:pointer;padding:2px 4px;color:var(--muted);flex-shrink:0;}
+.fav-btn.active{color:var(--sunset);}
+.fav-btn:hover{opacity:0.75;}
+.fc-text{font-family:'Caveat',cursive;font-size:21px;line-height:1.25;margin-bottom:10px;}
+.fc-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+.empty-feed{text-align:center;padding:48px 20px;}
+.ef-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin-bottom:8px;}
+.ef-sub{font-size:14px;color:var(--muted);line-height:1.6;}
 
-  /* ---------- where ---------- */
-  .where-section{background:var(--ink);color:var(--paper-light);padding:56px 0;text-align:center;}
-  .where-section .label{color:var(--buoy);}
-  .where-section h2{font-size:24px;font-weight:600;margin-bottom:20px;}
-  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
-  .chip{
-    font-size:13px;padding:7px 16px;border:1px solid rgba(247,242,231,0.35);
-    border-radius:20px;color:var(--paper-light);
-  }
+.icon-grid{display:flex;gap:20px;margin:22px 0;flex-wrap:wrap;}
+.icon-btn{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;}
+.icon-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:#fff;border:1px solid var(--line);font-size:20px;transition:border-color 0.15s, background 0.15s;}
+.icon-btn.active .icon-circle{border-color:var(--sea);background:var(--sea-light);}
+.icon-label{font-size:10.5px;font-weight:600;color:var(--ink);text-align:center;}
+.detail-panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:14px;}
+.dp-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sea);font-weight:700;margin-bottom:10px;}
+.dp-value{font-size:15px;line-height:1.6;}
+.menu-category{margin-bottom:16px;}
+.menu-category:last-child{margin-bottom:0;}
+.menu-category h4{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--palm);font-weight:700;margin-bottom:8px;}
+.menu-item{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px dotted var(--line-soft);color:rgba(15,59,58,0.85);}
+.menu-item:last-child{border-bottom:none;}
+.photo-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.photo-upload{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.photo-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px dashed var(--line);
+  border-radius:12px;padding:11px 16px;cursor:pointer;font-family:inherit;font-size:13.5px;
+  font-weight:600;color:var(--ink);transition:border-color .15s,background .15s;}
+.photo-btn:hover{border-style:solid;background:var(--sea-light);}
+.photo-btn-icon{font-size:17px;}
+.thumb-wrap{position:relative;display:inline-block;}
+.thumb-wrap img{width:84px;height:64px;object-fit:cover;border-radius:10px;border:2px solid var(--line);display:block;}
+.thumb-x{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;
+  background:var(--sunset);color:#fff;border:2px solid var(--line);cursor:pointer;
+  font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0;}
+.fc-photo{width:100%;max-height:190px;object-fit:cover;border-radius:12px;
+  border:2px solid var(--line);margin:4px 0 12px 0;display:block;}
+.pc-photo{width:100%;max-height:150px;object-fit:cover;border-radius:10px;
+  border:2px solid var(--line);margin:8px 0;display:block;}
+.photo-row img{width:130px;height:98px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
+.scribble-frame{width:130px;height:98px;border-radius:6px;border:1px solid var(--line);overflow:hidden;}
+.scribble-frame svg{display:block;width:100%;height:100%;}
+.recurring-badge{display:inline-block;font-size:13px;background:var(--sunset-light);color:var(--sunset);
+  padding:6px 14px;border-radius:20px;font-weight:600;margin-bottom:10px;}
 
-  /* ---------- footer ---------- */
-  footer{padding:30px 0;}
-  footer .wrap{
-    display:flex;justify-content:space-between;align-items:center;
-    font-size:11px;text-transform:uppercase;letter-spacing:1px;
-    color:rgba(31,46,43,0.45);
-  }
+.step{display:none;}.step.active{display:block;}
+.code-inputs{display:flex;gap:10px;justify-content:center;margin:20px 0;}
+.code-inputs input{width:48px;height:56px;text-align:center;font-size:22px;font-weight:700;border:1.5px solid var(--line);
+  border-radius:6px;background:var(--sand-light);font-family:inherit;color:var(--ink);outline:none;}
+.code-inputs input:focus{border-color:var(--sea);}
+.pending-box{text-align:center;padding:32px 20px;}
+.pending-icon{font-size:36px;margin-bottom:12px;}
+.pending-box h3{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:10px;}
+.pending-box p{font-size:14px;color:var(--muted);line-height:1.6;max-width:340px;margin:0 auto;}
 
-  @media (max-width:840px){
-    .hero .wrap, .thesis-grid, .compare-grid, .audience .wrap{grid-template-columns:1fr;}
-    .strip{grid-template-columns:1fr;}
-    .hero h1{font-size:32px;}
-    .nav-links{display:none;}
-  }
+.dash-tag{display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:1px;background:var(--forest);
+  color:#fff;padding:3px 10px;border-radius:20px;margin-bottom:8px;}
+.dash-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.preview-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:700;margin:20px 0 10px 0;}
+.preview-card{background:var(--sand);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+.pc-tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;background:var(--palm);color:#fff;padding:2px 8px;border-radius:3px;margin-bottom:10px;}
+.pc-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin-bottom:6px;}
+.pc-text{font-family:'Caveat',cursive;font-size:21px;line-height:1.25;margin-bottom:8px;}
+.pc-meta{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;}
+.posted-list{margin-top:24px;}
+.posted-item{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line-soft);gap:12px;}
+.posted-item:last-child{border-bottom:none;}
+.pi-slot{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
+.pi-text{font-family:'Caveat',cursive;font-size:18px;line-height:1.2;}
+.delete-btn{font-size:11px;color:var(--sunset);background:none;border:none;cursor:pointer;font-family:inherit;opacity:0.7;}
+.delete-btn:hover{opacity:1;}
 
-  /* ---------- region toggle ---------- */
-  .nav-right{display:flex;align-items:center;gap:16px;}
-  .region-toggle{
-    display:flex;
-    border:1px solid var(--line);
-    border-radius:20px;
-    overflow:hidden;
-    background:var(--paper-light);
-  }
-  .rt-btn{
-    font-family:'Source Sans 3', sans-serif;
-    font-size:12px;
-    font-weight:600;
-    padding:6px 12px;
-    border:none;
-    background:transparent;
-    color:var(--ink);
-    cursor:pointer;
-    opacity:0.55;
-    transition:opacity .15s, background .15s;
-  }
-  .rt-btn:hover{opacity:0.85;}
-  .rt-btn.active{background:var(--bay);color:var(--paper-light);opacity:1;}
-  @media(max-width:720px){
-    .region-toggle{margin-left:auto;}
-  }
+.r-signin{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;}
+.r-wordmark{font-family:'Fraunces',serif;font-weight:700;font-size:28px;margin-bottom:6px;}
+.r-wordmark em{font-style:italic;font-weight:500;color:var(--sunset);}
+.r-tagline{font-size:13px;color:var(--muted);margin-bottom:36px;}
+.r-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px;width:100%;max-width:400px;}
+.r-card h2{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:4px;}
+.r-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+
+@media(max-width:560px){
+  .intro-headline{font-size:28px;}
+  .row2{grid-template-columns:1fr;}
+  .nav{padding:12px 14px;}
+  .lang-select{padding:6px 8px;font-size:12px;}
+}
+
+:root{
+  --display:'Bricolage Grotesque',sans-serif; --ink:#0A2540; --line:#0A2540;
+  --sand:#CFF5F0; --sand-light:#F4FDFC;
+  --sea:#00B0A6; --sea-light:rgba(0,176,166,0.12);
+  --forest:#0E9F6E; --sunset:#FF6B4A; --sunset-light:rgba(255,107,74,0.13);
+  --palm:#7DE2D8; --accent:#00B0A6;
+  --line-soft:rgba(10,37,64,0.12); --muted:rgba(10,37,64,0.55); --radius:24px;
+}
+body{background:var(--sand-light);font-family:'Manrope',sans-serif;}
+h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name,.sc-name,.fc-name-link{font-family:'Bricolage Grotesque',sans-serif !important;font-weight:800;}
+.intro-headline{font-size:46px;}
+.fc-text,.sc-text,.pc-text,.pi-text{font-family:'Manrope',sans-serif;font-weight:500;font-size:16.5px;line-height:1.45;}
+.fc-name-link{color:var(--ink);}
+
+.nav{background:var(--sand-light);border-bottom:2px solid var(--line);}
+.wordmark{font-weight:900;letter-spacing:-1px;}
+.wordmark em{font-style:normal;color:var(--accent);}
+.intro-headline{font-weight:900;letter-spacing:-2px;line-height:0.98;}
+.intro-headline em{font-style:normal;color:var(--accent);}
+.page-title{font-weight:800;letter-spacing:-1.2px;}
+.eyebrow,.dp-label,.choose-label,.preview-label{font-family:var(--display);text-transform:none;letter-spacing:-0.2px;font-size:13px;font-weight:700;color:var(--accent);}
+.field label{font-family:var(--display);text-transform:none;letter-spacing:-0.1px;font-size:13px;font-weight:700;color:var(--ink);}
+.card,.feed-card,.detail-panel,.r-card,.preview-card,.sc{border:2px solid var(--line);border-radius:var(--radius);box-shadow:4px 4px 0 var(--line);}
+.field input,.field select,.field textarea,.code-inputs input{border:2px solid var(--line);border-radius:12px;background:#fff;font-weight:500;}
+.btn,.btn-enter{border-radius:100px;border:2px solid var(--line);font-family:var(--display);font-weight:800;box-shadow:3px 3px 0 var(--line);transition:transform .12s, box-shadow .12s;}
+.btn:hover:not(:disabled),.btn-enter:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--line);opacity:1;}
+.btn-ghost{background:#fff;color:var(--ink);}
+.filter-btn{border:2px solid var(--line);border-radius:100px;font-weight:700;background:#fff;color:var(--ink);}
+.fc-tag,.sc-tag,.pc-tag{text-transform:none;letter-spacing:-0.1px;font-size:11.5px;font-weight:700;border-radius:100px;padding:3px 11px;border:1.5px solid var(--line);}
+.fc-name-link{text-decoration:none;font-size:20px;letter-spacing:-0.6px;}
+.fc-name-link:hover{color:var(--accent);}
+.icon-circle{border:2px solid var(--line);background:#fff;box-shadow:2px 2px 0 var(--line);}
+.scribble-frame,.photo-row img{border:2px solid var(--line);border-radius:12px;}
+.recurring-badge,.dash-tag{border:1.5px solid var(--line);border-radius:100px;font-weight:700;}
+.feed-card{background:#fff;}
+.feed-card:nth-child(3n+2){background:var(--sand);}
+.feed-card:nth-child(3n+3){background:#FFEDE8;}
+.btn-enter-diner,.btn-sea{background:var(--sea);color:#fff;}
+.btn-sunset{background:var(--sunset);color:#fff;}
+.filter-btn.active{background:var(--sea);color:#fff;}
+.fc-tag,.sc-tag,.pc-tag{background:var(--palm);color:var(--ink);}
+.icon-btn.active .icon-circle{background:var(--palm);}
+
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="wrap">
-    <div class="wordmark">DOCK <em>TALK</em></div>
-    <div class="nav-links">
-      <a href="#diners" data-i="navDiners">For Diners</a>
-      <a href="#restaurants" data-i="navRestaurants">For Restaurants</a>
-      <a href="#where" data-i="navWhere">Where</a>
-    </div>
-    <div class="nav-right">
-      <div class="region-toggle">
-        <button class="rt-btn active" id="rtUs" onclick="setRegion('us')">🇺🇸 US</button>
-        <button class="rt-btn" id="rtCr" onclick="setRegion('cr')">🇨🇷 CR</button>
+<div class="nav">
+  <div class="wordmark">DOCK <em>TALK</em></div>
+  <div class="nav-right">
+    <button class="nav-back" id="navBack" onclick="goBack()">←</button>
+    <button class="nav-login" id="navLogin" onclick="goScreen('screenGate')"></button>
+    <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+      <option value="en">🇬🇧 EN</option>
+      <option value="es">🇪🇸 ES</option>
+      <option value="fr">🇫🇷 FR</option>
+      <option value="zh">🇨🇳 中文</option>
+      <option value="de">🇩🇪 DE</option>
+    </select>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="screen active" id="screenIntro">
+  <div class="intro">
+    <div class="eyebrow" data-i18n="region"></div>
+    <div class="intro-headline" data-i18n="heroTitle"></div>
+    <div class="intro-sub" data-i18n="heroSub"></div>
+    <div class="sample-cards" id="sampleCards"></div>
+    <div class="cta-block">
+      <button class="btn-enter btn-enter-diner" onclick="goScreen('screenDiner')" data-i18n="browseCta"></button>
+      <div class="own-restaurant">
+        <button onclick="goScreen('screenGate')" data-i18n="ownRestaurant"></button>
       </div>
-      <a href="#restaurants" class="btn btn-primary" data-i="navCta">Get Early Access</a>
     </div>
   </div>
-</nav>
+</div>
 
-<section class="hero">
-  <div class="wrap">
-    <div>
-      <div class="eyebrow" data-i="heroEyebrow">South Fork, NY · Hampton Bays to Montauk</div>
-      <h1 data-i="heroTitle">Know what's good tonight — before you get in the car.</h1>
-      <p class="lede" data-i="heroLede">Dock Talk is where South Fork restaurants post today's specials, and neighbors follow the places — and eventually the people — they already trust. No delivery, no ordering, no ratings from strangers.</p>
-      <div class="cta-row">
-        <a href="#restaurants" class="btn btn-primary" data-i="heroCta1">I run a restaurant</a>
-        <a href="#diners" class="btn btn-outline" data-i="heroCta2">I just want the tips</a>
+<!-- DINER FEED -->
+<div class="screen" id="screenDiner">
+  <div class="inner">
+    <div class="eyebrow" data-i18n="tonightEyebrow"></div>
+    <div class="page-title" data-i18n="feedTitle"></div>
+    <div class="page-sub" data-i18n="feedSub"></div>
+    <div class="filters" id="favFilterRow"></div>
+    <div class="filters" id="townFilters"></div>
+    <div class="filters" id="slotFilters"></div>
+    <div class="feed-meta">
+      <span class="feed-count" id="feedCount"></span>
+      <button class="refresh-btn" onclick="loadFeed()" data-i18n="refresh"></button>
+    </div>
+    <div id="feed"></div>
+  </div>
+</div>
+
+<!-- RESTAURANT DETAIL -->
+<div class="screen" id="screenDetail">
+  <div class="inner">
+    <div class="eyebrow" id="rdTown"></div>
+    <div class="fc-row" style="align-items:flex-start;">
+      <div class="page-title" id="rdName"></div>
+      <button class="fav-btn" id="rdFavBtn" onclick="toggleFavoriteDetail()"></button>
+    </div>
+    <div id="rdBadges"></div>
+    <div class="icon-grid" id="iconGrid"></div>
+    <div id="rdPhotos"></div>
+    <div id="detailPanels"></div>
+  </div>
+</div>
+
+<!-- SIGN IN GATE -->
+<div class="screen" id="screenGate">
+  <div class="r-signin">
+    <div class="r-wordmark">DOCK <em>TALK</em></div>
+    <div class="r-tagline" id="gateTagline"></div>
+
+    <div class="r-card step active" id="stepDiner">
+      <h2 data-i18n="dinerAcctTitle"></h2>
+      <div class="r-sub" data-i18n="dinerAcctSub"></div>
+      <div class="field">
+        <label data-i18n="email"></label>
+        <input id="dEmail" type="email" placeholder="you@email.com">
+      </div>
+      <br>
+      <button class="btn btn-sea" onclick="submitDinerLogin()" data-i18n="dinerAcctCta"></button>
+      <div class="status-msg" id="dinerStatus"></div>
+      <div style="border-top:2px solid var(--line);margin-top:22px;padding-top:16px;text-align:center;">
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:10px;" data-i18n="restaurantInstead"></p>
+        <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="showStep('stepLogin')" data-i18n="restaurantSignIn"></button>
       </div>
     </div>
-    <div class="card-wrap">
-      <div class="pin"></div>
-      <div class="special-card">
-        <span class="tag" data-i="cardTag">Happy Hour · 4–7pm</span>
-        <h3 data-i="cardName">Harbor House Fish Co.</h3>
-        <p class="note" data-i="cardNote">Half off oysters til 7 — the raw bar just shucked a fresh batch of littlenecks too.</p>
-        <div class="meta">
-          <span data-i="cardBy">Posted by Dana · 4:12pm</span>
-          <span data-i="cardDist">0.8 mi away</span>
+
+    <div class="r-card step" id="stepLogin">
+      <h2 data-i18n="welcomeBack"></h2>
+      <div class="r-sub" data-i18n="loginSub"></div>
+      <div class="field">
+        <label data-i18n="email"></label>
+        <input id="lEmail" type="email" placeholder="you@restaurant.com">
+      </div>
+      <br>
+      <button class="btn btn-sea" onclick="submitLogin()" data-i18n="sendCode"></button>
+      <div class="status-msg" id="loginStatus"></div>
+      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
+        <span data-i18n="newRestaurant"></span>
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepSignup')" data-i18n="signUp"></span>
+      </p>
+      <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:16px;text-align:center;">
+        <p style="margin-top:14px;">
+          <span style="color:var(--sea);cursor:pointer;font-weight:600;font-size:12.5px;" onclick="showStep('stepDiner')" data-i18n="backToDiner"></span>
+        </p>
+      </div>
+    </div>
+
+    <div class="r-card step" id="stepSignup">
+      <h2 data-i18n="claimSpot"></h2>
+      <div class="r-sub" data-i18n="claimSub"></div>
+      <br>
+      <button class="btn btn-sea" onclick="showStep('stepLogin')" data-i18n="logIn"></button>
+    </div>
+
+    <div class="r-card step" id="stepVerify">
+      <h2 data-i18n="checkTexts"></h2>
+      <div class="r-sub" id="verifySub"></div>
+      <div class="status-msg" id="verifyStatus"></div>
+    </div>
+
+    <div class="r-card step" id="stepPending">
+      <div class="pending-box">
+        <div class="pending-icon">🌴</div>
+        <h3 data-i18n="verifiedTitle"></h3>
+        <p data-i18n="verifiedBody"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="screen" id="screenDashboard">
+  <div class="inner">
+    <div class="dash-header">
+      <div>
+        <span class="dash-tag" data-i18n="approved"></span>
+        <div class="page-title" id="dashName"></div>
+        <div style="font-size:13.5px;color:var(--muted);" id="dashTown"></div>
+      </div>
+      <button class="btn-ghost btn-sm btn" id="signOutBtn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
+    </div>
+    <div class="eyebrow" data-i18n="postToday"></div>
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label data-i18n="timeSlot"></label><select id="pSlot" onchange="updatePreview()"></select></div>
+        <div class="field"><label data-i18n="validUntil"></label><input id="pUntil" type="text" oninput="updatePreview()"></div>
+      </div>
+      <div class="field">
+        <label data-i18n="theSpecial"></label>
+        <textarea id="pText" oninput="updatePreview()"></textarea>
+        <div class="hint" data-i18n="specialHint"></div>
+      </div>
+      <div class="field">
+        <label data-i18n="addPhoto"></label>
+        <div class="photo-upload" id="photoUpload">
+          <input type="file" id="pPhoto" accept="image/*" onchange="handlePhoto(event)" hidden>
+          <button type="button" class="photo-btn" onclick="document.getElementById('pPhoto').click()">
+            <span class="photo-btn-icon">📷</span>
+            <span id="photoBtnText"></span>
+          </button>
+          <div id="photoThumb"></div>
         </div>
-        <span class="follow" data-i="cardFollow">Following</span>
+        <div class="hint" data-i18n="photoHint"></div>
       </div>
+      <div class="preview-label" data-i18n="howSeen"></div>
+      <div class="preview-card">
+        <span class="pc-tag" id="pvSlot"></span>
+        <div class="pc-name" id="pvName"></div>
+        <div class="pc-text" id="pvText" style="color:var(--muted);font-style:italic;"></div>
+        <div id="pvPhoto"></div>
+        <div class="pc-meta" id="pvMeta"></div>
+      </div>
+      <br>
+      <button class="btn btn-sunset" onclick="postSpecial()" id="postBtn" data-i18n="postSpecial"></button>
+      <div class="status-msg" id="postStatus"></div>
     </div>
+    <div class="posted-list" id="postedList"></div>
   </div>
-</section>
+</div>
 
-<section class="strip-section">
-  <div class="wrap">
-    <div class="strip-header">
-      <div class="label" style="text-align:center;" data-i="stripLabel">Tonight, Nearby</div>
-      <h2 data-i="stripTitle">What's actually on the board</h2>
-    </div>
-    <div class="strip">
-      <div class="mini-card">
-        <span class="tag" data-i="slotLunch">Lunch</span>
-        <h4 data-i="m1name">Bay Street Lobster Shack</h4>
-        <p data-i="m1text">Lobster roll special, $18, while the tide's in.</p>
-        <div class="meta" data-i="m1time">Posted 11:40am</div>
+<!-- DINER FAVORITES -->
+<div class="screen" id="screenFavorites">
+  <div class="inner">
+    <div class="dash-header">
+      <div>
+        <div class="page-title" data-i18n="favoritesTitle"></div>
+        <div style="font-size:13.5px;color:var(--muted);" id="favEmail"></div>
       </div>
-      <div class="mini-card">
-        <span class="tag" data-i="slotDinner">Dinner</span>
-        <h4 data-i="m2name">Osteria Del Porto</h4>
-        <p data-i="m2text">Off-menu striped bass tonight — ask for it by name.</p>
-        <div class="meta" data-i="m2time">Posted 5:05pm</div>
-      </div>
-      <div class="mini-card">
-        <span class="tag" data-i="slotLate">Late Night</span>
-        <h4 data-i="m3name">The Tin Roof</h4>
-        <p data-i="m3text">Kitchen's open til midnight, half-off flatbreads after 10.</p>
-        <div class="meta" data-i="m3time">Posted 9:52pm</div>
-      </div>
+      <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
     </div>
+    <div id="favoritesList"></div>
   </div>
-</section>
-
-<section class="thesis-section">
-  <div class="wrap thesis-grid">
-    <div>
-      <div class="label" data-i="insightLabel">The Insight</div>
-      <p class="quote" data-i="insightBody">The South Fork already runs on word of mouth — a text from a friend, a tip from the bartender, the specials board nobody photographs. Big delivery apps were built to remove the human from the transaction. Dock Talk puts it back.</p>
-    </div>
-    <div>
-      <div class="label" data-i="whatLabel">What It Is</div>
-      <p class="what-it-is" data-ihtml="whatBody"><strong>A place for restaurants to post today's specials the way they'd tell a regular — and for locals to hear it first.</strong>
-      No delivery, no ordering, no ratings from strangers. Just what's on, right now, from restaurants you already follow.</p>
-    </div>
-  </div>
-</section>
-
-<section class="compare-section">
-  <div class="wrap">
-    <div class="center-label">
-      <div class="label" style="text-align:center;" data-i="cmpLabel">Why It's Different</div>
-      <h2 data-i="cmpTitle">Not another delivery app</h2>
-    </div>
-    <div class="compare-grid">
-      <div class="compare-col feels">
-        <h4 data-i="feelsLike">Feels Like</h4>
-        <ul>
-          <li data-i="f1">A tip from someone who actually eats there</li>
-          <li data-i="f2">Following a favorite restaurant — and later, a favorite bartender</li>
-          <li data-i="f3">A quiet, well-timed nudge</li>
-          <li data-i="f4">The local paper's specials column, digitized</li>
-        </ul>
-      </div>
-      <div class="compare-col not">
-        <h4 data-i="notLabel">Not</h4>
-        <ul>
-          <li data-i="n1">A coupon marketplace</li>
-          <li data-i="n2">An algorithm ranking who paid the most</li>
-          <li data-i="n3">A push-notification firehose</li>
-          <li data-i="n4">A delivery app with reviews bolted on</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="audience" id="diners">
-  <div class="wrap">
-    <div>
-      <div class="label" data-i="dinersLabel">For Diners</div>
-      <h2 data-i="dinersTitle">Hear about it first.</h2>
-      <p class="lede" data-i="dinersLede">No ads, no aggregate strangers rating a place you already trust. Just the restaurants you follow, telling you what's on.</p>
-      <ol>
-        <li data-i="d1">Follow the places you actually go to</li>
-        <li data-i="d2">See what's on, filtered by lunch, happy hour, dinner, or late night</li>
-        <li data-i="d3">Get one nudge — only when someone you follow posts</li>
-      </ol>
-    </div>
-    <div class="form-card">
-      <h3 data-i="dinerFormTitle">Get the first invite</h3>
-      <p class="sub" data-i="dinerFormSub">We're rolling out town by town — tell us where you are.</p>
-      <form id="dinerForm" data-formspree="https://formspree.io/f/myegeaey" onsubmit="return submitForm(event, this, 'dinerThanks')">
-        <div class="field">
-          <label for="dTown" data-i="lblTown">Town</label>
-          <select id="dTown" name="town" required>
-            <option value="">Select a town</option>
-            <option>Hampton Bays</option>
-            <option>Westhampton</option>
-            <option>Southampton</option>
-            <option>Sag Harbor</option>
-            <option>East Hampton</option>
-            <option>Amagansett</option>
-            <option>Montauk</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="dEmail" data-i="lblEmail">Email</label>
-          <input id="dEmail" name="email" type="email" required>
-        </div>
-        <button type="submit" class="btn btn-bay" data-i="dinerSubmit">Notify me at launch</button>
-      </form>
-      <div class="thanks" id="dinerThanks">
-        <div class="big" data-i="thanksBig">You're on the list.</div>
-        <p data-i="dinerThanksSub">We'll let you know the moment your town goes live.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="audience" id="restaurants" style="background:var(--paper);">
-  <div class="wrap">
-    <div>
-      <div class="label" data-i="restLabel">For Restaurants</div>
-      <h2 data-i="restTitle">Post it like you'd tell a regular.</h2>
-      <p class="lede" data-i="restLede">Free to join, free to post — forever. We're hand-picking the first 30 restaurants on the South Fork before this opens to anyone else.</p>
-      <ol>
-        <li data-i="r1">Post today's special — a photo, one line, done in under 30 seconds</li>
-        <li data-i="r2">It reaches everyone already following you, instantly</li>
-        <li data-i="r3">No commission, no vouchers, no fee per post — ever</li>
-      </ol>
-    </div>
-    <div class="form-card">
-      <h3 data-i="restFormTitle">Claim your spot</h3>
-      <p class="sub" data-i="restFormSub">We'll reach out personally before this opens to anyone else.</p>
-      <form id="restaurantForm" data-formspree="https://formspree.io/f/xaewezqg" onsubmit="return submitForm(event, this, 'restaurantThanks')">
-        <div class="field">
-          <label for="rName" data-i="lblName">Your name</label>
-          <input id="rName" name="name" type="text" required>
-        </div>
-        <div class="field">
-          <label for="rRestaurant" data-i="lblRest">Restaurant name</label>
-          <input id="rRestaurant" name="restaurant" type="text" required>
-        </div>
-        <div class="field">
-          <label for="rTown" data-i="lblTown2">Town</label>
-          <select id="rTown" name="town" required>
-            <option value="">Select a town</option>
-            <option>Hampton Bays</option>
-            <option>Westhampton</option>
-            <option>Southampton</option>
-            <option>Sag Harbor</option>
-            <option>East Hampton</option>
-            <option>Amagansett</option>
-            <option>Montauk</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="rEmail" data-i="lblEmail2">Email</label>
-          <input id="rEmail" name="email" type="email" required>
-        </div>
-        <button type="submit" class="btn btn-primary" data-i="restSubmit">Request early access</button>
-      </form>
-      <div class="thanks" id="restaurantThanks">
-        <div class="big" data-i="thanksBig2">You're on the list.</div>
-        <p data-i="restThanksSub">We'll be in touch before this opens to anyone else.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="where-section" id="where">
-  <div class="wrap">
-    <div class="label" style="text-align:center;" data-i="whereLabel">Where</div>
-    <h2 data-i="whereTitle">Rolling out town by town</h2>
-    <div class="chips">
-      <span class="chip">Westhampton</span>
-      <span class="chip">Hampton Bays</span>
-      <span class="chip">Southampton</span>
-      <span class="chip">Sag Harbor</span>
-      <span class="chip">East Hampton</span>
-      <span class="chip">Amagansett</span>
-      <span class="chip">Montauk</span>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <span data-i="footTag">Dock Talk — built on the South Fork, for the South Fork</span>
-    <span style="display:flex;gap:18px;align-items:center;">
-      <a href="privacy.html" style="text-decoration:none;" data-i="footPrivacy">Privacy</a>
-      <a href="terms.html" style="text-decoration:none;" data-i="footTerms">Terms</a>
-      <span>2026</span>
-    </span>
-  </div>
-</footer>
+</div>
 
 <script>
-/* ══════════════ REGION CONTENT ══════════════ */
-const TOWNS = {
-  us:["Westhampton","Hampton Bays","Southampton","Sag Harbor","East Hampton","Amagansett","Montauk"],
-  cr:["Tamarindo","Nosara","Sámara","Playas del Coco","Playa Flamingo","Potrero","Liberia"]
+/* ══════════ i18n ══════════ */
+const I18N = {
+en:{region:"Guanacaste, Costa Rica",heroTitle:"Know what's good tonight — <em>before you head out.</em>",
+heroSub:"Guanacaste restaurants post their daily specials here. Follow the places you trust, hear about it first.",
+browseCta:"Browse deals",ownRestaurant:"Have an account? Login →",
+tonightEyebrow:"Guanacaste · Tonight",feedTitle:"What's on right now",
+feedSub:"From restaurants that actually posted today — not a database, not ads.",
+refresh:"Refresh",allTowns:"All towns",allTimes:"All times",
+specialsCount:"specials tonight",specialCount:"special tonight",
+emptyTitle:"Nothing here yet",emptySub:"Try a different filter, or check back later.",
+hours:"Hours",location:"Location",phone:"Phone",menu:"Menu",
+notListed:"Not listed",
+dinerJoin:"Get the first invite",dinerSub:"We'll tell you when restaurants near you post something good. No spam, no ads.",dinerTownHint:"We'll start with specials in your town.",dinerCta:"Join the list",restaurantInstead:"Run a restaurant?",restaurantSignIn:"Sign in as a restaurant",backToDiner:"← Back to diner sign-up",dinerDoneTitle:"You're on the list",dinerDoneBody:"We'll email you when {town} restaurants start posting.",enterEmail:"Enter a valid email.",selectTown:"Select your town.",addPhoto:"Photo (optional)",choosePhoto:"Add a photo",changePhoto:"Change photo",photoHint:"A quick phone shot works better than a stock image.",forDiners:"For diners",forRestaurants:"For restaurants",welcomeBack:"Welcome back",loginSub:"Enter your email and we'll send you a magic link.",
+sendCode:"Send magic link",newRestaurant:"New restaurant? ",signUp:"Learn more",
+claimSpot:"Want Dock Talk at your restaurant?",claimSub:"We onboard restaurants personally — reach out and we'll get you set up with a login in minutes.",
+restaurantName:"Restaurant name",yourName:"Your name",town:"Town",email:"Email",
+
+sendVerification:"Send verification code",haveAccount:"Already have an account? ",logIn:"Back to login",
+checkTexts:"Check your email",verifySubTxt:"We sent a login link to your email — click it to come back here signed in.",verify:"Verify",
+verifiedTitle:"Verified — we'll take it from here",verifiedBody:"Your account is under review. We check every restaurant personally, usually within a few hours.",
+approved:"Approved ✓",signOut:"Sign out",postToday:"Post today's special",
+timeSlot:"Time slot",validUntil:"Valid until",theSpecial:"The special",
+specialHint:"Write it like you'd tell a regular.",howSeen:"How diners will see it",justNow:"Just now",
+postSpecial:"Post special",selectOpt:"Select",
+slots:["Lunch","Happy Hour","Dinner","Late Night"],
+posting:"Posting...",posted:"Posted — live on the diner feed.",writeFirst:"Write the special first.",
+selectSlot:"Select a time slot.",yourSpecials:"Your posted specials",remove:"Remove",
+demoEmpty:"That's it — fill in the form above and your special is live in about 10 seconds. No training, no setup.",
+noSpecials:"No specials posted yet.",previewPlaceholder:"Your special will appear here as you type...",
+checking:"Checking...",sending:"Sending magic link...",fillAll:"Fill in all fields.",
+noAccount:"No restaurant found for that email. We onboard restaurants personally — reach out to get set up.",wrongCode:"Incorrect code.",
+enterPhone:"Enter your phone number.",fullCode:"Enter the full 6-digit code.",enterLoginEmail:"Enter a valid email.",
+linkSent:"Link sent — check your inbox (and spam folder).",pendingApproval:"Your account is under review. We'll be in touch shortly.",
+loadError:"Couldn't load that right now — try again in a moment.",
+dinerAcctTitle:"Save your favorites",dinerAcctSub:"Enter your email and we'll send a link to sign in — save the restaurants you trust and come back anytime.",dinerAcctCta:"Send magic link",
+myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
+favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites"},
+
+es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
+heroSub:"Los restaurantes de Guanacaste publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
+browseCta:"Ver ofertas",ownRestaurant:"¿Ya tenés cuenta? Iniciar sesión →",
+tonightEyebrow:"Guanacaste · Hoy",feedTitle:"Qué hay ahora",
+feedSub:"De restaurantes que publicaron hoy — no es una base de datos, no son anuncios.",
+refresh:"Actualizar",allTowns:"Todos los pueblos",allTimes:"Todos los horarios",
+specialsCount:"especiales hoy",specialCount:"especial hoy",
+emptyTitle:"Todavía no hay nada",emptySub:"Probá otro filtro, o volvé más tarde.",
+hours:"Horario",location:"Ubicación",phone:"Teléfono",menu:"Menú",
+notListed:"No indicado",
+dinerJoin:"Recibí la primera invitación",dinerSub:"Te avisamos cuando los restaurantes cerca tuyo publiquen algo bueno. Sin spam, sin anuncios.",dinerTownHint:"Empezamos con los especiales de tu pueblo.",dinerCta:"Unirme a la lista",restaurantInstead:"¿Tenés un restaurante?",restaurantSignIn:"Ingresar como restaurante",backToDiner:"← Volver al registro de comensales",dinerDoneTitle:"Ya estás en la lista",dinerDoneBody:"Te escribimos cuando los restaurantes de {town} empiecen a publicar.",enterEmail:"Ingresá un correo válido.",selectTown:"Seleccioná tu pueblo.",addPhoto:"Foto (opcional)",choosePhoto:"Agregar foto",changePhoto:"Cambiar foto",photoHint:"Una foto rápida del celular funciona mejor que una imagen de stock.",forDiners:"Para comensales",forRestaurants:"Para restaurantes",welcomeBack:"Bienvenido de nuevo",loginSub:"Ingresá tu correo y te enviamos un enlace mágico.",
+sendCode:"Enviar enlace mágico",newRestaurant:"¿Restaurante nuevo? ",signUp:"Más información",
+claimSpot:"¿Querés Dock Talk en tu restaurante?",claimSub:"Incorporamos restaurantes personalmente — escribinos y te configuramos un acceso en minutos.",
+restaurantName:"Nombre del restaurante",yourName:"Tu nombre",town:"Pueblo",email:"Correo",
+
+sendVerification:"Enviar código de verificación",haveAccount:"¿Ya tenés cuenta? ",logIn:"Volver a iniciar sesión",
+checkTexts:"Revisá tu correo",verifySubTxt:"Te enviamos un enlace de acceso — hacé clic para volver acá con la sesión iniciada.",verify:"Verificar",
+verifiedTitle:"Verificado — nosotros seguimos desde acá",verifiedBody:"Tu cuenta está en revisión. Revisamos cada restaurante personalmente, normalmente en unas horas.",
+approved:"Aprobado ✓",signOut:"Cerrar sesión",postToday:"Publicá el especial de hoy",
+timeSlot:"Horario",validUntil:"Válido hasta",theSpecial:"El especial",
+specialHint:"Escribilo como se lo dirías a un cliente de siempre.",howSeen:"Así lo verán los comensales",justNow:"Ahora mismo",
+postSpecial:"Publicar especial",selectOpt:"Seleccionar",
+slots:["Almuerzo","Happy Hour","Cena","Noche"],
+posting:"Publicando...",posted:"Publicado — ya está en el feed.",writeFirst:"Escribí el especial primero.",
+selectSlot:"Seleccioná un horario.",yourSpecials:"Tus especiales publicados",remove:"Eliminar",
+demoEmpty:"Eso es todo — llená el formulario de arriba y tu especial está publicado en unos 10 segundos. Sin capacitación, sin configuración.",
+noSpecials:"Todavía no publicaste especiales.",previewPlaceholder:"Tu especial aparecerá acá mientras escribís...",
+checking:"Verificando...",sending:"Enviando enlace...",fillAll:"Completá todos los campos.",
+noAccount:"No encontramos un restaurante con ese correo. Incorporamos restaurantes personalmente — escribinos.",wrongCode:"Código incorrecto.",
+enterPhone:"Ingresá tu número.",fullCode:"Ingresá los 6 dígitos.",enterLoginEmail:"Ingresá un correo válido.",
+linkSent:"Enlace enviado — revisá tu bandeja (y spam).",pendingApproval:"Tu cuenta está en revisión. Te contactaremos pronto.",
+loadError:"No pudimos cargar eso ahora — probá de nuevo en un momento."},
+
+fr:{region:"Guanacaste, Costa Rica",heroTitle:"Sachez ce qui est bon ce soir — <em>avant de sortir.</em>",
+heroSub:"Les restaurants du Guanacaste publient ici leurs plats du jour. Suivez les adresses que vous aimez, soyez le premier informé.",
+browseCta:"Voir les offres",ownRestaurant:"Vous avez un compte ? Connexion →",
+tonightEyebrow:"Guanacaste · Ce soir",feedTitle:"Ce qui se passe maintenant",
+feedSub:"Des restaurants qui ont publié aujourd'hui — pas une base de données, pas de publicité.",
+refresh:"Actualiser",allTowns:"Toutes les villes",allTimes:"Tous les horaires",
+specialsCount:"offres ce soir",specialCount:"offre ce soir",
+emptyTitle:"Rien pour l'instant",emptySub:"Essayez un autre filtre, ou revenez plus tard.",
+hours:"Horaires",location:"Adresse",phone:"Téléphone",menu:"Menu",
+notListed:"Non indiqué",
+dinerJoin:"Recevez la première invitation",dinerSub:"Nous vous prévenons quand les restaurants près de chez vous publient quelque chose de bien. Pas de spam, pas de pub.",dinerTownHint:"Nous commencerons par les offres de votre ville.",dinerCta:"Rejoindre la liste",restaurantInstead:"Vous gérez un restaurant ?",restaurantSignIn:"Se connecter en tant que restaurant",backToDiner:"← Retour à l'inscription client",dinerDoneTitle:"Vous êtes sur la liste",dinerDoneBody:"Nous vous écrirons quand les restaurants de {town} commenceront à publier.",enterEmail:"Entrez une adresse e-mail valide.",selectTown:"Sélectionnez votre ville.",addPhoto:"Photo (facultatif)",choosePhoto:"Ajouter une photo",changePhoto:"Changer la photo",photoHint:"Une photo prise au téléphone marche mieux qu'une image de stock.",forDiners:"Pour les clients",forRestaurants:"Pour les restaurants",welcomeBack:"Bon retour",loginSub:"Entrez votre e-mail, nous vous enverrons un lien magique.",
+sendCode:"Envoyer le lien magique",newRestaurant:"Nouveau restaurant ? ",signUp:"En savoir plus",
+claimSpot:"Envie de Dock Talk dans votre restaurant ?",claimSub:"Nous accompagnons chaque restaurant personnellement — contactez-nous, accès prêt en quelques minutes.",
+restaurantName:"Nom du restaurant",yourName:"Votre nom",town:"Ville",email:"E-mail",
+
+sendVerification:"Envoyer le code de vérification",haveAccount:"Déjà un compte ? ",logIn:"Retour à la connexion",
+checkTexts:"Vérifiez vos e-mails",verifySubTxt:"Nous avons envoyé un lien de connexion — cliquez dessus pour revenir ici connecté.",verify:"Vérifier",
+verifiedTitle:"Vérifié — nous prenons le relais",verifiedBody:"Votre compte est en cours d'examen. Nous vérifions chaque restaurant personnellement, généralement en quelques heures.",
+approved:"Approuvé ✓",signOut:"Déconnexion",postToday:"Publier l'offre du jour",
+timeSlot:"Créneau",validUntil:"Valable jusqu'à",theSpecial:"L'offre",
+specialHint:"Écrivez-le comme à un habitué.",howSeen:"Ce que verront les clients",justNow:"À l'instant",
+postSpecial:"Publier",selectOpt:"Choisir",
+slots:["Déjeuner","Happy Hour","Dîner","Tard le soir"],
+posting:"Publication...",posted:"Publié — visible dans le fil.",writeFirst:"Écrivez d'abord l'offre.",
+selectSlot:"Choisissez un créneau.",yourSpecials:"Vos offres publiées",remove:"Supprimer",
+demoEmpty:"C'est tout — remplissez le formulaire ci-dessus et votre offre est en ligne en 10 secondes. Aucune formation, aucune configuration.",
+noSpecials:"Aucune offre publiée.",previewPlaceholder:"Votre offre apparaîtra ici pendant que vous écrivez...",
+checking:"Vérification...",sending:"Envoi du lien...",fillAll:"Remplissez tous les champs.",
+noAccount:"Aucun restaurant trouvé pour cet e-mail. Nous accompagnons chaque restaurant personnellement — contactez-nous.",wrongCode:"Code incorrect.",
+enterPhone:"Entrez votre numéro.",fullCode:"Entrez les 6 chiffres.",enterLoginEmail:"Entrez une adresse e-mail valide.",
+linkSent:"Lien envoyé — vérifiez votre boîte de réception (et vos spams).",pendingApproval:"Votre compte est en cours d'examen. Nous vous contacterons bientôt.",
+loadError:"Impossible de charger ça pour l'instant — réessayez dans un instant."},
+
+zh:{region:"哥斯达黎加 瓜纳卡斯特",heroTitle:"出门前 — <em>先看看今晚有什么好吃的。</em>",
+heroSub:"瓜纳卡斯特的餐厅在这里发布每日特色菜。关注你信任的店，第一时间收到消息。",
+browseCta:"浏览优惠",ownRestaurant:"已有账户？登录 →",
+tonightEyebrow:"瓜纳卡斯特 · 今晚",feedTitle:"现在有什么",
+feedSub:"来自今天真实发布的餐厅 — 不是数据库，也不是广告。",
+refresh:"刷新",allTowns:"全部城镇",allTimes:"全部时段",
+specialsCount:"个今晚特色",specialCount:"个今晚特色",
+emptyTitle:"暂时还没有",emptySub:"换个筛选条件，或稍后再来看看。",
+hours:"营业时间",location:"地址",phone:"电话",menu:"菜单",
+notListed:"未提供",
+dinerJoin:"抢先获得邀请",dinerSub:"附近餐厅发布好消息时我们会通知你。没有垃圾信息，没有广告。",dinerTownHint:"我们会从你所在城镇的特色菜开始。",dinerCta:"加入名单",restaurantInstead:"经营餐厅？",restaurantSignIn:"以餐厅身份登录",backToDiner:"← 返回食客注册",dinerDoneTitle:"你已加入名单",dinerDoneBody:"{town}的餐厅开始发布时，我们会给你发邮件。",enterEmail:"请输入有效的邮箱。",selectTown:"请选择你的城镇。",addPhoto:"照片（可选）",choosePhoto:"添加照片",changePhoto:"更换照片",photoHint:"随手用手机拍的照片比图库图片效果更好。",forDiners:"食客专用",forRestaurants:"餐厅专用",welcomeBack:"欢迎回来",loginSub:"输入邮箱，我们会发送登录链接。",
+sendCode:"发送登录链接",newRestaurant:"新餐厅？",signUp:"了解更多",
+claimSpot:"想让你的餐厅加入 Dock Talk？",claimSub:"我们会亲自为每家餐厅开通 — 联系我们，几分钟内为你设置好登录。",
+restaurantName:"餐厅名称",yourName:"你的姓名",town:"城镇",email:"邮箱",
+
+sendVerification:"发送验证码",haveAccount:"已有账户？",logIn:"返回登录",
+checkTexts:"查看邮箱",verifySubTxt:"我们已发送登录链接 — 点击它即可登录返回此处。",verify:"验证",
+verifiedTitle:"验证成功 — 接下来交给我们",verifiedBody:"你的账户正在审核中。我们会亲自核实每家餐厅，通常几小时内完成。",
+approved:"已通过 ✓",signOut:"退出登录",postToday:"发布今日特色",
+timeSlot:"时段",validUntil:"有效至",theSpecial:"特色内容",
+specialHint:"就像跟老顾客说话那样写。",howSeen:"食客看到的样子",justNow:"刚刚",
+postSpecial:"发布",selectOpt:"请选择",
+slots:["午餐","欢乐时光","晚餐","深夜"],
+posting:"发布中...",posted:"已发布 — 已在动态中显示。",writeFirst:"请先写特色内容。",
+selectSlot:"请选择时段。",yourSpecials:"你发布的特色",remove:"删除",
+demoEmpty:"就这么简单 — 填好上面的表单，大约10秒后你的特色菜就上线了。无需培训，无需设置。",
+noSpecials:"还没有发布特色。",previewPlaceholder:"输入时，你的特色会显示在这里...",
+checking:"验证中...",sending:"发送链接...",fillAll:"请填写所有字段。",
+noAccount:"未找到该邮箱对应的餐厅。我们会亲自为每家餐厅开通 — 请联系我们。",wrongCode:"验证码错误。",
+enterPhone:"请输入手机号。",fullCode:"请输入完整的6位验证码。",enterLoginEmail:"请输入有效的邮箱。",
+linkSent:"链接已发送 — 请查看收件箱（以及垃圾邮件）。",pendingApproval:"你的账户正在审核中，我们会尽快联系你。",
+loadError:"暂时无法加载 — 请稍后重试。"},
+
+de:{region:"Guanacaste, Costa Rica",heroTitle:"Wissen, was heute Abend gut ist — <em>bevor du losgehst.</em>",
+heroSub:"Restaurants in Guanacaste posten hier ihre Tagesangebote. Folge den Orten, denen du vertraust, und erfahre es zuerst.",
+browseCta:"Angebote ansehen",ownRestaurant:"Schon ein Konto? Anmelden →",
+tonightEyebrow:"Guanacaste · Heute Abend",feedTitle:"Was gerade läuft",
+feedSub:"Von Restaurants, die heute wirklich gepostet haben — keine Datenbank, keine Werbung.",
+refresh:"Aktualisieren",allTowns:"Alle Orte",allTimes:"Alle Zeiten",
+specialsCount:"Angebote heute",specialCount:"Angebot heute",
+emptyTitle:"Noch nichts da",emptySub:"Anderen Filter probieren oder später wiederkommen.",
+hours:"Öffnungszeiten",location:"Adresse",phone:"Telefon",menu:"Speisekarte",
+notListed:"Nicht angegeben",
+dinerJoin:"Sichere dir die erste Einladung",dinerSub:"Wir sagen dir Bescheid, wenn Restaurants in deiner Nähe etwas Gutes posten. Kein Spam, keine Werbung.",dinerTownHint:"Wir starten mit den Angeboten in deinem Ort.",dinerCta:"Zur Liste hinzufügen",restaurantInstead:"Betreibst du ein Restaurant?",restaurantSignIn:"Als Restaurant anmelden",backToDiner:"← Zurück zur Gäste-Anmeldung",dinerDoneTitle:"Du bist auf der Liste",dinerDoneBody:"Wir melden uns, sobald Restaurants in {town} anfangen zu posten.",enterEmail:"Bitte gültige E-Mail eingeben.",selectTown:"Bitte Ort auswählen.",addPhoto:"Foto (optional)",choosePhoto:"Foto hinzufügen",changePhoto:"Foto ändern",photoHint:"Ein schnelles Handyfoto wirkt besser als ein Stockbild.",forDiners:"Für Gäste",forRestaurants:"Für Restaurants",welcomeBack:"Willkommen zurück",loginSub:"E-Mail eingeben, wir senden einen Magic Link.",
+sendCode:"Magic Link senden",newRestaurant:"Neues Restaurant? ",signUp:"Mehr erfahren",
+claimSpot:"Dock Talk für dein Restaurant?",claimSub:"Wir richten jedes Restaurant persönlich ein — melde dich, und du hast in wenigen Minuten einen Zugang.",
+restaurantName:"Name des Restaurants",yourName:"Dein Name",town:"Ort",email:"E-Mail",
+
+sendVerification:"Bestätigungscode senden",haveAccount:"Schon ein Konto? ",logIn:"Zurück zur Anmeldung",
+checkTexts:"Schau in dein Postfach",verifySubTxt:"Wir haben einen Anmeldelink gesendet — klick ihn an, um angemeldet zurückzukehren.",verify:"Bestätigen",
+verifiedTitle:"Bestätigt — wir übernehmen ab hier",verifiedBody:"Dein Konto wird geprüft. Wir prüfen jedes Restaurant persönlich, meist innerhalb weniger Stunden.",
+approved:"Freigegeben ✓",signOut:"Abmelden",postToday:"Heutiges Angebot posten",
+timeSlot:"Zeitfenster",validUntil:"Gültig bis",theSpecial:"Das Angebot",
+specialHint:"Schreib es, wie du es einem Stammgast sagen würdest.",howSeen:"So sehen es die Gäste",justNow:"Gerade eben",
+postSpecial:"Angebot posten",selectOpt:"Auswählen",
+slots:["Mittag","Happy Hour","Abendessen","Spätabend"],
+posting:"Wird gepostet...",posted:"Gepostet — jetzt im Feed.",writeFirst:"Schreib zuerst das Angebot.",
+selectSlot:"Wähle ein Zeitfenster.",yourSpecials:"Deine geposteten Angebote",remove:"Entfernen",
+demoEmpty:"Das war's — Formular oben ausfüllen und dein Angebot ist in etwa 10 Sekunden online. Keine Schulung, keine Einrichtung.",
+noSpecials:"Noch keine Angebote gepostet.",previewPlaceholder:"Dein Angebot erscheint hier beim Tippen...",
+checking:"Wird geprüft...",sending:"Link wird gesendet...",fillAll:"Bitte alle Felder ausfüllen.",
+noAccount:"Kein Restaurant für diese E-Mail gefunden. Wir richten jedes Restaurant persönlich ein — melde dich bei uns.",wrongCode:"Falscher Code.",
+enterPhone:"Bitte Nummer eingeben.",fullCode:"Bitte alle 6 Ziffern eingeben.",enterLoginEmail:"Bitte gültige E-Mail eingeben.",
+linkSent:"Link gesendet — prüfe dein Postfach (und den Spam-Ordner).",pendingApproval:"Dein Konto wird geprüft. Wir melden uns in Kürze.",
+loadError:"Konnte das gerade nicht laden — versuch es gleich nochmal."}
 };
 
-const COPY = {
+let lang = 'en';
+function t(key){ return I18N[lang][key] ?? I18N.en[key] ?? key; }
+
+/* ══════════ SUPABASE ══════════ */
+const SUPABASE_URL = "https://zqosmuwittjelbeggqdy.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_1FAmfdbXyyYgJjBXoO1RIw_YDIvzGSb";
+const sb = (window.supabase && SUPABASE_URL.startsWith('http'))
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+function sbReady(){
+  if(!sb){ console.error('Supabase is not configured — set SUPABASE_URL / SUPABASE_ANON_KEY at the top of the script.'); }
+  return !!sb;
+}
+
+/* ══════════ DATA ══════════ */
+const SLOT_KEYS = ["lunch","happy","dinner","late"];
+function slotLabel(i){ return t('slots')[i]; }
+
+/* ══════════ REGION DATA (towns + copy only — specials/restaurants come from Supabase) ══════════ */
+const REGIONS = {
 us:{
-  htmlLang:"en", docTitle:"Dock Talk — South Fork Specials, From People Who'd Know",
-  navDiners:"For Diners", navRestaurants:"For Restaurants", navWhere:"Where", navCta:"Get Early Access",
-  heroEyebrow:"South Fork, NY · Hampton Bays to Montauk",
-  heroTitle:"Know what's good tonight — before you get in the car.",
-  heroLede:"Dock Talk is where South Fork restaurants post today's specials, and neighbors follow the places — and eventually the people — they already trust. No delivery, no ordering, no ratings from strangers.",
-  heroCta1:"I run a restaurant", heroCta2:"I just want the tips",
-  cardTag:"Happy Hour · 4–7pm", cardName:"Harbor House Fish Co.",
-  cardNote:"Half off oysters til 7 — the raw bar just shucked a fresh batch of littlenecks too.",
-  cardBy:"Posted by Dana · 4:12pm", cardDist:"0.8 mi away", cardFollow:"Following",
-  stripLabel:"Tonight, Nearby", stripTitle:"What's actually on the board",
-  slotLunch:"Lunch", slotDinner:"Dinner", slotLate:"Late Night",
-  m1name:"Bay Street Lobster Shack", m1text:"Lobster roll special, $18, while the tide's in.", m1time:"Posted 11:40am",
-  m2name:"Osteria Del Porto", m2text:"Off-menu striped bass tonight — ask for it by name.", m2time:"Posted 5:05pm",
-  m3name:"The Tin Roof", m3text:"Kitchen's open til midnight, half-off flatbreads after 10.", m3time:"Posted 9:52pm",
-  insightLabel:"The Insight",
-  insightBody:"The South Fork already runs on word of mouth — a text from a friend, a tip from the bartender, the specials board nobody photographs. Big delivery apps were built to remove the human from the transaction. Dock Talk puts it back.",
-  whatLabel:"What It Is",
-  whatBody:"<strong>A place for restaurants to post today's specials the way they'd tell a regular — and for locals to hear it first.</strong> No delivery, no ordering, no ratings from strangers. Just what's on, right now, from restaurants you already follow.",
-  cmpLabel:"Why It's Different", cmpTitle:"Not another delivery app",
-  feelsLike:"Feels Like",
-  f1:"A tip from someone who actually eats there",
-  f2:"Following a favorite restaurant — and later, a favorite bartender",
-  f3:"A quiet, well-timed nudge",
-  f4:"The local paper's specials column, digitized",
-  notLabel:"Not",
-  n1:"A coupon marketplace", n2:"An algorithm ranking who paid the most",
-  n3:"A push-notification firehose", n4:"A delivery app with reviews bolted on",
-  dinersLabel:"For Diners", dinersTitle:"Hear about it first.",
-  dinersLede:"No ads, no aggregate strangers rating a place you already trust. Just the restaurants you follow, telling you what's on.",
-  d1:"Follow the places you actually go to",
-  d2:"See what's on, filtered by lunch, happy hour, dinner, or late night",
-  d3:"Get one nudge — only when someone you follow posts",
-  dinerFormTitle:"Get the first invite", dinerFormSub:"We're rolling out town by town — tell us where you are.",
-  lblTown:"Town", lblEmail:"Email", dinerSubmit:"Notify me at launch",
-  thanksBig:"You're on the list.", dinerThanksSub:"We'll let you know the moment your town goes live.",
-  restLabel:"For Restaurants", restTitle:"Post it like you'd tell a regular.",
-  restLede:"Free to join, free to post — forever. We're hand-picking the first 30 restaurants on the South Fork before this opens to anyone else.",
-  r1:"Post today's special — a photo, one line, done in under 30 seconds",
-  r2:"It reaches everyone already following you, instantly",
-  r3:"No commission, no vouchers, no fee per post — ever",
-  restFormTitle:"Claim your spot", restFormSub:"We'll reach out personally before this opens to anyone else.",
-  lblName:"Your name", lblRest:"Restaurant name", lblTown2:"Town", lblEmail2:"Email",
-  restSubmit:"Request early access",
-  thanksBig2:"You're on the list.", restThanksSub:"We'll be in touch before this opens to anyone else.",
-  whereLabel:"Where", whereTitle:"Rolling out town by town",
-  footTag:"Dock Talk — built on the South Fork, for the South Fork",
-  footPrivacy:"Privacy", footTerms:"Terms",
-  selectTown:"Select a town", sending:"Sending...",
-  errMsg:"Something went wrong sending that — mind trying again in a moment?"
-},
-cr:{
-  htmlLang:"es", docTitle:"Dock Talk — Especiales de Guanacaste, de quien sí sabe",
-  navDiners:"Para vecinos", navRestaurants:"Para restaurantes", navWhere:"Dónde", navCta:"Acceso anticipado",
-  heroEyebrow:"Guanacaste, Costa Rica · De Tamarindo a Liberia",
-  heroTitle:"Sabé qué está bueno hoy — antes de salir de la casa.",
-  heroLede:"Dock Talk es donde los restaurantes de Guanacaste publican el especial del día, y los vecinos siguen los lugares — y con el tiempo, a la gente — en los que ya confían. Sin delivery, sin pedidos, sin calificaciones de desconocidos.",
-  heroCta1:"Tengo un restaurante", heroCta2:"Solo quiero los datos",
-  cardTag:"Happy Hour · 4–6pm", cardName:"Rancho Marea",
-  cardNote:"Ceviche 2x1 hasta el atardecer — la corvina llegó fresquita esta mañana.",
-  cardBy:"Publicado por Marisol · 4:12pm", cardDist:"a 1,2 km", cardFollow:"Siguiendo",
-  stripLabel:"Hoy, cerca de vos", stripTitle:"Lo que está en la pizarra ahora",
-  slotLunch:"Almuerzo", slotDinner:"Cena", slotLate:"Noche",
-  m1name:"Soda La Ceiba", m1text:"Casado del día con pollo a la plancha — ₡3.500, con fresco de cas.", m1time:"Publicado 11:40am",
-  m2name:"Olas de Nosara", m2text:"Pargo rojo entero al horno de leña — solo quedan 8 esta noche.", m2time:"Publicado 5:05pm",
-  m3name:"Bar Tropical", m3text:"Cocina abierta hasta medianoche, patacones a mitad de precio después de las 10.", m3time:"Publicado 9:52pm",
-  insightLabel:"La idea",
-  insightBody:"Guanacaste ya funciona de boca en boca — un mensaje de un amigo, el dato del bartender, la pizarra que nadie fotografía. Las apps grandes de delivery se construyeron para sacar a la persona de la transacción. Dock Talk la vuelve a poner.",
-  whatLabel:"Qué es",
-  whatBody:"<strong>Un lugar para que los restaurantes publiquen el especial del día como se lo contarían a un cliente de siempre — y para que la gente del pueblo se entere primero.</strong> Sin delivery, sin pedidos, sin calificaciones de desconocidos. Solo: qué hay, ahora mismo, de los restaurantes que ya seguís.",
-  cmpLabel:"Por qué es distinto", cmpTitle:"No es otra app de delivery",
-  feelsLike:"Se siente como",
-  f1:"El dato de alguien que sí come ahí",
-  f2:"Seguir a tu restaurante favorito — y luego, a tu bartender favorito",
-  f3:"Un aviso tranquilo y a buena hora",
-  f4:"La pizarra del pueblo, digitalizada",
-  notLabel:"No es",
-  n1:"Un mercado de cupones", n2:"Un algoritmo que ordena según quién pagó más",
-  n3:"Una lluvia de notificaciones", n4:"Una app de delivery con reseñas encima",
-  dinersLabel:"Para vecinos", dinersTitle:"Enterate primero.",
-  dinersLede:"Sin anuncios, sin desconocidos calificando un lugar en el que ya confiás. Solo los restaurantes que seguís, contándote qué hay.",
-  d1:"Seguí los lugares a los que de verdad vas",
-  d2:"Mirá qué hay, filtrado por almuerzo, happy hour, cena o noche",
-  d3:"Un solo aviso — solo cuando publica alguien que seguís",
-  dinerFormTitle:"Recibí la primera invitación", dinerFormSub:"Vamos pueblo por pueblo — contanos dónde estás.",
-  lblTown:"Pueblo", lblEmail:"Correo", dinerSubmit:"Avisame cuando abra",
-  thanksBig:"Ya estás en la lista.", dinerThanksSub:"Te avisamos apenas tu pueblo esté activo.",
-  restLabel:"Para restaurantes", restTitle:"Publicalo como se lo contarías a un cliente de siempre.",
-  restLede:"Gratis para unirse, gratis para publicar — siempre. Estamos escogiendo a mano los primeros 30 restaurantes de Guanacaste antes de abrir esto a todos.",
-  r1:"Publicá el especial de hoy — una foto, una línea, listo en menos de 30 segundos",
-  r2:"Le llega al instante a todos los que ya te siguen",
-  r3:"Sin comisión, sin cupones, sin cobro por publicación — nunca",
-  restFormTitle:"Apartá tu lugar", restFormSub:"Te contactamos personalmente antes de abrir esto a todos.",
-  lblName:"Tu nombre", lblRest:"Nombre del restaurante", lblTown2:"Pueblo", lblEmail2:"Correo",
-  restSubmit:"Pedir acceso anticipado",
-  thanksBig2:"Ya estás en la lista.", restThanksSub:"Te contactamos antes de abrir esto a todos.",
-  whereLabel:"Dónde", whereTitle:"Vamos pueblo por pueblo",
-  footTag:"Dock Talk — hecho en Guanacaste, para Guanacaste",
-  footPrivacy:"Privacidad", footTerms:"Términos",
-  selectTown:"Seleccioná un pueblo", sending:"Enviando...",
-  errMsg:"Algo salió mal al enviar — ¿probás de nuevo en un momento?"
+  flag:"🇺🇸", label:{en:"United States",es:"Estados Unidos",fr:"États-Unis",zh:"美国",de:"USA"},
+  sub:{en:"South Fork, New York",es:"South Fork, Nueva York",fr:"South Fork, New York",zh:"纽约 南叉地区",de:"South Fork, New York"},
+  tonight:{en:"South Fork · Tonight",es:"South Fork · Hoy",fr:"South Fork · Ce soir",zh:"南叉地区 · 今晚",de:"South Fork · Heute Abend"},
+  heroSub:{en:"South Fork restaurants post their daily specials here. Follow the places you trust, hear about it first.",
+    es:"Los restaurantes del South Fork publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
+    fr:"Les restaurants du South Fork publient ici leurs plats du jour. Suivez les adresses que vous aimez, soyez le premier informé.",
+    zh:"南叉地区的餐厅在这里发布每日特色菜。关注你信任的店，第一时间收到消息。",
+    de:"Restaurants im South Fork posten hier ihre Tagesangebote. Folge den Orten, denen du vertraust, und erfahre es zuerst."},
+  towns:["Westhampton","Hampton Bays","Southampton","Sag Harbor","East Hampton","Amagansett","Montauk"],
+  sample:{restaurant:'Harbor House Fish Co.',town:'Sag Harbor',slot:1,
+   text:{en:"Half off oysters til 7 — raw bar just shucked a fresh batch of littlenecks too.",es:"Ostras a mitad de precio hasta las 7 — el raw bar acaba de abrir almejas frescas.",fr:"Huîtres à moitié prix jusqu'à 19h — le bar à huîtres vient d'ouvrir des palourdes fraîches.",zh:"7点前生蚝半价 — 生蚝吧刚开了一批新鲜小蛤蜊。",de:"Austern bis 19 Uhr zum halben Preis — die Raw Bar hat gerade frische Venusmuscheln geöffnet."}}
 }
 };
 
-let region = 'us';
+const region = 'us';
+let TOWNS = REGIONS[region].towns;
 
-function setRegion(r){
-  region = r;
-  const C = COPY[r];
+/* ══════════ SCRIBBLES (placeholder art shown when a restaurant has no photos yet) ══════════ */
+const SCRIBBLES = [
+`<svg viewBox="0 0 130 98" xmlns="http://www.w3.org/2000/svg"><rect width="130" height="98" fill="#FBEFD6"/>
+<path d="M8 70 Q30 52 52 68 T96 62 T124 72" stroke="#0E9A9A" stroke-width="3" fill="none" stroke-linecap="round"/>
+<path d="M8 82 Q30 66 52 80 T96 74 T124 84" stroke="#0E9A9A" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+<circle cx="98" cy="26" r="11" fill="#F2683C"/></svg>`,
+`<svg viewBox="0 0 130 98" xmlns="http://www.w3.org/2000/svg"><rect width="130" height="98" fill="#FBEFD6"/>
+<path d="M65 88 L65 44" stroke="#2E8B57" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M65 44 Q40 30 26 40 M65 44 Q90 30 104 40 M65 44 Q52 20 60 12 M65 44 Q80 22 76 14" stroke="#2E8B57" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="108" cy="72" r="7" fill="#C9A227"/></svg>`,
+`<svg viewBox="0 0 130 98" xmlns="http://www.w3.org/2000/svg"><rect width="130" height="98" fill="#FBEFD6"/>
+<circle cx="65" cy="42" r="20" fill="none" stroke="#F2683C" stroke-width="3"/>
+<path d="M65 12 L65 4 M65 80 L65 72 M35 42 L27 42 M103 42 L95 42 M44 21 L38 15 M86 21 L92 15" stroke="#C9A227" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M6 86 Q34 74 65 86 T124 86" stroke="#0E9A9A" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+`<svg viewBox="0 0 130 98" xmlns="http://www.w3.org/2000/svg"><rect width="130" height="98" fill="#FBEFD6"/>
+<path d="M20 62 Q34 30 50 62 Q64 34 80 62 Q94 38 110 62" stroke="#2E8B57" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="40" cy="78" r="5" fill="#0E9A9A"/><circle cx="66" cy="80" r="4" fill="#F2683C"/><circle cx="92" cy="78" r="5" fill="#C9A227"/></svg>`
+];
 
-  document.documentElement.lang = C.htmlLang;
-  document.title = C.docTitle;
+/* ══════════ STATE ══════════ */
+let selTowns=new Set(), selSlots=new Set(), showFavoritesOnly=false;
+let currentRestaurant=null, detailR=null, activeIcons=new Set(), history=['screenIntro'], feedCache=[];
+let pendingLoginEmail=null, gateIntent='diner';
+let currentDiner=null, favoritesSet=new Set();
 
-  document.querySelectorAll('[data-i]').forEach(el=>{
-    const v = C[el.getAttribute('data-i')];
-    if(v !== undefined) el.textContent = v;
+/* ══════════ i18n APPLY ══════════ */
+function setLang(l){
+  lang=l;
+  document.documentElement.lang=l;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    const v=t(k);
+    if(k==='heroTitle') el.innerHTML=v; else el.textContent=v;
   });
-  document.querySelectorAll('[data-ihtml]').forEach(el=>{
-    const v = C[el.getAttribute('data-ihtml')];
-    if(v !== undefined) el.innerHTML = v;
-  });
-
-  // town dropdowns + chips
-  ['dTown','rTown'].forEach(id=>{
-    const sel = document.getElementById(id);
-    if(!sel) return;
-    sel.innerHTML = `<option value="">${C.selectTown}</option>` +
-      TOWNS[r].map(t=>`<option>${t}</option>`).join('');
-  });
-  const chips = document.querySelector('.chips');
-  if(chips) chips.innerHTML = TOWNS[r].map(t=>`<span class="chip">${t}</span>`).join('\n');
-
-  // toggle state
-  document.getElementById('rtUs').classList.toggle('active', r==='us');
-  document.getElementById('rtCr').classList.toggle('active', r==='cr');
-
-  try{ localStorage.setItem('dt-region', r); }catch(e){}
+  // region-specific overrides
+  const R=REGIONS[region];
+  document.querySelectorAll('[data-i18n="region"]').forEach(el=>el.textContent=R.sub[l]||R.sub.en);
+  document.querySelectorAll('[data-i18n="heroSub"]').forEach(el=>el.textContent=R.heroSub[l]||R.heroSub.en);
+  document.querySelectorAll('[data-i18n="tonightEyebrow"]').forEach(el=>el.textContent=R.tonight[l]||R.tonight.en);
+  refreshNavLogin();
+  document.getElementById('verifySub').textContent=t('verifySubTxt');
+  document.getElementById('pvText').textContent=t('previewPlaceholder');
+  document.getElementById('gateTagline').textContent=gateIntent==='diner'?t('forDiners'):t('forRestaurants');
+  if(document.getElementById('photoBtnText')) renderPhotoThumb();
+  fillSelect('pSlot',t('slots'),t('selectOpt'));
+  buildSample(); buildFilters();
+  if(document.getElementById('screenDiner').classList.contains('active')) loadFeed();
+  if(detailR && document.getElementById('screenDetail').classList.contains('active')) openDetail(detailR.id);
+  if(currentRestaurant && document.getElementById('screenDashboard').classList.contains('active')){ loadDashboard(); updatePreview(); }
+  if(currentDiner && document.getElementById('screenFavorites').classList.contains('active')) loadFavoritesScreen();
+}
+function fillSelect(id,arr,placeholder){
+  const el=document.getElementById(id); if(!el) return;
+  const prev=el.selectedIndex;
+  el.innerHTML=`<option value="">${placeholder}</option>`+arr.map((a,i)=>`<option value="${id==='pSlot'?i:a}">${a}</option>`).join('');
+  if(prev>0) el.selectedIndex=prev;
 }
 
-/* ══════════════ FORM SUBMIT ══════════════ */
-async function submitForm(e, form, thanksId){
-  e.preventDefault();
-  const endpoint = form.getAttribute('data-formspree');
-  const btn = form.querySelector('button[type="submit"]');
-  const originalText = btn.textContent;
-  btn.textContent = COPY[region].sending;
-  btn.disabled = true;
+/* ══════════ INTRO SAMPLE (decorative teaser only — not live data) ══════════ */
+function buildSample(){
+  const s=REGIONS[region].sample;
+  document.getElementById('sampleCards').innerHTML=`
+    <div class="sc sc-active">
+      <span class="sc-tag">${slotLabel(s.slot)} · ${s.town}</span>
+      <div class="sc-name">${s.restaurant}</div>
+      <div class="sc-text">${s.text[lang]||s.text.en}</div>
+    </div>`;
+}
 
-  try{
-    const formData = new FormData(form);
-    formData.append('region', region === 'us' ? 'South Fork' : 'Guanacaste');
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      body: formData,
-      headers: { 'Accept': 'application/json' }
-    });
-    if(res.ok){
-      form.style.display = 'none';
-      document.getElementById(thanksId).style.display = 'block';
-    } else {
-      throw new Error('Submission failed');
-    }
-  } catch(err){
-    btn.textContent = originalText;
-    btn.disabled = false;
-    alert(COPY[region].errMsg);
+/* ══════════ NAV ══════════ */
+function goScreen(id,push=true){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(push) history.push(id);
+  document.getElementById('navBack').style.display=id==='screenIntro'?'none':'block';
+  document.getElementById('navLogin').style.display=id==='screenDiner'?'block':'none';
+  window.scrollTo(0,0);
+  if(id==='screenDiner'){buildFilters();loadFeed();}
+  if(id==='screenFavorites'){loadFavoritesScreen();}
+}
+function goBack(){ if(history.length>1){history.pop();goScreen(history[history.length-1],false);} }
+
+/* ══════════ FILTERS ══════════ */
+function buildFilters(){
+  const fw=document.getElementById('favFilterRow'); fw.innerHTML='';
+  if(currentDiner){
+    fw.style.display='flex';
+    addChip(fw,'♥ '+t('myFavorites'),showFavoritesOnly,()=>{showFavoritesOnly=!showFavoritesOnly;buildFilters();loadFeed();});
+  } else {
+    fw.style.display='none';
   }
-  return false;
+  const tw=document.getElementById('townFilters'); tw.innerHTML='';
+  addChip(tw,t('allTowns'),selTowns.size===0,()=>{selTowns.clear();buildFilters();loadFeed();});
+  TOWNS.forEach(x=>addChip(tw,x,selTowns.has(x),()=>{selTowns.has(x)?selTowns.delete(x):selTowns.add(x);buildFilters();loadFeed();}));
+  const sw=document.getElementById('slotFilters'); sw.innerHTML='';
+  addChip(sw,t('allTimes'),selSlots.size===0,()=>{selSlots.clear();buildFilters();loadFeed();});
+  t('slots').forEach((x,i)=>addChip(sw,x,selSlots.has(i),()=>{selSlots.has(i)?selSlots.delete(i):selSlots.add(i);buildFilters();loadFeed();}));
+}
+function addChip(parent,label,active,fn){
+  const b=document.createElement('button');
+  b.className='filter-btn'+(active?' active':'');
+  b.textContent=label; b.onclick=fn; parent.appendChild(b);
 }
 
-/* ══════════════ INIT ══════════════ */
-(function(){
-  let start = 'us';
-  try{
-    const saved = localStorage.getItem('dt-region');
-    if(saved === 'us' || saved === 'cr') start = saved;
-    else if((navigator.language||'').toLowerCase().startsWith('es')) start = 'cr';
-  }catch(e){}
-  setRegion(start);
-})();
-</script>
+/* ══════════ FEED (reads live specials from Supabase) ══════════ */
+function ago(dateStr){
+  const mins=Math.max(0,Math.round((Date.now()-new Date(dateStr).getTime())/60000));
+  if(mins<1) return t('justNow');
+  if(mins<60) return mins+'m';
+  const h=Math.round(mins/60);
+  if(h<24) return h+'h';
+  return Math.round(h/24)+'d';
+}
+function esc(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML;}
 
+async function loadFeed(){
+  const el=document.getElementById('feed');
+  if(!sbReady()){ el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
+  el.innerHTML=`<div class="empty-feed"><div class="ef-sub">…</div></div>`;
+  let query = sb.from('specials')
+    .select('id,slot,text,until,photo_url,created_at,restaurant_id,restaurants!inner(id,name,town,region,status)')
+    .eq('restaurants.status','approved')
+    .eq('restaurants.region',region)
+    .order('created_at',{ascending:false});
+  const {data,error} = await query;
+  if(error){ console.error(error); el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
+  let list=(data||[]).map(s=>({
+    id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
+    slot:s.slot, text:s.text, until:s.until, photo:s.photo_url, created_at:s.created_at
+  }));
+  if(selTowns.size) list=list.filter(s=>selTowns.has(s.town));
+  if(selSlots.size) list=list.filter(s=>selSlots.has(s.slot));
+  if(showFavoritesOnly) list=list.filter(s=>favoritesSet.has(s.rid));
+  feedCache=list;
+  document.getElementById('feedCount').textContent=list.length+' '+(list.length===1?t('specialCount'):t('specialsCount'));
+  if(!list.length){
+    el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('emptyTitle')}</div><div class="ef-sub">${t('emptySub')}</div></div>`;
+    return;
+  }
+  el.innerHTML=list.map(s=>{
+    const fav=favoritesSet.has(s.rid);
+    return `<div class="feed-card">
+      <span class="fc-tag">${slotLabel(s.slot)} · ${esc(s.town)}</span>
+      <div class="fc-row">
+        <button class="fc-name-link" onclick="openDetail('${s.rid}')">${esc(s.restaurant)}</button>
+        <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${s.rid}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
+      </div>
+      <div class="fc-text">${esc(s.text)}</div>
+      ${s.photo?`<img class="fc-photo" src="${s.photo}" alt="${esc(s.restaurant)}">`:''}
+      <div class="fc-meta"><span>${ago(s.created_at)}</span>${s.until?`<span>${esc(s.until)}</span>`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════ FAVORITES ══════════ */
+async function loadFavorites(){
+  if(!currentDiner){ favoritesSet=new Set(); return; }
+  const {data,error} = await sb.from('diner_favorites').select('restaurant_id').eq('diner_id',currentDiner.id);
+  if(error){ console.error(error); return; }
+  favoritesSet = new Set((data||[]).map(f=>f.restaurant_id));
+}
+async function toggleFavorite(rid,evt){
+  if(evt) evt.stopPropagation();
+  if(!currentDiner){ goScreen('screenGate'); showStep('stepDiner'); return; }
+  if(favoritesSet.has(rid)){
+    favoritesSet.delete(rid);
+    await sb.from('diner_favorites').delete().eq('diner_id',currentDiner.id).eq('restaurant_id',rid);
+  } else {
+    favoritesSet.add(rid);
+    await sb.from('diner_favorites').insert({diner_id:currentDiner.id, restaurant_id:rid});
+  }
+  if(document.getElementById('screenDiner').classList.contains('active')) loadFeed();
+  if(document.getElementById('screenDetail').classList.contains('active')) updateFavBtn();
+  if(document.getElementById('screenFavorites').classList.contains('active')) loadFavoritesScreen();
+}
+function toggleFavoriteDetail(){ if(detailR) toggleFavorite(detailR.id); }
+function updateFavBtn(){
+  const btn=document.getElementById('rdFavBtn');
+  if(!btn || !detailR) return;
+  const fav=favoritesSet.has(detailR.id);
+  btn.textContent=fav?'♥':'♡';
+  btn.title=fav?t('favoriteRemove'):t('favoriteAdd');
+  btn.classList.toggle('active',fav);
+}
+async function loadFavoritesScreen(){
+  if(!currentDiner){ goScreen('screenGate'); return; }
+  document.getElementById('favEmail').textContent=currentDiner.email||'';
+  const el=document.getElementById('favoritesList');
+  if(!favoritesSet.size){
+    el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('favoritesEmpty')}</div></div>`;
+    return;
+  }
+  const {data,error} = await sb.from('restaurants').select('id,name,town').in('id',[...favoritesSet]);
+  if(error){ console.error(error); el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
+  el.innerHTML=(data||[]).map(r=>`<div class="feed-card">
+      <div class="fc-row">
+        <button class="fc-name-link" onclick="openDetail('${r.id}')">${esc(r.name)}</button>
+        <button class="fav-btn active" onclick="toggleFavorite('${r.id}',event)" title="${t('favoriteRemove')}">♥</button>
+      </div>
+      <div class="fc-meta"><span>${esc(r.town)}</span></div>
+    </div>`).join('');
+}
+function refreshNavLogin(){
+  const btn=document.getElementById('navLogin');
+  if(!btn) return;
+  if(currentDiner){
+    btn.textContent='♥ '+t('myFavorites');
+    btn.onclick=()=>goScreen('screenFavorites');
+  } else {
+    btn.textContent=t('logIn');
+    btn.onclick=()=>goScreen('screenGate');
+  }
+}
+
+/* ══════════ DETAIL ══════════ */
+async function openDetail(rid){
+  if(!sbReady()) return;
+  const {data:info,error} = await sb.from('restaurants').select('*').eq('id',rid).single();
+  if(error || !info){ console.error(error); return; }
+  detailR={id:rid,name:info.name,town:info.town,info};
+  activeIcons=new Set();
+  document.getElementById('rdTown').textContent=info.town||'';
+  document.getElementById('rdName').textContent=info.name||'';
+  updateFavBtn();
+  let badges='';
+  const recurring=info.recurring||null;
+  if(recurring) badges+=`<span class="recurring-badge">${esc(recurring[lang]||recurring.en)}</span>`;
+  document.getElementById('rdBadges').innerHTML=badges;
+  const icons=[['hours','🕐'],['location','📍'],['phone','📞'],['menu','📋']];
+  document.getElementById('iconGrid').innerHTML=icons.map(([k,e])=>
+    `<button class="icon-btn" id="ic-${k}" onclick="toggleIcon('${k}')">
+      <span class="icon-circle">${e}</span><span class="icon-label">${t(k)}</span></button>`).join('');
+  document.getElementById('detailPanels').innerHTML='';
+  const ph=document.getElementById('rdPhotos');
+  const photos=info.photos||[];
+  if(photos.length){
+    ph.innerHTML=`<div class="photo-row">${photos.map(p=>`<img src="${p}" alt="${esc(info.name||'')}">`).join('')}</div>`;
+  } else {
+    ph.innerHTML=`<div class="photo-row"><div class="scribble-frame">${SCRIBBLES[(info.scribble??0)%SCRIBBLES.length]}</div></div>`;
+  }
+  goScreen('screenDetail');
+}
+function toggleIcon(k){
+  activeIcons.has(k)?activeIcons.delete(k):activeIcons.add(k);
+  document.getElementById('ic-'+k).classList.toggle('active',activeIcons.has(k));
+  const info=detailR.info;
+  const order=['hours','location','phone','menu'];
+  document.getElementById('detailPanels').innerHTML=order.filter(x=>activeIcons.has(x)).map(x=>{
+    if(x==='menu'){
+      const m=info.menu||{};
+      return `<div class="detail-panel"><div class="dp-label">${t('menu')}</div>`+
+        Object.keys(m).map(c=>`<div class="menu-category"><h4>${esc(c)}</h4>`+
+          m[c].map(i=>{const p=i.split(' — ');return `<div class="menu-item"><span>${esc(p[0])}</span><span>${esc(p[1]||'')}</span></div>`;}).join('')+
+        `</div>`).join('')+`</div>`;
+    }
+    const val=x==='hours'?info.hours:x==='location'?info.address:info.phone;
+    return `<div class="detail-panel"><div class="dp-label">${t(x)}</div><div class="dp-value">${esc(val||t('notListed'))}</div></div>`;
+  }).join('');
+}
+
+/* ══════════ PHOTO UPLOAD ══════════ */
+let pendingPhoto = null;       // data URL for local preview
+let pendingPhotoFile = null;   // raw File for upload
+function handlePhoto(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  pendingPhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => { pendingPhoto = ev.target.result; renderPhotoThumb(); updatePreview(); };
+  reader.readAsDataURL(file);
+}
+function renderPhotoThumb(){
+  const el = document.getElementById('photoThumb');
+  el.innerHTML = pendingPhoto
+    ? `<div class="thumb-wrap"><img src="${pendingPhoto}" alt=""><button class="thumb-x" onclick="clearPhoto()">✕</button></div>`
+    : '';
+  document.getElementById('photoBtnText').textContent = pendingPhoto ? t('changePhoto') : t('choosePhoto');
+}
+function clearPhoto(){
+  pendingPhoto = null; pendingPhotoFile = null;
+  document.getElementById('pPhoto').value = '';
+  renderPhotoThumb(); updatePreview();
+}
+async function uploadPendingPhoto(){
+  if(!pendingPhotoFile) return null;
+  const path = `${currentRestaurant.id}/${Date.now()}-${pendingPhotoFile.name}`;
+  const {error} = await sb.storage.from('specials-photos').upload(path, pendingPhotoFile);
+  if(error){ console.error(error); return null; }
+  const {data} = sb.storage.from('specials-photos').getPublicUrl(path);
+  return data?.publicUrl || null;
+}
+
+/* ══════════ DINER ACCOUNT (Supabase magic link — no restaurants row = diner) ══════════ */
+async function submitDinerLogin(){
+  const email = document.getElementById('dEmail').value.trim();
+  const st = document.getElementById('dinerStatus');
+  if(!email || !email.includes('@')){ st.textContent=t('enterEmail'); st.className='status-msg err'; return; }
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('sending'); st.className='status-msg';
+  const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: window.location.href.split('#')[0]}});
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  showStep('stepVerify');
+  st.textContent='';
+}
+
+/* ══════════ AUTH (Supabase magic link, shared by diners and restaurants) ══════════ */
+function showStep(id){
+  document.querySelectorAll('.r-card.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='stepDiner') gateIntent='diner';
+  else if(id==='stepLogin' || id==='stepSignup') gateIntent='restaurant';
+  document.getElementById('gateTagline').textContent=gateIntent==='diner'?t('forDiners'):t('forRestaurants');
+}
+
+async function submitLogin(){
+  const email=document.getElementById('lEmail').value.trim();
+  const st=document.getElementById('loginStatus');
+  if(!email || !email.includes('@')){st.textContent=t('enterLoginEmail');st.className='status-msg err';return;}
+  if(!sbReady()){st.textContent=t('loadError');st.className='status-msg err';return;}
+  st.textContent=t('sending'); st.className='status-msg';
+  pendingLoginEmail=email;
+  const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: window.location.href.split('#')[0]}});
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  document.getElementById('verifySub').textContent=t('verifySubTxt');
+  showStep('stepVerify');
+  st.textContent='';
+}
+
+// Called on page load, and whenever Supabase reports an auth state change
+// (e.g. after the user clicks the magic-link email and lands back here signed in).
+async function handleSession(session){
+  if(!session || !sbReady()){ return; }
+  const email=session.user.email;
+  const {data:restaurant,error} = await sb.from('restaurants').select('*').eq('email',email).maybeSingle();
+  if(error){ console.error(error); return; }
+  if(restaurant){
+    if(restaurant.status!=='approved'){ showStep('stepPending'); return; }
+    currentRestaurant=restaurant;
+    goScreen('screenDashboard'); loadDashboard();
+    return;
+  }
+  // No restaurant matches this email — treat them as a diner account.
+  currentDiner={id:session.user.id, email};
+  await loadFavorites();
+  refreshNavLogin();
+  const active=document.querySelector('.screen.active')?.id;
+  if(active==='screenGate'){ goScreen('screenDiner'); }
+  else if(active==='screenDiner'){ buildFilters(); loadFeed(); }
+}
+
+/* ══════════ DASHBOARD ══════════ */
+async function loadDashboard(){
+  document.getElementById('dashName').textContent=currentRestaurant.name;
+  document.getElementById('dashTown').textContent=currentRestaurant.town;
+  document.getElementById('pvName').textContent=currentRestaurant.name;
+  updatePreview(); await loadPosted();
+}
+function updatePreview(){
+  const txt=document.getElementById('pText').value;
+  const si=document.getElementById('pSlot').value;
+  const pv=document.getElementById('pvText');
+  pv.textContent=txt||t('previewPlaceholder');
+  pv.style.fontStyle=txt?'normal':'italic';
+  pv.style.color=txt?'var(--ink)':'var(--muted)';
+  document.getElementById('pvSlot').textContent=(si!==''?slotLabel(+si):slotLabel(2))+' · '+(currentRestaurant?.town||'');
+  document.getElementById('pvPhoto').innerHTML = pendingPhoto
+    ? `<img class="pc-photo" src="${pendingPhoto}" alt="">` : '';
+  const until=document.getElementById('pUntil').value.trim();
+  document.getElementById('pvMeta').innerHTML =
+    `<span>${t('justNow')}</span>${until?`<span>${esc(until)}</span>`:''}`;
+}
+async function postSpecial(){
+  const txt=document.getElementById('pText').value.trim();
+  const si=document.getElementById('pSlot').value;
+  const until=document.getElementById('pUntil').value.trim();
+  const st=document.getElementById('postStatus');
+  if(!txt){st.textContent=t('writeFirst');st.className='status-msg err';return;}
+  if(si===''){st.textContent=t('selectSlot');st.className='status-msg err';return;}
+  if(!sbReady()){st.textContent=t('loadError');st.className='status-msg err';return;}
+  st.textContent=t('posting'); st.className='status-msg';
+  let photoUrl=null;
+  if(pendingPhotoFile){ photoUrl=await uploadPendingPhoto(); }
+  const {error} = await sb.from('specials').insert({
+    restaurant_id: currentRestaurant.id, slot:+si, text:txt, until, photo_url:photoUrl
+  });
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  document.getElementById('pText').value='';document.getElementById('pSlot').value='';document.getElementById('pUntil').value='';
+  clearPhoto();
+  updatePreview();
+  st.textContent=t('posted');st.className='status-msg';
+  await loadPosted();
+  setTimeout(()=>{st.textContent='';},3000);
+}
+async function loadPosted(){
+  const el=document.getElementById('postedList');
+  const {data,error} = await sb.from('specials').select('*').eq('restaurant_id',currentRestaurant.id).order('created_at',{ascending:false});
+  if(error){ console.error(error); el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('loadError')}</p>`; return; }
+  const mine=data||[];
+  if(!mine.length){
+    el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('noSpecials')}</p>`;
+    return;
+  }
+  el.innerHTML=`<div class="eyebrow" style="margin-top:24px;margin-bottom:12px;">${t('yourSpecials')}</div>`+
+    mine.map(p=>`<div class="posted-item"><div><div class="pi-slot">${slotLabel(p.slot)} · ${ago(p.created_at)}</div>
+    <div class="pi-text">${esc(p.text)}</div></div>
+    <button class="delete-btn" onclick="delPost('${p.id}')">${t('remove')}</button></div>`).join('');
+}
+async function delPost(id){
+  const {error} = await sb.from('specials').delete().eq('id',id);
+  if(error){ console.error(error); return; }
+  await loadPosted();
+}
+async function signOut(){
+  if(sbReady()) await sb.auth.signOut();
+  currentRestaurant=null; currentDiner=null; favoritesSet=new Set(); showFavoritesOnly=false;
+  refreshNavLogin();
+  goScreen('screenIntro'); history=['screenIntro'];
+}
+
+/* ══════════ INIT ══════════ */
+setLang(lang);
+if(sbReady()){
+  sb.auth.getSession().then(({data})=>handleSession(data.session));
+  sb.auth.onAuthStateChange((event, session)=>{ if(session) handleSession(session); });
+} else {
+  console.warn('Dock Talk: Supabase is not configured yet. Set SUPABASE_URL and SUPABASE_ANON_KEY at the top of the <script> block.');
+}
+</script>
 </body>
 </html>
