@@ -324,13 +324,61 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
         <label data-i18n="email"></label>
         <input id="dEmail" type="email" placeholder="you@email.com">
       </div>
+      <div class="field">
+        <label data-i18n="password"></label>
+        <input id="dPassword" type="password" placeholder="••••••••">
+      </div>
       <br>
       <button class="btn btn-sea" onclick="submitDinerLogin()" data-i18n="dinerAcctCta"></button>
       <div class="status-msg" id="dinerStatus"></div>
+      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
+        <span data-i18n="newDiner"></span>
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepDinerSignup')" data-i18n="dinerSignUp"></span>
+      </p>
       <div style="border-top:2px solid var(--line);margin-top:22px;padding-top:16px;text-align:center;">
         <p style="font-size:12.5px;color:var(--muted);margin-bottom:10px;" data-i18n="restaurantInstead"></p>
         <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="showStep('stepLogin')" data-i18n="restaurantSignIn"></button>
       </div>
+    </div>
+
+    <div class="r-card step" id="stepDinerSignup">
+      <h2 data-i18n="dinerSignupTitle"></h2>
+      <div class="r-sub" data-i18n="dinerSignupSub"></div>
+      <div class="field">
+        <label data-i18n="yourName"></label>
+        <input id="dsName" type="text" placeholder="">
+      </div>
+      <div class="field">
+        <label data-i18n="yourTown"></label>
+        <select id="dsTown"></select>
+      </div>
+      <div class="field">
+        <label data-i18n="email"></label>
+        <input id="dsEmail" type="email" placeholder="you@email.com">
+      </div>
+      <div class="field">
+        <label data-i18n="password"></label>
+        <input id="dsPassword" type="password" placeholder="••••••••">
+      </div>
+      <br>
+      <button class="btn btn-sea" onclick="submitDinerSignup()" data-i18n="dinerSignupCta"></button>
+      <div class="status-msg" id="dinerSignupStatus"></div>
+      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
+        <span data-i18n="alreadyHaveAccount"></span>
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepDiner')" data-i18n="dinerLogIn"></span>
+      </p>
+    </div>
+
+    <div class="r-card step" id="stepDinerWelcome">
+      <div class="pending-box">
+        <div class="pending-icon">🌴</div>
+        <h3 data-i18n="dinerWelcomeTitle"></h3>
+        <p data-i18n="dinerWelcomeBody"></p>
+      </div>
+      <button class="btn btn-sea" style="margin-top:6px;" onclick="continueToDinerApp()" data-i18n="dinerWelcomeCta"></button>
+      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:14px;">
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="startOverDinerSignup()" data-i18n="dinerEditInfo"></span>
+      </p>
     </div>
 
     <div class="r-card step" id="stepLogin">
@@ -476,7 +524,7 @@ noAccount:"No restaurant found for that email. We onboard restaurants personally
 enterPhone:"Enter your phone number.",fullCode:"Enter the full 6-digit code.",enterLoginEmail:"Enter a valid email.",
 linkSent:"Link sent — check your inbox (and spam folder).",pendingApproval:"Your account is under review. We'll be in touch shortly.",
 loadError:"Couldn't load that right now — try again in a moment.",
-dinerAcctTitle:"Save your favorites",dinerAcctSub:"Enter your email and we'll send a link to sign in — save the restaurants you trust and come back anytime.",dinerAcctCta:"Send magic link",
+dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you trust and come back anytime.",dinerAcctCta:"Log in",password:"Password",enterPassword:"Enter your password.",badLogin:"That email and password don't match. Try again, or sign up below.",newDiner:"New here?",dinerSignUp:"Create an account",dinerSignupTitle:"Create your account",dinerSignupSub:"Tell us a bit about you — it only takes a minute.",yourName:"Your name",yourTown:"Your town",dinerSignupCta:"Create account",alreadyHaveAccount:"Already have an account?",dinerLogIn:"Log in",passwordTooShort:"Password must be at least 6 characters.",dinerWelcomeTitle:"Thanks — we've got it",dinerWelcomeBody:"We've received your info and we're setting up your account. You're already in — dig in and save your favorites.",dinerWelcomeCta:"Continue to Dock Talk",dinerEditInfo:"Need to fix something? Re-enter your info",
 myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites"},
 
@@ -675,6 +723,7 @@ let selTowns=new Set(), selSlots=new Set(), showFavoritesOnly=false;
 let currentRestaurant=null, detailR=null, activeIcons=new Set(), history=['screenIntro'], feedCache=[];
 let pendingLoginEmail=null, gateIntent='diner';
 let currentDiner=null, favoritesSet=new Set();
+let dinerJustSignedUp=false;
 
 /* ══════════ i18n APPLY ══════════ */
 function setLang(l){
@@ -696,6 +745,7 @@ function setLang(l){
   document.getElementById('gateTagline').textContent=gateIntent==='diner'?t('forDiners'):t('forRestaurants');
   if(document.getElementById('photoBtnText')) renderPhotoThumb();
   fillSelect('pSlot',t('slots'),t('selectOpt'));
+  fillSelect('dsTown',TOWNS,t('selectTown'));
   buildSample(); buildFilters();
   if(document.getElementById('screenDiner').classList.contains('active')) loadFeed();
   if(detailR && document.getElementById('screenDetail').classList.contains('active')) openDetail(detailR.id);
@@ -943,24 +993,57 @@ async function uploadPendingPhoto(){
   return data?.publicUrl || null;
 }
 
-/* ══════════ DINER ACCOUNT (Supabase magic link — no restaurants row = diner) ══════════ */
+/* ══════════ DINER ACCOUNT (Supabase email+password — no restaurants row = diner) ══════════ */
 async function submitDinerLogin(){
   const email = document.getElementById('dEmail').value.trim();
+  const password = document.getElementById('dPassword').value;
   const st = document.getElementById('dinerStatus');
   if(!email || !email.includes('@')){ st.textContent=t('enterEmail'); st.className='status-msg err'; return; }
+  if(!password){ st.textContent=t('enterPassword'); st.className='status-msg err'; return; }
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
-  st.textContent=t('sending'); st.className='status-msg';
-  const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: window.location.href.split('#')[0]}});
-  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
-  showStep('stepVerify');
+  st.textContent=t('checking'); st.className='status-msg';
+  const {error} = await sb.auth.signInWithPassword({email, password});
+  if(error){ console.error(error); st.textContent=t('badLogin'); st.className='status-msg err'; return; }
   st.textContent='';
 }
 
-/* ══════════ AUTH (Supabase magic link, shared by diners and restaurants) ══════════ */
+function clearDinerSignupForm(){
+  ['dsName','dsEmail','dsPassword'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const town=document.getElementById('dsTown'); if(town) town.selectedIndex=0;
+  const st=document.getElementById('dinerSignupStatus'); if(st){ st.textContent=''; st.className='status-msg'; }
+}
+
+function startOverDinerSignup(){
+  clearDinerSignupForm();
+  showStep('stepDinerSignup');
+}
+
+async function submitDinerSignup(){
+  const name = document.getElementById('dsName').value.trim();
+  const town = document.getElementById('dsTown').value;
+  const email = document.getElementById('dsEmail').value.trim();
+  const password = document.getElementById('dsPassword').value;
+  const st = document.getElementById('dinerSignupStatus');
+  if(!name || !town || !email || !email.includes('@') || !password){ st.textContent=t('fillAll'); st.className='status-msg err'; return; }
+  if(password.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  dinerJustSignedUp = true;
+  const {error} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
+  if(error){ dinerJustSignedUp = false; console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent='';
+}
+
+function continueToDinerApp(){
+  dinerJustSignedUp = false;
+  goScreen('screenDiner'); buildFilters(); loadFeed();
+}
+
+/* ══════════ AUTH (Supabase, shared by diners [password] and restaurants [magic link]) ══════════ */
 function showStep(id){
   document.querySelectorAll('.r-card.step').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if(id==='stepDiner') gateIntent='diner';
+  if(id==='stepDiner' || id==='stepDinerSignup' || id==='stepDinerWelcome') gateIntent='diner';
   else if(id==='stepLogin' || id==='stepSignup') gateIntent='restaurant';
   document.getElementById('gateTagline').textContent=gateIntent==='diner'?t('forDiners'):t('forRestaurants');
 }
@@ -997,7 +1080,10 @@ async function handleSession(session){
   await loadFavorites();
   refreshNavLogin();
   const active=document.querySelector('.screen.active')?.id;
-  if(active==='screenGate'){ goScreen('screenDiner'); }
+  if(active==='screenGate'){
+    if(dinerJustSignedUp){ showStep('stepDinerWelcome'); return; }
+    goScreen('screenDiner');
+  }
   else if(active==='screenDiner'){ buildFilters(); loadFeed(); }
 }
 
