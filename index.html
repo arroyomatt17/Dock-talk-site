@@ -81,6 +81,9 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
   background:var(--sand-light);font-family:inherit;font-size:14.5px;border-radius:6px;color:var(--ink);outline:none;transition:border-color 0.15s;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--sea);}
 .field textarea{resize:vertical;min-height:72px;line-height:1.5;}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:58px;}
+.pw-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--sea);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px 8px;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .hint{font-size:12px;color:var(--muted);margin-top:6px;}
 
@@ -275,7 +278,7 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
     <div class="cta-block">
       <button class="btn-enter btn-enter-diner" onclick="goScreen('screenDiner')" data-i18n="browseCta"></button>
       <div class="own-restaurant">
-        <button onclick="goScreen('screenGate')" data-i18n="ownRestaurant"></button>
+        <button onclick="goScreen('screenGate');showStep('stepLogin')" data-i18n="ownRestaurant"></button>
       </div>
     </div>
   </div>
@@ -360,7 +363,17 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
       </div>
       <div class="field">
         <label data-i18n="password"></label>
-        <input id="dsPassword" type="password" placeholder="••••••••">
+        <div class="pw-wrap">
+          <input id="dsPassword" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('dsPassword',this)" data-i18n="showPw"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="confirmPassword"></label>
+        <div class="pw-wrap">
+          <input id="dsPassword2" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('dsPassword2',this)" data-i18n="showPw"></button>
+        </div>
       </div>
       <br>
       <button class="btn btn-sea" onclick="submitDinerSignup()" data-i18n="dinerSignupCta"></button>
@@ -429,7 +442,17 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
       </div>
       <div class="field">
         <label data-i18n="password"></label>
-        <input id="rsPassword" type="password" placeholder="••••••••">
+        <div class="pw-wrap">
+          <input id="rsPassword" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('rsPassword',this)" data-i18n="showPw"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="confirmPassword"></label>
+        <div class="pw-wrap">
+          <input id="rsPassword2" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('rsPassword2',this)" data-i18n="showPw"></button>
+        </div>
       </div>
       <br>
       <button class="btn btn-sea" onclick="submitRestaurantSignup()" data-i18n="restaurantSignupCta"></button>
@@ -544,7 +567,7 @@ hours:"Hours",location:"Location",phone:"Phone",menu:"Menu",
 notListed:"Not listed",
 dinerJoin:"Get the first invite",dinerSub:"We'll tell you when restaurants near you post something good. No spam, no ads.",dinerTownHint:"We'll start with specials in your town.",dinerCta:"Join the list",restaurantInstead:"Run a restaurant?",restaurantSignIn:"Sign in as a restaurant",backToDiner:"← Back to diner sign-up",dinerDoneTitle:"You're on the list",dinerDoneBody:"We'll email you when {town} restaurants start posting.",enterEmail:"Enter a valid email.",selectTown:"Select your town.",addPhoto:"Photo (optional)",choosePhoto:"Add a photo",changePhoto:"Change photo",photoHint:"A quick phone shot works better than a stock image.",forDiners:"For diners",forRestaurants:"For restaurants",welcomeBack:"Welcome back",loginSub:"Enter your email and we'll send you a magic link.",
 sendCode:"Send magic link",newRestaurant:"New restaurant? ",signUp:"Learn more",
-claimSpot:"Want Dock Talk at your restaurant?",claimSub:"Create your own login below — once we verify your restaurant you can start posting.",emailUsCta:"Email us to get set up",restaurantLoginCta:"Log in",restaurantSignUpCta:"Sign up",yourPhone:"Phone",restaurantSignupCta:"Create restaurant account",restaurantWelcomeTitle:"Account created",restaurantWelcomeBody:"Log in anytime to check your status. Once we verify your restaurant, you'll be able to post specials right away.",restaurantWelcomeCta:"Go to log in",
+claimSpot:"Mind if we talk about you?",claimSub:"Create your own login below — once we verify your restaurant you can start posting.",emailUsCta:"Email us to get set up",restaurantLoginCta:"Log in",restaurantSignUpCta:"Sign up",yourPhone:"Phone",restaurantSignupCta:"Create restaurant account",restaurantWelcomeTitle:"Account created",restaurantWelcomeBody:"Log in anytime to check your status. Once we verify your restaurant, you'll be able to post specials right away.",restaurantWelcomeCta:"Go to log in",
 restaurantName:"Restaurant name",yourName:"Your name",town:"Town",email:"Email",
 
 sendVerification:"Send verification code",haveAccount:"Already have an account? ",logIn:"Back to login",
@@ -564,7 +587,7 @@ noAccount:"No restaurant found for that email. We onboard restaurants personally
 enterPhone:"Enter your phone number.",fullCode:"Enter the full 6-digit code.",enterLoginEmail:"Enter a valid email.",
 linkSent:"Link sent — check your inbox (and spam folder).",pendingApproval:"Your account is under review. We'll be in touch shortly.",
 loadError:"Couldn't load that right now — try again in a moment.",
-dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you trust and come back anytime.",dinerAcctCta:"Log in",password:"Password",enterPassword:"Enter your password.",badLogin:"That email and password don't match. Try again, or sign up below.",newDiner:"New here?",dinerSignUp:"Create an account",dinerSignupTitle:"Create your account",dinerSignupSub:"Tell us a bit about you — it only takes a minute.",yourName:"Your name",yourTown:"Your town",dinerSignupCta:"Create account",alreadyHaveAccount:"Already have an account?",dinerLogIn:"Log in",passwordTooShort:"Password must be at least 6 characters.",dinerWelcomeTitle:"Account created",dinerWelcomeBody:"Log in with your new email and password to start browsing and saving your favorites.",dinerWelcomeCta:"Go to log in",dinerEditInfo:"Need to fix something? Re-enter your info",navLogIn:"Log in",
+dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you trust and come back anytime.",dinerAcctCta:"Log in",password:"Password",enterPassword:"Enter your password.",badLogin:"That email and password don't match. Try again, or sign up below.",newDiner:"New here?",dinerSignUp:"Create an account",dinerSignupTitle:"Create your account",dinerSignupSub:"Tell us a bit about you — it only takes a minute.",yourName:"Your name",yourTown:"Your town",dinerSignupCta:"Create account",alreadyHaveAccount:"Already have an account?",dinerLogIn:"Log in",passwordTooShort:"Password must be at least 6 characters.",dinerWelcomeTitle:"Account created",dinerWelcomeBody:"Log in with your new email and password to start browsing and saving your favorites.",dinerWelcomeCta:"Go to log in",dinerEditInfo:"Need to fix something? Re-enter your info",navLogIn:"Log in",showPw:"Show",hidePw:"Hide",confirmPassword:"Confirm password",passwordMismatch:"Passwords don't match.",
 myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites"},
 
@@ -821,7 +844,18 @@ function goScreen(id,push=true){
   if(id==='screenDiner'){buildFilters();loadFeed();}
   if(id==='screenFavorites'){loadFavoritesScreen();}
 }
-function goBack(){ if(history.length>1){history.pop();goScreen(history[history.length-1],false);} }
+function goBack(){
+  // The sign-in/sign-up screen holds several steps (diner and restaurant, login and
+  // signup) that don't each get their own history entry, so popping the generic
+  // history stack from here can land on a stale, unrelated step. Simplest fix:
+  // leaving that screen always goes back to the "what's on tonight" landing page.
+  if(document.querySelector('.screen.active')?.id==='screenGate'){
+    history=['screenIntro'];
+    goScreen('screenIntro',false);
+    return;
+  }
+  if(history.length>1){history.pop();goScreen(history[history.length-1],false);}
+}
 
 /* ══════════ FILTERS ══════════ */
 function buildFilters(){
@@ -1060,9 +1094,20 @@ async function submitDinerLogin(){
   st.textContent='';
 }
 
+function togglePasswordVisibility(id,btn){
+  const el=document.getElementById(id);
+  if(!el) return;
+  if(el.type==='password'){ el.type='text'; btn.textContent=t('hidePw'); }
+  else { el.type='password'; btn.textContent=t('showPw'); }
+}
+
 function clearDinerSignupForm(){
-  ['dsName','dsEmail','dsPassword'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['dsName','dsEmail','dsPassword','dsPassword2'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.value=''; el.type='password';
+  });
   const town=document.getElementById('dsTown'); if(town) town.selectedIndex=0;
+  document.querySelectorAll('#stepDinerSignup .pw-toggle').forEach(b=>b.textContent=t('showPw'));
   const st=document.getElementById('dinerSignupStatus'); if(st){ st.textContent=''; st.className='status-msg'; }
 }
 
@@ -1076,9 +1121,11 @@ async function submitDinerSignup(){
   const town = document.getElementById('dsTown').value;
   const email = document.getElementById('dsEmail').value.trim();
   const password = document.getElementById('dsPassword').value;
+  const password2 = document.getElementById('dsPassword2').value;
   const st = document.getElementById('dinerSignupStatus');
   if(!name || !town || !email || !email.includes('@') || !password){ st.textContent=t('fillAll'); st.className='status-msg err'; return; }
   if(password.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
+  if(password!==password2){ st.textContent=t('passwordMismatch'); st.className='status-msg err'; return; }
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
   const {error} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
@@ -1095,9 +1142,11 @@ async function submitRestaurantSignup(){
   const phone = document.getElementById('rsPhone').value.trim();
   const email = document.getElementById('rsEmail').value.trim();
   const password = document.getElementById('rsPassword').value;
+  const password2 = document.getElementById('rsPassword2').value;
   const st = document.getElementById('restaurantSignupStatus');
   if(!name || !town || !email || !email.includes('@') || !password){ st.textContent=t('fillAll'); st.className='status-msg err'; return; }
   if(password.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
+  if(password!==password2){ st.textContent=t('passwordMismatch'); st.className='status-msg err'; return; }
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
   const {error:signUpError} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
