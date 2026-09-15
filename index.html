@@ -499,6 +499,32 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
       </div>
       <button class="btn-ghost btn-sm btn" id="signOutBtn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
     </div>
+    <div class="eyebrow" data-i18n="dashProfileTitle"></div>
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label data-i18n="hours"></label><input id="dpHours" type="text"></div>
+        <div class="field"><label data-i18n="phone"></label><input id="dpPhone" type="tel"></div>
+      </div>
+      <div class="field">
+        <label data-i18n="location"></label>
+        <input id="dpAddress" type="text">
+      </div>
+      <div class="field">
+        <label data-i18n="addPhoto"></label>
+        <div class="photo-upload" id="dpPhotoUpload">
+          <input type="file" id="dpPhoto" accept="image/*" multiple onchange="handleProfilePhoto(event)" hidden>
+          <button type="button" class="photo-btn" onclick="document.getElementById('dpPhoto').click()">
+            <span class="photo-btn-icon">📷</span>
+            <span data-i18n="choosePhoto"></span>
+          </button>
+        </div>
+        <div class="photo-row" id="dpPhotoGrid" style="margin-top:10px;"></div>
+        <div class="hint" data-i18n="photoHint"></div>
+      </div>
+      <br>
+      <button class="btn btn-sea" onclick="saveProfile()" data-i18n="saveProfile"></button>
+      <div class="status-msg" id="profileStatus"></div>
+    </div>
     <div class="eyebrow" data-i18n="postToday"></div>
     <div class="card">
       <div class="row2">
@@ -589,7 +615,8 @@ linkSent:"Link sent — check your inbox (and spam folder).",pendingApproval:"Yo
 loadError:"Couldn't load that right now — try again in a moment.",
 dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you trust and come back anytime.",dinerAcctCta:"Log in",password:"Password",enterPassword:"Enter your password.",badLogin:"That email and password don't match. Try again, or sign up below.",newDiner:"New here?",dinerSignUp:"Create an account",dinerSignupTitle:"Create your account",dinerSignupSub:"Tell us a bit about you — it only takes a minute.",yourName:"Your name",yourTown:"Your town",dinerSignupCta:"Create account",alreadyHaveAccount:"Already have an account?",dinerLogIn:"Log in",passwordTooShort:"Password must be at least 6 characters.",dinerWelcomeTitle:"Account created",dinerWelcomeBody:"Log in with your new email and password to start browsing and saving your favorites.",dinerWelcomeCta:"Go to log in",dinerEditInfo:"Need to fix something? Re-enter your info",navLogIn:"Log in",showPw:"Show",hidePw:"Hide",confirmPassword:"Confirm password",passwordMismatch:"Passwords don't match.",
 myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
-favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites"},
+favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
+dashProfileTitle:"Your restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead."},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
 heroSub:"Los restaurantes de Guanacaste publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
@@ -960,7 +987,7 @@ function updateFavBtn(){
   btn.classList.toggle('active',fav);
 }
 async function loadFavoritesScreen(){
-  if(!currentDiner){ goScreen('screenGate'); return; }
+  if(!currentDiner){ goScreen('screenGate'); showStep('stepDiner'); return; }
   document.getElementById('favEmail').textContent=currentDiner.email||'';
   const el=document.getElementById('favoritesList');
   if(!favoritesSet.size){
@@ -1128,8 +1155,14 @@ async function submitDinerSignup(){
   if(password!==password2){ st.textContent=t('passwordMismatch'); st.className='status-msg err'; return; }
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
-  const {error} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
+  const {data:signUpData, error} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  // Supabase signUp() doesn't return an error for an email that's already registered — it
+  // silently returns a user object with an empty identities array instead of creating a new
+  // account. Without this check, a mistyped/existing email would show a false "account created".
+  if(signUpData?.user && Array.isArray(signUpData.user.identities) && signUpData.user.identities.length===0){
+    st.textContent=t('emailInUse'); st.className='status-msg err'; return;
+  }
   await sb.auth.signOut();
   st.textContent='';
   showStep('stepDinerWelcome');
@@ -1149,8 +1182,14 @@ async function submitRestaurantSignup(){
   if(password!==password2){ st.textContent=t('passwordMismatch'); st.className='status-msg err'; return; }
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
-  const {error:signUpError} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
+  const {data:signUpData, error:signUpError} = await sb.auth.signUp({email, password, options:{data:{name, town}}});
   if(signUpError){ console.error(signUpError); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  // Same silent-"success"-on-existing-email behavior as diner signup — without this check, a
+  // diner who mistypes into (or is directed to) the restaurant form would get a stray pending
+  // restaurants row created against their existing login, and be stuck on "pending" forever.
+  if(signUpData?.user && Array.isArray(signUpData.user.identities) && signUpData.user.identities.length===0){
+    st.textContent=t('emailInUse'); st.className='status-msg err'; return;
+  }
   const {error:insertError} = await sb.from('restaurants').insert({region:'us', name, town, phone: phone||null, email, status:'pending'});
   if(insertError){ console.error(insertError); st.textContent=t('loadError'); st.className='status-msg err'; return; }
   await sb.auth.signOut();
@@ -1206,7 +1245,57 @@ async function loadDashboard(){
   document.getElementById('dashName').textContent=currentRestaurant.name;
   document.getElementById('dashTown').textContent=currentRestaurant.town;
   document.getElementById('pvName').textContent=currentRestaurant.name;
-  updatePreview(); await loadPosted();
+  updatePreview(); await loadPosted(); loadProfileForm();
+}
+
+/* ══════════ RESTAURANT PROFILE (hours/phone/location/photos) ══════════ */
+let dpPhotos=[]; // {url:string|null, file:File|null, preview:string}
+function loadProfileForm(){
+  document.getElementById('dpHours').value = currentRestaurant.hours || '';
+  document.getElementById('dpPhone').value = currentRestaurant.phone || '';
+  document.getElementById('dpAddress').value = currentRestaurant.address || '';
+  dpPhotos = (currentRestaurant.photos||[]).map(url=>({url, file:null, preview:url}));
+  renderProfilePhotoGrid();
+}
+function handleProfilePhoto(e){
+  const files = Array.from(e.target.files||[]);
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = ev => { dpPhotos.push({url:null, file, preview:ev.target.result}); renderProfilePhotoGrid(); };
+    reader.readAsDataURL(file);
+  });
+  e.target.value='';
+}
+function renderProfilePhotoGrid(){
+  const el = document.getElementById('dpPhotoGrid');
+  el.innerHTML = dpPhotos.map((p,i)=>
+    `<div class="thumb-wrap"><img src="${p.preview}" alt=""><button class="thumb-x" onclick="removeProfilePhoto(${i})">✕</button></div>`
+  ).join('');
+}
+function removeProfilePhoto(i){ dpPhotos.splice(i,1); renderProfilePhotoGrid(); }
+async function saveProfile(){
+  const hours=document.getElementById('dpHours').value.trim();
+  const phone=document.getElementById('dpPhone').value.trim();
+  const address=document.getElementById('dpAddress').value.trim();
+  const st=document.getElementById('profileStatus');
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  const finalPhotos=[];
+  for(const p of dpPhotos){
+    if(p.url){ finalPhotos.push(p.url); continue; }
+    const path = `${currentRestaurant.id}/profile-${Date.now()}-${p.file.name}`;
+    const {error:upErr} = await sb.storage.from('specials-photos').upload(path, p.file);
+    if(upErr){ console.error(upErr); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+    const {data} = sb.storage.from('specials-photos').getPublicUrl(path);
+    if(data?.publicUrl) finalPhotos.push(data.publicUrl);
+  }
+  const {error} = await sb.from('restaurants').update({hours, phone, address, photos: finalPhotos}).eq('id', currentRestaurant.id);
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  currentRestaurant.hours=hours; currentRestaurant.phone=phone; currentRestaurant.address=address; currentRestaurant.photos=finalPhotos;
+  dpPhotos = finalPhotos.map(url=>({url, file:null, preview:url}));
+  renderProfilePhotoGrid();
+  st.textContent=t('profileSaved'); st.className='status-msg';
+  setTimeout(()=>{st.textContent='';},3000);
 }
 function updatePreview(){
   const txt=document.getElementById('pText').value;
