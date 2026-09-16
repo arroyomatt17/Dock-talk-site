@@ -282,7 +282,7 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
     <div class="cta-block">
       <button class="btn-enter btn-enter-diner" onclick="goScreen('screenDiner')" data-i18n="browseCta"></button>
       <div class="own-restaurant">
-        <button onclick="goScreen('screenGate');showStep('stepLogin')" data-i18n="ownRestaurant"></button>
+        <button onclick="goScreen('screenGate');showStep('stepDiner')" data-i18n="ownRestaurant"></button>
       </div>
     </div>
   </div>
@@ -505,6 +505,7 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
     </div>
     <div class="dash-tabs">
       <button type="button" class="dash-tab-btn" id="dashTabBtnProfile" onclick="showDashTab('profile')" data-i18n="dashProfileTitle"></button>
+      <button type="button" class="dash-tab-btn" id="dashTabBtnMenu" onclick="showDashTab('menu')" data-i18n="menu"></button>
       <button type="button" class="dash-tab-btn active" id="dashTabBtnPost" onclick="showDashTab('post')" data-i18n="postToday"></button>
     </div>
     <div id="dashTabProfile" hidden>
@@ -532,6 +533,29 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
       <br>
       <button class="btn btn-sea" onclick="saveProfile()" data-i18n="saveProfile"></button>
       <div class="status-msg" id="profileStatus"></div>
+    </div>
+    </div>
+    <div id="dashTabMenu" hidden>
+    <div class="card">
+      <div class="field">
+        <label data-i18n="scanMenuLabel"></label>
+        <div class="photo-upload">
+          <input type="file" id="menuScanInput" accept="image/*" multiple onchange="handleMenuScan(event)" hidden>
+          <button type="button" class="photo-btn" onclick="document.getElementById('menuScanInput').click()">
+            <span class="photo-btn-icon">📷</span>
+            <span data-i18n="scanMenu"></span>
+          </button>
+        </div>
+        <div class="hint" id="menuScanStatus"></div>
+      </div>
+      <div class="field">
+        <label data-i18n="menuEditLabel"></label>
+        <textarea id="menuText" style="min-height:220px;"></textarea>
+        <div class="hint" data-i18n="menuFormatHint"></div>
+      </div>
+      <br>
+      <button class="btn btn-sea" onclick="saveMenu()" data-i18n="saveMenu"></button>
+      <div class="status-msg" id="menuStatus"></div>
     </div>
     </div>
     <div id="dashTabPost">
@@ -626,7 +650,8 @@ loadError:"Couldn't load that right now — try again in a moment.",
 dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you trust and come back anytime.",dinerAcctCta:"Log in",password:"Password",enterPassword:"Enter your password.",badLogin:"That email and password don't match. Try again, or sign up below.",newDiner:"New here?",dinerSignUp:"Create an account",dinerSignupTitle:"Create your account",dinerSignupSub:"Tell us a bit about you — it only takes a minute.",yourName:"Your name",yourTown:"Your town",dinerSignupCta:"Create account",alreadyHaveAccount:"Already have an account?",dinerLogIn:"Log in",passwordTooShort:"Password must be at least 6 characters.",dinerWelcomeTitle:"Account created",dinerWelcomeBody:"Log in with your new email and password to start browsing and saving your favorites.",dinerWelcomeCta:"Go to log in",dinerEditInfo:"Need to fix something? Re-enter your info",navLogIn:"Log in",showPw:"Show",hidePw:"Hide",confirmPassword:"Confirm password",passwordMismatch:"Passwords don't match.",
 myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
-dashProfileTitle:"Your restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead."},
+dashProfileTitle:"Your restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead.",
+scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved."},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
 heroSub:"Los restaurantes de Guanacaste publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
@@ -1255,14 +1280,95 @@ async function loadDashboard(){
   document.getElementById('dashName').textContent=currentRestaurant.name;
   document.getElementById('dashTown').textContent=currentRestaurant.town;
   document.getElementById('pvName').textContent=currentRestaurant.name;
-  updatePreview(); await loadPosted(); loadProfileForm();
+  updatePreview(); await loadPosted(); loadProfileForm(); loadMenuForm();
   showDashTab('post');
 }
 function showDashTab(tab){
   document.getElementById('dashTabProfile').hidden = tab!=='profile';
+  document.getElementById('dashTabMenu').hidden = tab!=='menu';
   document.getElementById('dashTabPost').hidden = tab!=='post';
   document.getElementById('dashTabBtnProfile').classList.toggle('active', tab==='profile');
+  document.getElementById('dashTabBtnMenu').classList.toggle('active', tab==='menu');
   document.getElementById('dashTabBtnPost').classList.toggle('active', tab==='post');
+}
+
+/* ══════════ RESTAURANT MENU (manual edit + photo scan via OCR) ══════════ */
+function menuToText(menu){
+  return Object.entries(menu||{}).map(([cat,items])=>[cat, ...(items||[])].join('\n')).join('\n\n');
+}
+function parseMenuText(text){
+  const menu = {};
+  let currentCat = null;
+  const lines = text.split('\n').map(l=>l.trim());
+  for(const raw of lines){
+    if(!raw) continue;
+    let line = raw.replace(/\s+[-–—]\s+/g, ' — ');
+    let isItem = line.includes(' — ');
+    if(!isItem){
+      const m = line.match(/^(.*?)\s+(\$?\d+(?:\.\d{2})?)$/);
+      if(m && currentCat){ line = `${m[1].trim()} — ${m[2].trim()}`; isItem = true; }
+    }
+    if(isItem && currentCat){
+      menu[currentCat] = menu[currentCat] || [];
+      menu[currentCat].push(line);
+    } else {
+      currentCat = line.replace(/:$/,'').trim();
+      menu[currentCat] = menu[currentCat] || [];
+    }
+  }
+  Object.keys(menu).forEach(k=>{ if(!menu[k].length) delete menu[k]; });
+  return menu;
+}
+function loadMenuForm(){
+  document.getElementById('menuText').value = menuToText(currentRestaurant.menu);
+}
+let tesseractLoadPromise = null;
+function ensureTesseract(){
+  if(window.Tesseract) return Promise.resolve();
+  if(tesseractLoadPromise) return tesseractLoadPromise;
+  tesseractLoadPromise = new Promise((resolve,reject)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = resolve;
+    s.onerror = ()=>{ tesseractLoadPromise=null; reject(new Error('tesseract load failed')); };
+    document.head.appendChild(s);
+  });
+  return tesseractLoadPromise;
+}
+async function handleMenuScan(e){
+  const files = Array.from(e.target.files||[]);
+  if(!files.length) return;
+  const st = document.getElementById('menuScanStatus');
+  st.textContent = t('scanningMenu');
+  try{
+    await ensureTesseract();
+    const chunks = [];
+    for(let i=0;i<files.length;i++){
+      st.textContent = t('scanningMenu')+' ('+(i+1)+'/'+files.length+')';
+      const {data} = await Tesseract.recognize(files[i], 'eng');
+      chunks.push((data.text||'').trim());
+    }
+    const ta = document.getElementById('menuText');
+    const combined = chunks.filter(Boolean).join('\n\n');
+    ta.value = ta.value.trim() ? ta.value.trim()+'\n\n'+combined : combined;
+    st.textContent = t('scanDone');
+    setTimeout(()=>{ if(st.textContent===t('scanDone')) st.textContent=''; },3000);
+  }catch(err){
+    console.error(err);
+    st.textContent = t('loadError');
+  }
+  e.target.value = '';
+}
+async function saveMenu(){
+  const menu = parseMenuText(document.getElementById('menuText').value);
+  const st = document.getElementById('menuStatus');
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  const {error} = await sb.from('restaurants').update({menu}).eq('id', currentRestaurant.id);
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  currentRestaurant.menu = menu;
+  st.textContent=t('menuSaved'); st.className='status-msg';
+  setTimeout(()=>{st.textContent='';},3000);
 }
 
 /* ══════════ RESTAURANT PROFILE (hours/phone/location/photos) ══════════ */
