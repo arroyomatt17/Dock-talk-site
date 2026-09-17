@@ -982,6 +982,7 @@ function isExpired(untilTime, createdAt){
   const created = new Date(createdAt);
   const [h,m] = untilTime.split(':').map(Number);
   const expiry = new Date(created.getFullYear(), created.getMonth(), created.getDate(), h, m, 0, 0);
+  if(expiry <= created) expiry.setDate(expiry.getDate()+1);
   return new Date() > expiry;
 }
 
