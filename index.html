@@ -261,7 +261,7 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
 <div class="nav">
   <div class="wordmark">DOCK <em>TALK</em></div>
   <div class="nav-right">
-    <button class="nav-back" id="navBack" onclick="goBack()">←</button>
+    <button class="nav-back" id="navBack" onclick="window.history.back()">←</button>
     <button class="nav-login" id="navLogin" onclick="goScreen('screenGate')"></button>
     <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
       <option value="en">🇬🇧 EN</option>
@@ -512,7 +512,14 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
     <div id="dashTabProfile" hidden>
     <div class="card">
       <div class="row2">
-        <div class="field"><label data-i18n="hours"></label><input id="dpHours" type="text"></div>
+        <div class="field">
+          <label data-i18n="hours"></label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input id="dpHoursOpen" type="time" style="flex:1;min-width:0;">
+            <span style="font-size:13px;color:var(--muted);">–</span>
+            <input id="dpHoursClose" type="time" style="flex:1;min-width:0;">
+          </div>
+        </div>
         <div class="field"><label data-i18n="phone"></label><input id="dpPhone" type="tel"></div>
       </div>
       <div class="field">
@@ -563,7 +570,7 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
     <div class="card">
       <div class="row2">
         <div class="field"><label data-i18n="timeSlot"></label><select id="pSlot" onchange="updatePreview()"></select></div>
-        <div class="field"><label data-i18n="validUntil"></label><input id="pUntil" type="text" oninput="updatePreview()"></div>
+        <div class="field"><label data-i18n="validUntil"></label><input id="pUntil" type="time" oninput="updatePreview()"></div>
       </div>
       <div class="field">
         <label data-i18n="theSpecial"></label>
@@ -848,7 +855,7 @@ const SCRIBBLES = [
 
 /* ══════════ STATE ══════════ */
 let selTowns=new Set(), selSlots=new Set(), showFavoritesOnly=false;
-let currentRestaurant=null, detailR=null, activeIcons=new Set(), history=['screenIntro'], feedCache=[];
+let currentRestaurant=null, detailR=null, activeIcons=new Set(), navStack=['screenIntro'], feedCache=[];
 let pendingLoginEmail=null, gateIntent='diner';
 let currentDiner=null, favoritesSet=new Set();
 
@@ -902,7 +909,14 @@ function buildSample(){
 function goScreen(id,push=true){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if(push) history.push(id);
+  if(push){
+    navStack.push(id);
+    // Mirrors the in-app screen stack into the browser's REAL history (the earlier
+    // "history" array shadowed the actual window.history object under the same
+    // name, so the phone/browser's own back button was never hooked up to it at
+    // all — see the popstate listener in the INIT section below).
+    window.history.pushState({navDepth:navStack.length}, '', location.href);
+  }
   document.getElementById('navBack').style.display=id==='screenIntro'?'none':'block';
   document.getElementById('navLogin').style.display=id==='screenDiner'?'block':'none';
   window.scrollTo(0,0);
@@ -915,11 +929,11 @@ function goBack(){
   // history stack from here can land on a stale, unrelated step. Simplest fix:
   // leaving that screen always goes back to the "what's on tonight" landing page.
   if(document.querySelector('.screen.active')?.id==='screenGate'){
-    history=['screenIntro'];
+    navStack=['screenIntro'];
     goScreen('screenIntro',false);
     return;
   }
-  if(history.length>1){history.pop();goScreen(history[history.length-1],false);}
+  if(navStack.length>1){navStack.pop();goScreen(navStack[navStack.length-1],false);}
 }
 
 /* ══════════ FILTERS ══════════ */
@@ -954,19 +968,29 @@ function ago(dateStr){
   return Math.round(h/24)+'d';
 }
 function esc(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML;}
+// A special "expires" at its own until_time on the same calendar day it was posted —
+// e.g. posted this morning with "until" set to 2:00 PM disappears once the clock
+// passes 2:00 PM today. Specials with no until_time never auto-hide.
+function isExpired(untilTime, createdAt){
+  if(!untilTime) return false;
+  const created = new Date(createdAt);
+  const [h,m] = untilTime.split(':').map(Number);
+  const expiry = new Date(created.getFullYear(), created.getMonth(), created.getDate(), h, m, 0, 0);
+  return new Date() > expiry;
+}
 
 async function loadFeed(){
   const el=document.getElementById('feed');
   if(!sbReady()){ el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
   el.innerHTML=`<div class="empty-feed"><div class="ef-sub">…</div></div>`;
   let query = sb.from('specials')
-    .select('id,slot,text,until,photo_url,created_at,restaurant_id,restaurants!inner(id,name,town,region,status)')
+    .select('id,slot,text,until,until_time,photo_url,created_at,restaurant_id,restaurants!inner(id,name,town,region,status)')
     .eq('restaurants.status','approved')
     .eq('restaurants.region',region)
     .order('created_at',{ascending:false});
   const {data,error} = await query;
   if(error){ console.error(error); el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
-  let list=(data||[]).map(s=>({
+  let list=(data||[]).filter(s=>!isExpired(s.until_time,s.created_at)).map(s=>({
     id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
     slot:s.slot, text:s.text, until:s.until, photo:s.photo_url, created_at:s.created_at
   }));
@@ -1376,8 +1400,34 @@ async function saveMenu(){
 
 /* ══════════ RESTAURANT PROFILE (hours/phone/location/photos) ══════════ */
 let dpPhotos=[]; // {url:string|null, file:File|null, preview:string}
+// Formats a 24h "HH:MM" time value as a display string like "9:00 AM".
+function formatTime12(hhmm){
+  if(!hhmm) return '';
+  const [h,m] = hhmm.split(':').map(Number);
+  const period = h>=12 ? 'PM' : 'AM';
+  const h12 = h%12===0 ? 12 : h%12;
+  return `${h12}:${String(m).padStart(2,'0')} ${period}`;
+}
+// Best-effort parse of a previously free-typed hours string (e.g. "9am - 10pm" or
+// "9:00 AM – 10:00 PM") back into two 24h "HH:MM" values for the time pickers.
+// Returns {open:'', close:''} if it can't confidently find two times.
+function parseHoursToTimes(hoursStr){
+  const times = [...(hoursStr||'').matchAll(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/gi)];
+  if(times.length<2) return {open:'',close:''};
+  const to24 = (m)=>{
+    let h=+m[1], min=m[2]?+m[2]:0, period=(m[3]||'').toLowerCase();
+    if(period==='pm' && h!==12) h+=12;
+    if(period==='am' && h===12) h=0;
+    if(h>23||min>59) return null;
+    return `${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+  };
+  const open=to24(times[0]), close=to24(times[1]);
+  return {open: open||'', close: close||''};
+}
 function loadProfileForm(){
-  document.getElementById('dpHours').value = currentRestaurant.hours || '';
+  const parsed = parseHoursToTimes(currentRestaurant.hours);
+  document.getElementById('dpHoursOpen').value = parsed.open;
+  document.getElementById('dpHoursClose').value = parsed.close;
   document.getElementById('dpPhone').value = currentRestaurant.phone || '';
   document.getElementById('dpAddress').value = currentRestaurant.address || '';
   dpPhotos = (currentRestaurant.photos||[]).map(url=>({url, file:null, preview:url}));
@@ -1400,7 +1450,9 @@ function renderProfilePhotoGrid(){
 }
 function removeProfilePhoto(i){ dpPhotos.splice(i,1); renderProfilePhotoGrid(); }
 async function saveProfile(){
-  const hours=document.getElementById('dpHours').value.trim();
+  const hoursOpen=document.getElementById('dpHoursOpen').value;
+  const hoursClose=document.getElementById('dpHoursClose').value;
+  const hours = (hoursOpen && hoursClose) ? `${formatTime12(hoursOpen)} – ${formatTime12(hoursClose)}` : '';
   const phone=document.getElementById('dpPhone').value.trim();
   const address=document.getElementById('dpAddress').value.trim();
   const st=document.getElementById('profileStatus');
@@ -1433,14 +1485,16 @@ function updatePreview(){
   document.getElementById('pvSlot').textContent=(si!==''?slotLabel(+si):slotLabel(2))+' · '+(currentRestaurant?.town||'');
   document.getElementById('pvPhoto').innerHTML = pendingPhoto
     ? `<img class="pc-photo" src="${pendingPhoto}" alt="">` : '';
-  const until=document.getElementById('pUntil').value.trim();
+  const untilTime=document.getElementById('pUntil').value;
+  const until=formatTime12(untilTime);
   document.getElementById('pvMeta').innerHTML =
     `<span>${t('justNow')}</span>${until?`<span>${esc(until)}</span>`:''}`;
 }
 async function postSpecial(){
   const txt=document.getElementById('pText').value.trim();
   const si=document.getElementById('pSlot').value;
-  const until=document.getElementById('pUntil').value.trim();
+  const untilTime=document.getElementById('pUntil').value;
+  const until=formatTime12(untilTime);
   const st=document.getElementById('postStatus');
   if(!txt){st.textContent=t('writeFirst');st.className='status-msg err';return;}
   if(si===''){st.textContent=t('selectSlot');st.className='status-msg err';return;}
@@ -1449,7 +1503,7 @@ async function postSpecial(){
   let photoUrl=null;
   if(pendingPhotoFile){ photoUrl=await uploadPendingPhoto(); }
   const {error} = await sb.from('specials').insert({
-    restaurant_id: currentRestaurant.id, slot:+si, text:txt, until, photo_url:photoUrl
+    restaurant_id: currentRestaurant.id, slot:+si, text:txt, until, until_time: untilTime||null, photo_url:photoUrl
   });
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
   document.getElementById('pText').value='';document.getElementById('pSlot').value='';document.getElementById('pUntil').value='';
@@ -1463,7 +1517,7 @@ async function loadPosted(){
   const el=document.getElementById('postedList');
   const {data,error} = await sb.from('specials').select('*').eq('restaurant_id',currentRestaurant.id).order('created_at',{ascending:false});
   if(error){ console.error(error); el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('loadError')}</p>`; return; }
-  const mine=data||[];
+  const mine=(data||[]).filter(p=>!isExpired(p.until_time,p.created_at));
   if(!mine.length){
     el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('noSpecials')}</p>`;
     return;
@@ -1482,11 +1536,28 @@ async function signOut(){
   if(sbReady()) await sb.auth.signOut();
   currentRestaurant=null; currentDiner=null; favoritesSet=new Set(); showFavoritesOnly=false;
   refreshNavLogin();
-  goScreen('screenIntro'); history=['screenIntro'];
+  goScreen('screenIntro'); navStack=['screenIntro'];
 }
 
 /* ══════════ INIT ══════════ */
 setLang(lang);
+// The in-app ← arrow (above) triggers this indirectly too, via window.history.back()
+// — routing both the phone/browser's own back button and the in-app arrow through
+// this single popstate handler keeps them perfectly in sync, so there's exactly one
+// place that decides what "back" means. Before this, the app tracked its own screen
+// stack completely separately from the real browser history, so the very first tap
+// of the phone/browser's actual back button exited Dock Talk immediately. Only once
+// navStack is back down to the intro screen does a further back press fall through
+// to the browser's real, default back behavior (actually leaving the site).
+window.addEventListener('popstate', goBack);
+// Re-checks every minute for specials whose "valid until" time has passed, so a
+// tile disappears from the feed (and from the restaurant's own list) on its own
+// without needing a page refresh.
+setInterval(()=>{
+  if(document.getElementById('screenDiner')?.classList.contains('active')) loadFeed();
+  const postTab=document.getElementById('dashTabPost');
+  if(postTab && !postTab.hidden) loadPosted();
+}, 60000);
 if(sbReady()){
   sb.auth.getSession().then(({data})=>handleSession(data.session));
   sb.auth.onAuthStateChange((event, session)=>{ if(session) handleSession(session); });
