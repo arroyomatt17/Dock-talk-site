@@ -168,6 +168,11 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .scribble-frame svg{display:block;width:100%;height:100%;}
 .recurring-badge{display:inline-block;font-size:13px;background:var(--sunset-light);color:var(--sunset);
   padding:6px 14px;border-radius:20px;font-weight:600;margin-bottom:10px;}
+.deal-card{background:var(--sand);border:1px solid var(--accent);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;}
+.deal-live{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;color:#0A0A0A;background:var(--accent);border-radius:100px;padding:4px 10px;margin-bottom:10px;}
+.deal-live .dot{width:6px;height:6px;border-radius:50%;background:#0A0A0A;display:inline-block;}
+.deal-text{font-size:14.5px;line-height:1.5;color:var(--ink);margin-bottom:8px;}
+.deal-meta{font-size:11.5px;color:var(--muted);}
 
 .step{display:none;}.step.active{display:block;}
 .code-inputs{display:flex;gap:10px;justify-content:center;margin:20px 0;}
@@ -323,6 +328,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
     </div>
     <div id="rdBadges"></div>
     <div class="icon-grid" id="iconGrid"></div>
+    <div id="rdDeal"></div>
     <div id="rdPhotos"></div>
     <div id="detailPanels"></div>
   </div>
@@ -650,7 +656,7 @@ checkTexts:"Check your email",verifySubTxt:"We sent a login link to your email �
 verifiedTitle:"Verified — we'll take it from here",verifiedBody:"Your account is under review. We check every restaurant personally, usually within a few hours.",
 approved:"Approved ✓",signOut:"Sign out",postToday:"Post today's special",
 timeSlot:"Time slot",validUntil:"Valid until",theSpecial:"The special",
-specialHint:"Write it like you'd tell a regular.",howSeen:"How diners will see it",justNow:"Just now",
+specialHint:"Write it like you'd tell a regular.",howSeen:"How diners will see it",justNow:"Just now",liveNow:"Live now",
 postSpecial:"Post special",selectOpt:"Select",
 slots:["Lunch","Happy Hour","Dinner","Late Night"],
 posting:"Posting...",posted:"Posted — live on the diner feed.",writeFirst:"Write the special first.",
@@ -688,7 +694,7 @@ checkTexts:"Revisá tu correo",verifySubTxt:"Te enviamos un enlace de acceso —
 verifiedTitle:"Verificado — nosotros seguimos desde acá",verifiedBody:"Tu cuenta está en revisión. Revisamos cada restaurante personalmente, normalmente en unas horas.",
 approved:"Aprobado ✓",signOut:"Cerrar sesión",postToday:"Publicá el especial de hoy",
 timeSlot:"Horario",validUntil:"Válido hasta",theSpecial:"El especial",
-specialHint:"Escribilo como se lo dirías a un cliente de siempre.",howSeen:"Así lo verán los comensales",justNow:"Ahora mismo",
+specialHint:"Escribilo como se lo dirías a un cliente de siempre.",howSeen:"Así lo verán los comensales",justNow:"Ahora mismo",liveNow:"Activo ahora",
 postSpecial:"Publicar especial",selectOpt:"Seleccionar",
 slots:["Almuerzo","Happy Hour","Cena","Noche"],
 posting:"Publicando...",posted:"Publicado — ya está en el feed.",writeFirst:"Escribí el especial primero.",
@@ -721,7 +727,7 @@ checkTexts:"Vérifiez vos e-mails",verifySubTxt:"Nous avons envoyé un lien de c
 verifiedTitle:"Vérifié — nous prenons le relais",verifiedBody:"Votre compte est en cours d'examen. Nous vérifions chaque restaurant personnellement, généralement en quelques heures.",
 approved:"Approuvé ✓",signOut:"Déconnexion",postToday:"Publier l'offre du jour",
 timeSlot:"Créneau",validUntil:"Valable jusqu'à",theSpecial:"L'offre",
-specialHint:"Écrivez-le comme à un habitué.",howSeen:"Ce que verront les clients",justNow:"À l'instant",
+specialHint:"Écrivez-le comme à un habitué.",howSeen:"Ce que verront les clients",justNow:"À l'instant",liveNow:"En ce moment",
 postSpecial:"Publier",selectOpt:"Choisir",
 slots:["Déjeuner","Happy Hour","Dîner","Tard le soir"],
 posting:"Publication...",posted:"Publié — visible dans le fil.",writeFirst:"Écrivez d'abord l'offre.",
@@ -754,7 +760,7 @@ checkTexts:"查看邮箱",verifySubTxt:"我们已发送登录链接 — 点击�
 verifiedTitle:"验证成功 — 接下来交给我们",verifiedBody:"你的账户正在审核中。我们会亲自核实每家餐厅，通常几小时内完成。",
 approved:"已通过 ✓",signOut:"退出登录",postToday:"发布今日特色",
 timeSlot:"时段",validUntil:"有效至",theSpecial:"特色内容",
-specialHint:"就像跟老顾客说话那样写。",howSeen:"食客看到的样子",justNow:"刚刚",
+specialHint:"就像跟老顾客说话那样写。",howSeen:"食客看到的样子",justNow:"刚刚",liveNow:"现在进行中",
 postSpecial:"发布",selectOpt:"请选择",
 slots:["午餐","欢乐时光","晚餐","深夜"],
 posting:"发布中...",posted:"已发布 — 已在动态中显示。",writeFirst:"请先写特色内容。",
@@ -787,7 +793,7 @@ checkTexts:"Schau in dein Postfach",verifySubTxt:"Wir haben einen Anmeldelink ge
 verifiedTitle:"Bestätigt — wir übernehmen ab hier",verifiedBody:"Dein Konto wird geprüft. Wir prüfen jedes Restaurant persönlich, meist innerhalb weniger Stunden.",
 approved:"Freigegeben ✓",signOut:"Abmelden",postToday:"Heutiges Angebot posten",
 timeSlot:"Zeitfenster",validUntil:"Gültig bis",theSpecial:"Das Angebot",
-specialHint:"Schreib es, wie du es einem Stammgast sagen würdest.",howSeen:"So sehen es die Gäste",justNow:"Gerade eben",
+specialHint:"Schreib es, wie du es einem Stammgast sagen würdest.",howSeen:"So sehen es die Gäste",justNow:"Gerade eben",liveNow:"Jetzt aktiv",
 postSpecial:"Angebot posten",selectOpt:"Auswählen",
 slots:["Mittag","Happy Hour","Abendessen","Spätabend"],
 posting:"Wird gepostet...",posted:"Gepostet — jetzt im Feed.",writeFirst:"Schreib zuerst das Angebot.",
@@ -1113,6 +1119,11 @@ async function openDetail(rid){
   const recurring=info.recurring||null;
   if(recurring) badges+=`<span class="recurring-badge">${esc(recurring[lang]||recurring.en)}</span>`;
   document.getElementById('rdBadges').innerHTML=badges;
+  const {data:rdSpecials} = await sb.from('specials').select('*').eq('restaurant_id',rid).order('created_at',{ascending:false});
+  const activeDeal=(rdSpecials||[]).find(s=>!isExpired(s.until_time,s.created_at));
+  document.getElementById('rdDeal').innerHTML = activeDeal
+    ? `<div class="deal-card"><div class="deal-live"><span class="dot"></span>${t('liveNow')}</div><div class="deal-text">${esc(activeDeal.text)}</div><div class="deal-meta">${ago(activeDeal.created_at)}${activeDeal.until?' · '+esc(activeDeal.until):''}</div></div>`
+    : '';
   const icons=[['hours','🕐'],['location','📍'],['phone','📞'],['menu','📋']];
   document.getElementById('iconGrid').innerHTML=icons.map(([k,e])=>
     `<button class="icon-btn" id="ic-${k}" onclick="toggleIcon('${k}')">
