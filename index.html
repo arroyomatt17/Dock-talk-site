@@ -266,6 +266,18 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
 .photo-btn{background:var(--sand);color:var(--ink);border:2px dashed var(--line);}
 
 input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(58%) saturate(1074%) hue-rotate(31deg) brightness(104%) contrast(105%);cursor:pointer;}
+.switch-check{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0;}
+.switch-check input{opacity:0;width:0;height:0;}
+.switch-check .track{position:absolute;inset:0;background:rgba(255,255,255,0.18);border-radius:100px;transition:background .15s;cursor:pointer;}
+.switch-check .track .thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s;}
+.switch-check input:checked ~ .track{background:var(--accent);}
+.switch-check input:checked ~ .track .thumb{left:18px;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--sand);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;}
+.toggle-row .lbl{font-size:14px;font-weight:600;}
+.toggle-row .sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.day-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.day-pill{font-size:12px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--sand);color:var(--muted);cursor:pointer;font-family:inherit;font-weight:600;}
+.day-pill.on{background:var(--accent);color:#0A0A0A;border-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -521,6 +533,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <button type="button" class="dash-tab-btn" id="dashTabBtnProfile" onclick="showDashTab('profile')" data-i18n="dashProfileTitle"></button>
       <button type="button" class="dash-tab-btn" id="dashTabBtnMenu" onclick="showDashTab('menu')" data-i18n="menu"></button>
       <button type="button" class="dash-tab-btn active" id="dashTabBtnPost" onclick="showDashTab('post')" data-i18n="postToday"></button>
+      <button type="button" class="dash-tab-btn" id="dashTabBtnRecurring" onclick="showDashTab('recurring')" data-i18n="recurringTab"></button>
     </div>
     <div id="dashTabProfile" hidden>
     <div class="card">
@@ -616,6 +629,44 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
     </div>
     <div class="posted-list" id="postedList"></div>
     </div>
+    <div id="dashTabRecurring" hidden>
+    <div class="card">
+      <div class="toggle-row">
+        <div>
+          <div class="lbl" data-i18n="recurringEnabled"></div>
+          <div class="sub" data-i18n="recurringToggleHint"></div>
+        </div>
+        <label class="switch-check">
+          <input type="checkbox" id="rdEnabled">
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+      <div class="field">
+        <label data-i18n="recurringTextLabel"></label>
+        <textarea id="rdText"></textarea>
+      </div>
+      <div class="field">
+        <label data-i18n="recurringDaysLabel"></label>
+        <div class="day-pills" id="rdDays">
+          <button type="button" class="day-pill" data-day="0" onclick="toggleRecurringDay(this)">Mon</button>
+          <button type="button" class="day-pill" data-day="1" onclick="toggleRecurringDay(this)">Tue</button>
+          <button type="button" class="day-pill" data-day="2" onclick="toggleRecurringDay(this)">Wed</button>
+          <button type="button" class="day-pill" data-day="3" onclick="toggleRecurringDay(this)">Thu</button>
+          <button type="button" class="day-pill" data-day="4" onclick="toggleRecurringDay(this)">Fri</button>
+          <button type="button" class="day-pill" data-day="5" onclick="toggleRecurringDay(this)">Sat</button>
+          <button type="button" class="day-pill" data-day="6" onclick="toggleRecurringDay(this)">Sun</button>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label data-i18n="recurringStartLabel"></label><input id="rdStart" type="time"></div>
+        <div class="field"><label data-i18n="recurringEndLabel"></label><input id="rdEnd" type="time"></div>
+      </div>
+      <div class="hint" data-i18n="recurringNote"></div>
+      <br>
+      <button class="btn btn-sea" onclick="saveRecurring()" data-i18n="saveRecurring"></button>
+      <div class="status-msg" id="recurringStatus"></div>
+    </div>
+    </div>
   </div>
 </div>
 
@@ -672,7 +723,8 @@ dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you t
 myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
 dashProfileTitle:"Your restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead.",
-scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved."},
+scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",
+recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Save recurring deal",recurringSaved:"Saved.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day."},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
 heroSub:"Los restaurantes de Guanacaste publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
@@ -1118,6 +1170,7 @@ async function openDetail(rid){
   let badges='';
   const recurring=info.recurring||null;
   if(recurring) badges+=`<span class="recurring-badge">${esc(recurring[lang]||recurring.en)}</span>`;
+  if(isRecurringActive(info.recurring_deal)) badges+=`<span class="recurring-badge">${esc(info.recurring_deal.text)}</span>`;
   document.getElementById('rdBadges').innerHTML=badges;
   const {data:rdSpecials} = await sb.from('specials').select('*').eq('restaurant_id',rid).order('created_at',{ascending:false});
   const activeDeal=(rdSpecials||[]).find(s=>!isExpired(s.until_time,s.created_at));
@@ -1326,16 +1379,59 @@ async function loadDashboard(){
   document.getElementById('dashName').textContent=currentRestaurant.name;
   document.getElementById('dashTown').textContent=currentRestaurant.town;
   document.getElementById('pvName').textContent=currentRestaurant.name;
-  updatePreview(); await loadPosted(); loadProfileForm(); loadMenuForm();
+  updatePreview(); await loadPosted(); loadProfileForm(); loadMenuForm(); loadRecurringForm();
   showDashTab('post');
 }
 function showDashTab(tab){
   document.getElementById('dashTabProfile').hidden = tab!=='profile';
   document.getElementById('dashTabMenu').hidden = tab!=='menu';
   document.getElementById('dashTabPost').hidden = tab!=='post';
+  document.getElementById('dashTabRecurring').hidden = tab!=='recurring';
   document.getElementById('dashTabBtnProfile').classList.toggle('active', tab==='profile');
   document.getElementById('dashTabBtnMenu').classList.toggle('active', tab==='menu');
   document.getElementById('dashTabBtnPost').classList.toggle('active', tab==='post');
+  document.getElementById('dashTabBtnRecurring').classList.toggle('active', tab==='recurring');
+}
+function toggleRecurringDay(btn){ btn.classList.toggle('on'); }
+function loadRecurringForm(){
+  const rd = currentRestaurant.recurring_deal || {};
+  document.getElementById('rdEnabled').checked = !!rd.enabled;
+  document.getElementById('rdText').value = rd.text || '';
+  document.getElementById('rdStart').value = rd.start || '';
+  document.getElementById('rdEnd').value = rd.end || '';
+  const selectedDays = new Set(rd.days || []);
+  document.querySelectorAll('#rdDays .day-pill').forEach(btn=>{
+    btn.classList.toggle('on', selectedDays.has(+btn.dataset.day));
+  });
+}
+function isRecurringActive(rd){
+  if(!rd || !rd.enabled || !rd.text) return false;
+  if(!rd.days || !rd.days.length || !rd.start || !rd.end) return true;
+  const now=new Date();
+  const day=(now.getDay()+6)%7;
+  if(!rd.days.includes(day)) return false;
+  const [sh,sm]=rd.start.split(':').map(Number);
+  const [eh,em]=rd.end.split(':').map(Number);
+  const startMin=sh*60+sm, endMin=eh*60+em;
+  const curMin=now.getHours()*60+now.getMinutes();
+  if(endMin>startMin) return curMin>=startMin && curMin<endMin;
+  return curMin>=startMin || curMin<endMin;
+}
+async function saveRecurring(){
+  const st=document.getElementById('recurringStatus');
+  const enabled=document.getElementById('rdEnabled').checked;
+  const text=document.getElementById('rdText').value.trim();
+  const start=document.getElementById('rdStart').value;
+  const end=document.getElementById('rdEnd').value;
+  const days=[...document.querySelectorAll('#rdDays .day-pill.on')].map(b=>+b.dataset.day);
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  const recurring_deal={enabled,text,days,start,end};
+  const {error} = await sb.from('restaurants').update({recurring_deal}).eq('id', currentRestaurant.id);
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  currentRestaurant.recurring_deal=recurring_deal;
+  st.textContent=t('recurringSaved'); st.className='status-msg';
+  setTimeout(()=>{st.textContent='';},3000);
 }
 
 /* ══════════ RESTAURANT MENU (manual edit + photo scan via OCR) ══════════ */
