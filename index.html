@@ -724,7 +724,7 @@ myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No fa
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
 dashProfileTitle:"Your restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead.",
 scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",
-recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Save recurring deal",recurringSaved:"Saved.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day."},
+recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Save recurring deal",recurringSaved:"Saved.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing"},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
 heroSub:"Los restaurantes de Guanacaste publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
@@ -1063,6 +1063,19 @@ async function loadFeed(){
   if(selTowns.size) list=list.filter(s=>selTowns.has(s.town));
   if(selSlots.size) list=list.filter(s=>selSlots.has(s.slot));
   if(showFavoritesOnly) list=list.filter(s=>favoritesSet.has(s.rid));
+  let recurringList=[];
+  try{
+    const {data:rdata, error:rderr} = await sb.from('restaurants').select('id,name,town,recurring_deal').eq('status','approved').eq('region',region);
+    if(!rderr && rdata){
+      recurringList = rdata.filter(r=>isRecurringActive(r.recurring_deal)).map(r=>({
+        id:'rd-'+r.id, rid:r.id, restaurant:r.name, town:r.town, slot:null,
+        text:r.recurring_deal.text, until:formatTime12(r.recurring_deal.end), photo:null, created_at:null, recurring:true
+      }));
+    }
+  }catch(e){ console.error(e); }
+  if(selTowns.size) recurringList=recurringList.filter(s=>selTowns.has(s.town));
+  if(showFavoritesOnly) recurringList=recurringList.filter(s=>favoritesSet.has(s.rid));
+  if(!selSlots.size) list=[...list, ...recurringList];
   feedCache=list;
   document.getElementById('feedCount').textContent=list.length+' '+(list.length===1?t('specialCount'):t('specialsCount'));
   if(!list.length){
@@ -1071,15 +1084,19 @@ async function loadFeed(){
   }
   el.innerHTML=list.map(s=>{
     const fav=favoritesSet.has(s.rid);
+    const tag = s.recurring ? `${t('recurringTag')} · ${esc(s.town)}` : `${slotLabel(s.slot)} · ${esc(s.town)}`;
+    const meta = s.recurring
+      ? `<span>${t('recurringMetaLabel')}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`
+      : `<span>${ago(s.created_at)}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`;
     return `<div class="feed-card">
-      <span class="fc-tag">${slotLabel(s.slot)} · ${esc(s.town)}</span>
+      <span class="fc-tag">${tag}</span>
       <div class="fc-row">
         <button class="fc-name-link" onclick="openDetail('${s.rid}')">${esc(s.restaurant)}</button>
         <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${s.rid}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
       </div>
       <div class="fc-text">${esc(s.text)}</div>
       ${s.photo?`<img class="fc-photo" src="${s.photo}" alt="${esc(s.restaurant)}">`:''}
-      <div class="fc-meta"><span>${ago(s.created_at)}</span>${s.until?`<span>${esc(s.until)}</span>`:''}</div>
+      <div class="fc-meta">${meta}</div>
     </div>`;
   }).join('');
 }
