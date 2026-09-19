@@ -287,6 +287,10 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
   <div class="nav-right">
     <button class="nav-back" id="navBack" onclick="window.history.back()">←</button>
     <button class="nav-login" id="navLogin" onclick="goScreen('screenGate')"></button>
+    <select class="lang-select" id="regionSelect" onchange="setRegion(this.value)">
+      <option value="us">🇺🇸 South Fork</option>
+      <option value="cr">🇨🇷 Costa Rica</option>
+    </select>
     <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
       <option value="en">🇬🇧 EN</option>
       <option value="es">🇪🇸 ES</option>
@@ -893,11 +897,34 @@ us:{
   towns:["Westhampton","Hampton Bays","Southampton","Sag Harbor","East Hampton","Amagansett","Montauk"],
   sample:{restaurant:'Harbor House Fish Co.',town:'Sag Harbor',slot:1,
    text:{en:"Half off oysters til 7 — raw bar just shucked a fresh batch of littlenecks too.",es:"Ostras a mitad de precio hasta las 7 — el raw bar acaba de abrir almejas frescas.",fr:"Huîtres à moitié prix jusqu'à 19h — le bar à huîtres vient d'ouvrir des palourdes fraîches.",zh:"7点前生蚝半价 — 生蚝吧刚开了一批新鲜小蛤蜊。",de:"Austern bis 19 Uhr zum halben Preis — die Raw Bar hat gerade frische Venusmuscheln geöffnet."}}
+},
+cr:{
+  flag:"🇨🇷", label:{en:"Costa Rica",es:"Costa Rica",fr:"Costa Rica",zh:"哥斯达黎加",de:"Costa Rica"},
+  sub:{en:"Costa Rica",es:"Costa Rica",fr:"Costa Rica",zh:"哥斯达黎加",de:"Costa Rica"},
+  tonight:{en:"Costa Rica · Tonight",es:"Costa Rica · Hoy",fr:"Costa Rica · Ce soir",zh:"哥斯达黎加 · 今晚",de:"Costa Rica · Heute Abend"},
+  heroSub:{en:"Costa Rica restaurants post their daily specials here. Follow the places you trust, hear about it first.",
+    es:"Los restaurantes de Costa Rica publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
+    fr:"Les restaurants du Costa Rica publient ici leurs plats du jour. Suivez les adresses que vous aimez, soyez le premier informé.",
+    zh:"哥斯达黎加的餐厅在这里发布每日特色菜。关注你信任的店，第一时间收到消息。",
+    de:"Restaurants in Costa Rica posten hier ihre Tagesangebote. Folge den Orten, denen du vertraust, und erfahre es zuerst."},
+  towns:["San Ramón"],
+  sample:{restaurant:'Soda El Pescador',town:'San Ramón',slot:1,
+   text:{en:"2-for-1 craft beers til 6 — today's casado just came out of the kitchen.",es:"2x1 en cervezas artesanales hasta las 6 — casado del día recién hecho.",fr:"2 bières artisanales pour le prix d'une jusqu'à 18h — le plat du jour vient de sortir de cuisine.",zh:"精酿啤酒6点前买一送一 — 今日套餐刚出锅。",de:"2-für-1 Craft-Bier bis 18 Uhr — das Tagesgericht kommt gerade aus der Küche."}}
 }
 };
 
-const region = 'us';
+let region = 'us';
 let TOWNS = REGIONS[region].towns;
+function setRegion(r){
+  if(!REGIONS[r]){ return; }
+  const sel=document.getElementById('regionSelect');
+  if(r===region){ if(sel) sel.value=region; return; }
+  region=r;
+  TOWNS=REGIONS[region].towns;
+  selTowns.clear();
+  if(sel) sel.value=region;
+  setLang(lang);
+}
 
 /* ══════════ SCRIBBLES (placeholder art shown when a restaurant has no photos yet) ══════════ */
 const SCRIBBLES = [
@@ -1341,7 +1368,7 @@ async function submitRestaurantSignup(){
   if(signUpData?.user && Array.isArray(signUpData.user.identities) && signUpData.user.identities.length===0){
     st.textContent=t('emailInUse'); st.className='status-msg err'; return;
   }
-  const {error:insertError} = await sb.from('restaurants').insert({region:'us', name, town, phone: phone||null, email, status:'pending'});
+  const {error:insertError} = await sb.from('restaurants').insert({region, name, town, phone: phone||null, email, status:'pending'});
   if(insertError){ console.error(insertError); st.textContent=t('loadError'); st.className='status-msg err'; return; }
   await sb.auth.signOut();
   st.textContent='';
@@ -1672,6 +1699,7 @@ async function signOut(){
 }
 
 /* ══════════ INIT ══════════ */
+document.getElementById('regionSelect').value=region;
 setLang(lang);
 // The in-app ← arrow (above) triggers this indirectly too, via window.history.back()
 // — routing both the phone/browser's own back button and the in-app arrow through
