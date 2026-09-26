@@ -449,11 +449,48 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
         <span data-i18n="newRestaurant"></span>
         <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepSignup')" data-i18n="restaurantSignUpCta"></span>
       </p>
+      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:10px;">
+        Already listed by us? <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepClaim')">Claim your listing</span>
+      </p>
       <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:16px;text-align:center;">
         <p style="margin-top:14px;">
           <span style="color:var(--sea);cursor:pointer;font-weight:600;font-size:12.5px;" onclick="showStep('stepDiner')" data-i18n="backToDiner"></span>
         </p>
       </div>
+    </div>
+
+    <div class="r-card step" id="stepClaim">
+      <h2>Claim your restaurant</h2>
+      <div class="r-sub">Already on Dock Talk? Enter the claim code we sent you to set up your own login.</div>
+      <div class="field">
+        <label>Claim code</label>
+        <input id="ccCode" type="text" placeholder="e.g. 8f3a1c2b">
+      </div>
+      <div class="field">
+        <label data-i18n="email"></label>
+        <input id="ccEmail" type="email" placeholder="you@restaurant.com">
+      </div>
+      <div class="field">
+        <label data-i18n="password"></label>
+        <div class="pw-wrap">
+          <input id="ccPassword" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('ccPassword',this)" data-i18n="showPw"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="confirmPassword"></label>
+        <div class="pw-wrap">
+          <input id="ccPassword2" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('ccPassword2',this)" data-i18n="showPw"></button>
+        </div>
+      </div>
+      <br>
+      <button class="btn btn-sea" onclick="submitClaim()">Claim this listing</button>
+      <div class="status-msg" id="claimStatus"></div>
+      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
+        <span data-i18n="alreadyHaveAccount"></span>
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepLogin')" data-i18n="logIn"></span>
+      </p>
     </div>
 
     <div class="r-card step" id="stepSignup">
@@ -532,9 +569,13 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
   <div class="inner">
     <div class="dash-header">
       <div>
-        <span class="dash-tag" data-i18n="approved"></span>
+        <span class="dash-tag" id="dashApprovedTag" data-i18n="approved"></span>
+        <span class="dash-tag" id="dashAdminTag" style="display:none;background:var(--sunset);">ADMIN VIEW</span>
         <div class="page-title" id="dashName"></div>
         <div style="font-size:13.5px;color:var(--muted);" id="dashTown"></div>
+        <div id="adminBackRow" style="display:none;margin-top:6px;">
+          <span style="color:var(--sea);cursor:pointer;font-weight:600;font-size:12.5px;" onclick="adminBackToPicker()">← Back to restaurant list</span>
+        </div>
       </div>
       <button class="btn-ghost btn-sm btn" id="signOutBtn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
     </div>
@@ -666,6 +707,40 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <div class="status-msg" id="recurringStatus"></div>
     </div>
     <div class="posted-list" id="recurringDealsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN: pick any restaurant and post specials/recurring deals on its behalf -->
+<div class="screen" id="screenAdmin">
+  <div class="inner">
+    <div class="dash-header">
+      <div>
+        <span class="dash-tag" style="background:var(--sunset);">ADMIN</span>
+        <div class="page-title">Post for a restaurant</div>
+        <div style="font-size:13.5px;color:var(--muted);">Pick any restaurant to post today's special or a recurring deal on its behalf.</div>
+      </div>
+      <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label>Search restaurants</label>
+        <input id="adminSearch" type="text" placeholder="Type a name or town…" oninput="renderAdminList()">
+      </div>
+      <div class="status-msg" id="adminListStatus"></div>
+    </div>
+    <div class="posted-list" id="adminRestaurantList"></div>
+    <div class="card" style="margin-top:16px;">
+      <div class="page-title" style="font-size:16px;margin-bottom:10px;">+ Add a new restaurant</div>
+      <div class="field"><label>Restaurant name</label><input id="admNewName" type="text"></div>
+      <div class="row2">
+        <div class="field"><label data-i18n="yourRegion"></label><select id="admNewRegion" onchange="onAdminNewRegionChange()"></select></div>
+        <div class="field"><label data-i18n="yourTown"></label><select id="admNewTown"></select></div>
+      </div>
+      <div class="field"><label data-i18n="yourPhone"></label><input id="admNewPhone" type="tel"></div>
+      <br>
+      <button class="btn btn-sunset" onclick="adminCreateRestaurant()">Add restaurant &amp; get claim link</button>
+      <div class="status-msg" id="adminCreateStatus"></div>
     </div>
   </div>
 </div>
@@ -949,6 +1024,7 @@ const SCRIBBLES = [
 /* ══════════ STATE ══════════ */
 let selTowns=new Set(), selSlots=new Set(), showFavoritesOnly=false;
 let currentRestaurant=null, detailR=null, activeIcons=new Set(), navStack=['screenIntro'], feedCache=[];
+let isAdmin=false, adminMode=false, adminRestaurants=[];
 let pendingLoginEmail=null, gateIntent='diner';
 let currentDiner=null, favoritesSet=new Set();
 
@@ -1397,6 +1473,95 @@ async function submitRestaurantSignup(){
   showStep('stepRestaurantWelcome');
 }
 
+/* ══════════ ADMIN (select any restaurant, post on its behalf; also creates unclaimed listings) ══════════ */
+async function loadAdminPicker(){
+  const {data,error} = await sb.from('restaurants').select('*').order('name');
+  if(error){ console.error(error); adminRestaurants=[]; } else { adminRestaurants=data||[]; }
+  const rSel=document.getElementById('admNewRegion');
+  if(rSel && !rSel.options.length){
+    rSel.innerHTML=Object.keys(REGIONS).map(k=>`<option value="${k}">${REGIONS[k].flag} ${REGIONS[k].label.en}</option>`).join('');
+    onAdminNewRegionChange();
+  }
+  renderAdminList();
+}
+function renderAdminList(){
+  const q=(document.getElementById('adminSearch')?.value||'').toLowerCase();
+  const list=document.getElementById('adminRestaurantList'); if(!list) return;
+  const rows=adminRestaurants.filter(r=>!q || r.name.toLowerCase().includes(q) || (r.town||'').toLowerCase().includes(q));
+  list.innerHTML = rows.length ? rows.map(r=>`
+    <div class="posted-item">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;">${esc(r.name)}</div>
+        <div style="font-size:12.5px;color:var(--muted);">${esc(r.town||'')} · ${esc(r.status)} · ${r.claimed===false?'unclaimed':'claimed'}</div>
+        ${r.claimed===false && r.claim_code ? `<div style="font-size:12px;color:var(--sea);cursor:pointer;margin-top:4px;" onclick="copyClaimLink('${r.claim_code}')">Copy claim link</div>` : ''}
+      </div>
+      <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="adminSelectRestaurant('${r.id}')">Post for this</button>
+    </div>
+  `).join('') : '<div class="hint" style="padding:14px 0;">No restaurants match.</div>';
+}
+async function adminSelectRestaurant(id){
+  const r=adminRestaurants.find(x=>String(x.id)===String(id)); if(!r) return;
+  currentRestaurant=r; adminMode=true;
+  if(r.region && REGIONS[r.region]) setRegion(r.region);
+  goScreen('screenDashboard'); await loadDashboard();
+}
+function adminBackToPicker(){
+  adminMode=false; currentRestaurant=null;
+  goScreen('screenAdmin'); loadAdminPicker();
+}
+function onAdminNewRegionChange(){
+  const r=document.getElementById('admNewRegion').value;
+  const town=document.getElementById('admNewTown');
+  town.innerHTML=(REGIONS[r]?.towns||[]).map(x=>`<option value="${x}">${x}</option>`).join('');
+}
+async function adminCreateRestaurant(){
+  const name=document.getElementById('admNewName').value.trim();
+  const rRegion=document.getElementById('admNewRegion').value;
+  const town=document.getElementById('admNewTown').value;
+  const phone=document.getElementById('admNewPhone').value.trim();
+  const st=document.getElementById('adminCreateStatus');
+  if(!name || !rRegion || !town){ st.textContent='Fill in name, region, and town.'; st.className='status-msg err'; return; }
+  const claimCode=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)).replace(/-/g,'').slice(0,8);
+  const {error}=await sb.from('restaurants').insert({region:rRegion,name,town,phone:phone||null,status:'approved',claimed:false,claim_code:claimCode});
+  if(error){ console.error(error); st.textContent='Could not add restaurant.'; st.className='status-msg err'; return; }
+  document.getElementById('admNewName').value='';
+  document.getElementById('admNewPhone').value='';
+  st.textContent='Added — find it in the list above to copy its claim link.'; st.className='status-msg';
+  await loadAdminPicker();
+}
+function copyClaimLink(code){
+  const url=`https://docktalk.chat/#claim=${code}`;
+  const st=document.getElementById('adminListStatus');
+  navigator.clipboard?.writeText(url).then(()=>{
+    if(st){ st.textContent='Claim link copied: '+url; st.className='status-msg'; }
+  }).catch(()=>{
+    if(st){ st.textContent='Claim link: '+url; st.className='status-msg'; }
+  });
+}
+async function submitClaim(){
+  const code=document.getElementById('ccCode').value.trim();
+  const email=document.getElementById('ccEmail').value.trim();
+  const password=document.getElementById('ccPassword').value;
+  const password2=document.getElementById('ccPassword2').value;
+  const st=document.getElementById('claimStatus');
+  if(!code){ st.textContent='Enter your claim code.'; st.className='status-msg err'; return; }
+  if(!email || !email.includes('@') || !password){ st.textContent=t('fillAll'); st.className='status-msg err'; return; }
+  if(password.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
+  if(password!==password2){ st.textContent=t('passwordMismatch'); st.className='status-msg err'; return; }
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  const {data:signUpData, error:signUpError} = await sb.auth.signUp({email, password});
+  if(signUpError){ console.error(signUpError); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  if(signUpData?.user && Array.isArray(signUpData.user.identities) && signUpData.user.identities.length===0){
+    st.textContent=t('emailInUse'); st.className='status-msg err'; return;
+  }
+  const {error:claimError} = await sb.rpc('claim_restaurant',{p_claim_code:code});
+  if(claimError){ console.error(claimError); st.textContent='That claim code is invalid or already used — double check it or contact us.'; st.className='status-msg err'; return; }
+  await sb.auth.signOut();
+  st.textContent='';
+  showStep('stepRestaurantWelcome');
+}
+
 /* ══════════ AUTH (Supabase, email+password for both diners and restaurants — magic link reserved for future use) ══════════ */
 function showStep(id){
   document.querySelectorAll('.r-card.step').forEach(s=>s.classList.remove('active'));
@@ -1432,7 +1597,15 @@ async function handleSession(session){
     goScreen('screenDashboard'); loadDashboard();
     return;
   }
-  // No restaurant matches this email — treat them as a diner account.
+  const {data:adminRow,error:adminErr} = await sb.from('admins').select('email').eq('email',email).maybeSingle();
+  if(adminErr){ console.error(adminErr); }
+  if(adminRow){
+    isAdmin=true;
+    await loadAdminPicker();
+    goScreen('screenAdmin');
+    return;
+  }
+  // No restaurant or admin row matches this email — treat them as a diner account.
   currentDiner={id:session.user.id, email, name:session.user.user_metadata?.name || ''};
   await loadFavorites();
   refreshNavLogin();
@@ -1443,6 +1616,9 @@ async function handleSession(session){
 
 /* ══════════ DASHBOARD ══════════ */
 async function loadDashboard(){
+  document.getElementById('dashAdminTag').style.display = adminMode?'inline-block':'none';
+  document.getElementById('dashApprovedTag').style.display = adminMode?'none':'inline-block';
+  document.getElementById('adminBackRow').style.display = adminMode?'block':'none';
   document.getElementById('dashName').textContent=currentRestaurant.name;
   const dR=REGIONS[currentRestaurant.region]||REGIONS[region];
   document.getElementById('dashTown').innerHTML=`<span class="recurring-badge" style="margin:0 8px 0 0;">${dR.flag} ${esc(dR.label[lang]||dR.label.en)}</span>${esc(currentRestaurant.town||'')}`;
@@ -1752,6 +1928,16 @@ setLang(lang);
 // navStack is back down to the intro screen does a further back press fall through
 // to the browser's real, default back behavior (actually leaving the site).
 window.addEventListener('popstate', goBack);
+// Deep link so an admin can text/email a restaurant a link like
+// https://docktalk.chat/#claim=CODE that drops them straight on the claim form.
+(function(){
+  const m = location.hash.match(/claim=([^&]+)/);
+  if(m){
+    goScreen('screenGate'); showStep('stepClaim');
+    document.getElementById('ccCode').value = decodeURIComponent(m[1]);
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+})();
 // Re-checks every minute for specials whose "valid until" time has passed, so a
 // tile disappears from the feed (and from the restaurant's own list) on its own
 // without needing a page refresh.
