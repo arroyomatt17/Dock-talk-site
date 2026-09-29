@@ -2144,7 +2144,14 @@ setInterval(()=>{
 }, 60000);
 if(sbReady()){
   sb.auth.getSession().then(({data})=>handleSession(data.session));
-  sb.auth.onAuthStateChange((event, session)=>{ if(session) handleSession(session); });
+  // Supabase silently refreshes the login token in the background (and also
+  // re-checks it whenever the tab regains focus) — that fires this same
+  // callback with event 'TOKEN_REFRESHED', not a real sign-in. handleSession()
+  // jumps to the dashboard and re-fills every field from the database, which
+  // would otherwise wipe out anything someone's mid-typing every time that
+  // quietly happens. Only react to an actual sign-in; the page's initial load
+  // (a few lines up) already handles routing an already-logged-in visitor in.
+  sb.auth.onAuthStateChange((event, session)=>{ if(event==='SIGNED_IN' && session) handleSession(session); });
 } else {
   console.warn('Dock Talk: Supabase is not configured yet. Set SUPABASE_URL and SUPABASE_ANON_KEY at the top of the <script> block.');
 }
