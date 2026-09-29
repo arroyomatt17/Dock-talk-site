@@ -40,6 +40,15 @@ html,body{min-height:100%;background:var(--sand-light);color:var(--ink);font-fam
 .nav-login:hover{background:var(--sea-light);}
 .nav-login.nav-avatar{border-radius:50%;width:34px;height:34px;padding:0;line-height:32px;text-align:center;background:var(--sea);color:#fff;border:none;font-size:12px;}
 .nav-login.nav-avatar:hover{background:var(--forest);}
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--sand-light);
+  border-top:1px solid var(--line);display:none;justify-content:space-around;align-items:stretch;
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom));}
+.tabbar.show{display:flex;}
+.tabbar-btn{background:none;border:none;font-family:inherit;color:var(--muted);font-size:11px;
+  font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;flex:1;padding:6px 2px;border-radius:10px;}
+.tabbar-btn .tabbar-icon{width:21px;height:21px;}
+.tabbar-btn.active{color:var(--sea);}
 .lang-select{font-size:12.5px;font-family:inherit;font-weight:600;color:var(--ink);background:#fff;
   border:1px solid var(--line);border-radius:20px;padding:7px 10px;cursor:pointer;outline:none;}
 
@@ -302,6 +311,22 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
   </div>
 </div>
 
+<!-- BOTTOM TAB BAR (diner-facing screens only) -->
+<div class="tabbar" id="tabbar">
+  <button class="tabbar-btn" id="tabBtnTonight" onclick="goScreen('screenDiner')">
+    <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
+    Tonight
+  </button>
+  <button class="tabbar-btn" id="tabBtnExplore" onclick="goScreen('screenExplore')">
+    <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2 12.6 13l-3.8 1.8 2.2-3.8Z"/></svg>
+    Explore
+  </button>
+  <button class="tabbar-btn" id="tabBtnProfile" onclick="goScreen('screenFavorites')">
+    <svg class="tabbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.2"/><path d="M5.5 19c1-3 3.6-4.8 6.5-4.8s5.5 1.8 6.5 4.8"/></svg>
+    Profile
+  </button>
+</div>
+
 <!-- INTRO -->
 <div class="screen active" id="screenIntro">
   <div class="intro">
@@ -332,6 +357,20 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <button class="refresh-btn" onclick="loadFeed()" data-i18n="refresh"></button>
     </div>
     <div id="feed"></div>
+  </div>
+</div>
+
+<!-- EXPLORE: every listed restaurant, no filtering — just a directory -->
+<div class="screen" id="screenExplore">
+  <div class="inner">
+    <div class="eyebrow" data-i18n="tonightEyebrow"></div>
+    <div class="page-title">All restaurants</div>
+    <div class="page-sub">Every restaurant on Dock Talk in this region.</div>
+    <div class="feed-meta">
+      <span class="feed-count" id="exploreCount"></span>
+      <button class="refresh-btn" onclick="loadExplore()" data-i18n="refresh"></button>
+    </div>
+    <div id="exploreList"></div>
   </div>
 </div>
 
@@ -587,17 +626,16 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
     </div>
     <div id="dashTabProfile" hidden>
     <div class="card">
-      <div class="row2">
-        <div class="field">
-          <label data-i18n="hours"></label>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <input id="dpHoursOpen" type="time" style="flex:1;min-width:0;">
-            <span style="font-size:13px;color:var(--muted);">–</span>
-            <input id="dpHoursClose" type="time" style="flex:1;min-width:0;">
-          </div>
+      <div class="field">
+        <label data-i18n="hours"></label>
+        <div id="hoursDaysEditor" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+          <button type="button" class="btn-ghost btn-sm btn" style="width:auto;" onclick="copyHoursDay(0,[1,2,3,4])">Same Mon–Fri</button>
+          <button type="button" class="btn-ghost btn-sm btn" style="width:auto;" onclick="copyHoursDay(5,[6])">Same Sat–Sun</button>
+          <button type="button" class="btn-ghost btn-sm btn" style="width:auto;" onclick="copyHoursDay(0,[1,2,3,4,5,6])">Same every day</button>
         </div>
-        <div class="field"><label data-i18n="phone"></label><input id="dpPhone" type="tel"></div>
       </div>
+      <div class="field"><label data-i18n="phone"></label><input id="dpPhone" type="tel"></div>
       <div class="field">
         <label data-i18n="location"></label>
         <input id="dpAddress" type="text">
@@ -1091,6 +1129,7 @@ function buildSample(){
 }
 
 /* ══════════ NAV ══════════ */
+const TAB_SCREENS={screenDiner:'tabBtnTonight', screenExplore:'tabBtnExplore', screenFavorites:'tabBtnProfile'};
 function goScreen(id,push=true){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -1103,9 +1142,13 @@ function goScreen(id,push=true){
     window.history.pushState({navDepth:navStack.length}, '', location.href);
   }
   document.getElementById('navBack').style.display=id==='screenIntro'?'none':'block';
-  document.getElementById('navLogin').style.display=id==='screenDiner'?'block':'none';
+  document.getElementById('navLogin').style.display=(id in TAB_SCREENS)?'block':'none';
+  const tb=document.getElementById('tabbar');
+  tb.classList.toggle('show', id in TAB_SCREENS);
+  tb.querySelectorAll('.tabbar-btn').forEach(b=>b.classList.toggle('active', b.id===TAB_SCREENS[id]));
   window.scrollTo(0,0);
   if(id==='screenDiner'){buildFilters();loadFeed();}
+  if(id==='screenExplore'){loadExplore();}
   if(id==='screenFavorites'){loadFavoritesScreen();}
 }
 function goBack(){
@@ -1165,6 +1208,32 @@ function isExpired(untilTime, createdAt){
   return new Date() > expiry;
 }
 
+function renderFeedCardsInto(elId,countId,list){
+  const el=document.getElementById(elId); if(!el) return;
+  const cEl=document.getElementById(countId);
+  if(cEl) cEl.textContent=list.length+' '+(list.length===1?t('specialCount'):t('specialsCount'));
+  if(!list.length){
+    el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('emptyTitle')}</div><div class="ef-sub">${t('emptySub')}</div></div>`;
+    return;
+  }
+  el.innerHTML=list.map(s=>{
+    const fav=favoritesSet.has(s.rid);
+    const tag = s.recurring ? `${t('recurringTag')} · ${esc(s.town)}` : `${slotLabel(s.slot)} · ${esc(s.town)}`;
+    const meta = s.recurring
+      ? `<span>${t('recurringMetaLabel')}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`
+      : `<span>${ago(s.created_at)}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`;
+    return `<div class="feed-card">
+      <span class="fc-tag">${tag}</span>
+      <div class="fc-row">
+        <button class="fc-name-link" onclick="openDetail('${s.rid}')">${esc(s.restaurant)}</button>
+        <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${s.rid}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
+      </div>
+      <div class="fc-text">${esc(s.text)}</div>
+      ${s.photo?`<img class="fc-photo" src="${s.photo}" alt="${esc(s.restaurant)}">`:''}
+      <div class="fc-meta">${meta}</div>
+    </div>`;
+  }).join('');
+}
 async function loadFeed(){
   const el=document.getElementById('feed');
   if(!sbReady()){ el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
@@ -1200,26 +1269,30 @@ async function loadFeed(){
   if(showFavoritesOnly) recurringList=recurringList.filter(s=>favoritesSet.has(s.rid));
   if(!selSlots.size) list=[...list, ...recurringList];
   feedCache=list;
-  document.getElementById('feedCount').textContent=list.length+' '+(list.length===1?t('specialCount'):t('specialsCount'));
+  renderFeedCardsInto('feed','feedCount',list);
+}
+// Full, unfiltered directory of every approved restaurant in the current
+// region — the Explore tab. Independent of the Tonight/Search feed above.
+async function loadExplore(){
+  const el=document.getElementById('exploreList'); if(!el) return;
+  if(!sbReady()){ el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
+  el.innerHTML=`<div class="empty-feed"><div class="ef-sub">…</div></div>`;
+  const {data,error} = await sb.from('restaurants').select('id,name,town').eq('status','approved').eq('region',region).order('name');
+  if(error){ console.error(error); el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
+  const list=data||[];
+  document.getElementById('exploreCount').textContent=list.length+' restaurant'+(list.length===1?'':'s');
   if(!list.length){
-    el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('emptyTitle')}</div><div class="ef-sub">${t('emptySub')}</div></div>`;
+    el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('emptyTitle')}</div></div>`;
     return;
   }
-  el.innerHTML=list.map(s=>{
-    const fav=favoritesSet.has(s.rid);
-    const tag = s.recurring ? `${t('recurringTag')} · ${esc(s.town)}` : `${slotLabel(s.slot)} · ${esc(s.town)}`;
-    const meta = s.recurring
-      ? `<span>${t('recurringMetaLabel')}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`
-      : `<span>${ago(s.created_at)}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`;
+  el.innerHTML=list.map(r=>{
+    const fav=favoritesSet.has(r.id);
     return `<div class="feed-card">
-      <span class="fc-tag">${tag}</span>
       <div class="fc-row">
-        <button class="fc-name-link" onclick="openDetail('${s.rid}')">${esc(s.restaurant)}</button>
-        <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${s.rid}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
+        <button class="fc-name-link" onclick="openDetail('${r.id}')">${esc(r.name)}</button>
+        <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${r.id}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
       </div>
-      <div class="fc-text">${esc(s.text)}</div>
-      ${s.photo?`<img class="fc-photo" src="${s.photo}" alt="${esc(s.restaurant)}">`:''}
-      <div class="fc-meta">${meta}</div>
+      <div class="fc-meta"><span>${esc(r.town||'')}</span></div>
     </div>`;
   }).join('');
 }
@@ -1858,10 +1931,77 @@ function parseHoursToTimes(hoursStr){
   const open=to24(times[0]), close=to24(times[1]);
   return {open: open||'', close: close||''};
 }
+const HOURS_DAY_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function renderHoursEditor(days){
+  const el=document.getElementById('hoursDaysEditor'); if(!el) return;
+  el.innerHTML = days.map((d,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span style="width:34px;font-weight:600;font-size:13px;flex-shrink:0;">${HOURS_DAY_LABELS[i]}</span>
+      <input id="hrOpen${i}" type="time" value="${d.open||''}" ${d.closed?'disabled':''} style="flex:1;min-width:90px;">
+      <span style="font-size:13px;color:var(--muted);">–</span>
+      <input id="hrClose${i}" type="time" value="${d.close||''}" ${d.closed?'disabled':''} style="flex:1;min-width:90px;">
+      <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);white-space:nowrap;">
+        <input type="checkbox" id="hrClosed${i}" ${d.closed?'checked':''} onchange="toggleDayClosed(${i})"> Closed
+      </label>
+    </div>
+  `).join('');
+}
+function toggleDayClosed(i){
+  const closed=document.getElementById('hrClosed'+i).checked;
+  document.getElementById('hrOpen'+i).disabled=closed;
+  document.getElementById('hrClose'+i).disabled=closed;
+}
+function copyHoursDay(srcIdx, targets){
+  const closed=document.getElementById('hrClosed'+srcIdx).checked;
+  const open=document.getElementById('hrOpen'+srcIdx).value;
+  const close=document.getElementById('hrClose'+srcIdx).value;
+  targets.forEach(i=>{
+    document.getElementById('hrClosed'+i).checked=closed;
+    document.getElementById('hrOpen'+i).value=open;
+    document.getElementById('hrOpen'+i).disabled=closed;
+    document.getElementById('hrClose'+i).value=close;
+    document.getElementById('hrClose'+i).disabled=closed;
+  });
+}
+function readHoursFromForm(){
+  return Array.from({length:7},(_,i)=>({
+    closed: document.getElementById('hrClosed'+i).checked,
+    open: document.getElementById('hrOpen'+i).value || null,
+    close: document.getElementById('hrClose'+i).value || null,
+  }));
+}
+function sameHoursDay(a,b){
+  if(!a||!b) return false;
+  if(a.closed && b.closed) return true;
+  return !a.closed && !b.closed && a.open===b.open && a.close===b.close;
+}
+// Collapses the 7 per-day rows back into a short display string, e.g.
+// "Mon–Fri 11:00 AM – 10:00 PM, Sat–Sun 12:00 PM – 11:00 PM" — this is what
+// diners see on a restaurant's page (same "hours" field as before).
+function summarizeHours(days){
+  const segs=[]; let i=0;
+  while(i<7){
+    let j=i;
+    while(j+1<7 && sameHoursDay(days[j+1],days[i])) j++;
+    const label = i===j ? HOURS_DAY_LABELS[i] : `${HOURS_DAY_LABELS[i]}–${HOURS_DAY_LABELS[j]}`;
+    const d=days[i];
+    const text = d.closed ? 'Closed' : (d.open && d.close ? `${formatTime12(d.open)} – ${formatTime12(d.close)}` : '');
+    if(text) segs.push(`${label} ${text}`);
+    i=j+1;
+  }
+  return segs.join(', ');
+}
 function loadProfileForm(){
-  const parsed = parseHoursToTimes(currentRestaurant.hours);
-  document.getElementById('dpHoursOpen').value = parsed.open;
-  document.getElementById('dpHoursClose').value = parsed.close;
+  let days;
+  if(Array.isArray(currentRestaurant.hours_json) && currentRestaurant.hours_json.length===7){
+    days = currentRestaurant.hours_json;
+  } else {
+    // Legacy restaurants only have the old single flat hours string — seed
+    // every day with the same guessed open/close so the form isn't blank.
+    const parsed = parseHoursToTimes(currentRestaurant.hours);
+    days = Array.from({length:7},()=>({open:parsed.open||null, close:parsed.close||null, closed:false}));
+  }
+  renderHoursEditor(days);
   document.getElementById('dpPhone').value = currentRestaurant.phone || '';
   document.getElementById('dpAddress').value = currentRestaurant.address || '';
   dpPhotos = (currentRestaurant.photos||[]).map(url=>({url, file:null, preview:url}));
@@ -1884,9 +2024,8 @@ function renderProfilePhotoGrid(){
 }
 function removeProfilePhoto(i){ dpPhotos.splice(i,1); renderProfilePhotoGrid(); }
 async function saveProfile(){
-  const hoursOpen=document.getElementById('dpHoursOpen').value;
-  const hoursClose=document.getElementById('dpHoursClose').value;
-  const hours = (hoursOpen && hoursClose) ? `${formatTime12(hoursOpen)} – ${formatTime12(hoursClose)}` : '';
+  const hoursDays = readHoursFromForm();
+  const hours = summarizeHours(hoursDays);
   const phone=document.getElementById('dpPhone').value.trim();
   const address=document.getElementById('dpAddress').value.trim();
   const st=document.getElementById('profileStatus');
@@ -1901,9 +2040,9 @@ async function saveProfile(){
     const {data} = sb.storage.from('specials-photos').getPublicUrl(path);
     if(data?.publicUrl) finalPhotos.push(data.publicUrl);
   }
-  const {error} = await sb.from('restaurants').update({hours, phone, address, photos: finalPhotos}).eq('id', currentRestaurant.id);
+  const {error} = await sb.from('restaurants').update({hours, hours_json: hoursDays, phone, address, photos: finalPhotos}).eq('id', currentRestaurant.id);
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
-  currentRestaurant.hours=hours; currentRestaurant.phone=phone; currentRestaurant.address=address; currentRestaurant.photos=finalPhotos;
+  currentRestaurant.hours=hours; currentRestaurant.hours_json=hoursDays; currentRestaurant.phone=phone; currentRestaurant.address=address; currentRestaurant.photos=finalPhotos;
   dpPhotos = finalPhotos.map(url=>({url, file:null, preview:url}));
   renderProfilePhotoGrid();
   st.textContent=t('profileSaved'); st.className='status-msg';
