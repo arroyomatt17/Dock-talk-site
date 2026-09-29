@@ -170,10 +170,22 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
   background:var(--sunset);color:#fff;border:2px solid var(--line);cursor:pointer;
   font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0;}
 .fc-photo{width:100%;max-height:190px;object-fit:cover;border-radius:12px;
-  border:2px solid var(--line);margin:4px 0 12px 0;display:block;}
+  border:2px solid var(--line);margin:4px 0 12px 0;display:block;cursor:zoom-in;}
 .pc-photo{width:100%;max-height:150px;object-fit:cover;border-radius:10px;
   border:2px solid var(--line);margin:8px 0;display:block;}
 .photo-row img{width:130px;height:98px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
+.photo-row.view-only img{cursor:zoom-in;}
+.lightbox{position:fixed;inset:0;z-index:999;background:rgba(10,10,10,0.92);
+  display:none;align-items:center;justify-content:center;padding:24px;cursor:zoom-out;
+  animation:lightboxIn .15s ease-out;}
+.lightbox.show{display:flex;}
+@keyframes lightboxIn{from{opacity:0;}to{opacity:1;}}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.5);}
+.lightbox-close{position:fixed;top:16px;right:18px;width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,0.12);color:#fff;border:none;cursor:pointer;font-size:20px;
+  line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit;}
+.lightbox-close:hover{background:rgba(255,255,255,0.22);}
 .scribble-frame{width:130px;height:98px;border-radius:6px;border:1px solid var(--line);overflow:hidden;}
 .scribble-frame svg{display:block;width:100%;height:100%;}
 .recurring-badge{display:inline-block;font-size:13px;background:var(--sunset-light);color:var(--sunset);
@@ -309,6 +321,12 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <option value="de">🇩🇪 DE</option>
     </select>
   </div>
+</div>
+
+<!-- PHOTO LIGHTBOX: click any diner-facing photo to enlarge it -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
 </div>
 
 <!-- BOTTOM TAB BAR (diner-facing screens only) -->
@@ -808,7 +826,7 @@ tonightEyebrow:"Guanacaste · Tonight",feedTitle:"What's on right now",
 feedSub:"From restaurants that actually posted today — not a database, not ads.",
 refresh:"Refresh",allTowns:"All towns",allTimes:"All times",
 specialsCount:"specials tonight",specialCount:"special tonight",
-emptyTitle:"Nothing here yet",emptySub:"Try a different filter, or check back later.",
+emptyTitle:"Nothing here yet",emptySub:"Try a different filter, or check back later.",emptyTitleLate:"Even the chefs are asleep",emptySubLate:"No specials posted at this hour — check back after the sun's up.",
 hours:"Hours",location:"Location",phone:"Phone",menu:"Menu",
 notListed:"Not listed",
 dinerJoin:"Get the first invite",dinerSub:"We'll tell you when restaurants near you post something good. No spam, no ads.",dinerTownHint:"We'll start with specials in your town.",dinerCta:"Join the list",restaurantInstead:"Run a restaurant?",restaurantSignIn:"Sign in as a restaurant",backToDiner:"← Back to diner sign-up",dinerDoneTitle:"You're on the list",dinerDoneBody:"We'll email you when {town} restaurants start posting.",enterEmail:"Enter a valid email.",selectTown:"Select your town.",addPhoto:"Photo (optional)",choosePhoto:"Add a photo",changePhoto:"Change photo",photoHint:"A quick phone shot works better than a stock image.",forDiners:"For *diners*",forRestaurants:"For *restaurants*",welcomeBack:"Welcome back",loginSub:"Enter your email and we'll send you a magic link.",
@@ -847,7 +865,7 @@ tonightEyebrow:"Guanacaste · Hoy",feedTitle:"Qué hay ahora",
 feedSub:"De restaurantes que publicaron hoy — no es una base de datos, no son anuncios.",
 refresh:"Actualizar",allTowns:"Todos los pueblos",allTimes:"Todos los horarios",
 specialsCount:"especiales hoy",specialCount:"especial hoy",
-emptyTitle:"Todavía no hay nada",emptySub:"Probá otro filtro, o volvé más tarde.",
+emptyTitle:"Todavía no hay nada",emptySub:"Probá otro filtro, o volvé más tarde.",emptyTitleLate:"Hasta los cocineros están durmiendo",emptySubLate:"No hay ofertas publicadas a esta hora — volvé cuando salga el sol.",
 hours:"Horario",location:"Ubicación",phone:"Teléfono",menu:"Menú",
 notListed:"No indicado",
 dinerJoin:"Recibí la primera invitación",dinerSub:"Te avisamos cuando los restaurantes cerca tuyo publiquen algo bueno. Sin spam, sin anuncios.",dinerTownHint:"Empezamos con los especiales de tu pueblo.",dinerCta:"Unirme a la lista",restaurantInstead:"¿Tenés un restaurante?",restaurantSignIn:"Ingresar como restaurante",backToDiner:"← Volver al registro de comensales",dinerDoneTitle:"Ya estás en la lista",dinerDoneBody:"Te escribimos cuando los restaurantes de {town} empiecen a publicar.",enterEmail:"Ingresá un correo válido.",selectTown:"Seleccioná tu pueblo.",addPhoto:"Foto (opcional)",choosePhoto:"Agregar foto",changePhoto:"Cambiar foto",photoHint:"Una foto rápida del celular funciona mejor que una imagen de stock.",forDiners:"Para *comensales*",forRestaurants:"Para *restaurantes*",welcomeBack:"Bienvenido de nuevo",loginSub:"Ingresá tu correo y te enviamos un enlace mágico.",
@@ -880,7 +898,7 @@ tonightEyebrow:"Guanacaste · Ce soir",feedTitle:"Ce qui se passe maintenant",
 feedSub:"Des restaurants qui ont publié aujourd'hui — pas une base de données, pas de publicité.",
 refresh:"Actualiser",allTowns:"Toutes les villes",allTimes:"Tous les horaires",
 specialsCount:"offres ce soir",specialCount:"offre ce soir",
-emptyTitle:"Rien pour l'instant",emptySub:"Essayez un autre filtre, ou revenez plus tard.",
+emptyTitle:"Rien pour l'instant",emptySub:"Essayez un autre filtre, ou revenez plus tard.",emptyTitleLate:"Même les chefs dorment",emptySubLate:"Aucune offre publiée à cette heure — revenez au lever du soleil.",
 hours:"Horaires",location:"Adresse",phone:"Téléphone",menu:"Menu",
 notListed:"Non indiqué",
 dinerJoin:"Recevez la première invitation",dinerSub:"Nous vous prévenons quand les restaurants près de chez vous publient quelque chose de bien. Pas de spam, pas de pub.",dinerTownHint:"Nous commencerons par les offres de votre ville.",dinerCta:"Rejoindre la liste",restaurantInstead:"Vous gérez un restaurant ?",restaurantSignIn:"Se connecter en tant que restaurant",backToDiner:"← Retour à l'inscription client",dinerDoneTitle:"Vous êtes sur la liste",dinerDoneBody:"Nous vous écrirons quand les restaurants de {town} commenceront à publier.",enterEmail:"Entrez une adresse e-mail valide.",selectTown:"Sélectionnez votre ville.",addPhoto:"Photo (facultatif)",choosePhoto:"Ajouter une photo",changePhoto:"Changer la photo",photoHint:"Une photo prise au téléphone marche mieux qu'une image de stock.",forDiners:"Pour les *clients*",forRestaurants:"Pour les *restaurants*",welcomeBack:"Bon retour",loginSub:"Entrez votre e-mail, nous vous enverrons un lien magique.",
@@ -913,7 +931,7 @@ tonightEyebrow:"瓜纳卡斯特 · 今晚",feedTitle:"现在有什么",
 feedSub:"来自今天真实发布的餐厅 — 不是数据库，也不是广告。",
 refresh:"刷新",allTowns:"全部城镇",allTimes:"全部时段",
 specialsCount:"个今晚特色",specialCount:"个今晚特色",
-emptyTitle:"暂时还没有",emptySub:"换个筛选条件，或稍后再来看看。",
+emptyTitle:"暂时还没有",emptySub:"换个筛选条件，或稍后再来看看。",emptyTitleLate:"厨师们都睡着了",emptySubLate:"这个时间还没有特价发布 — 太阳出来后再来看看吧。",
 hours:"营业时间",location:"地址",phone:"电话",menu:"菜单",
 notListed:"未提供",
 dinerJoin:"抢先获得邀请",dinerSub:"附近餐厅发布好消息时我们会通知你。没有垃圾信息，没有广告。",dinerTownHint:"我们会从你所在城镇的特色菜开始。",dinerCta:"加入名单",restaurantInstead:"经营餐厅？",restaurantSignIn:"以餐厅身份登录",backToDiner:"← 返回食客注册",dinerDoneTitle:"你已加入名单",dinerDoneBody:"{town}的餐厅开始发布时，我们会给你发邮件。",enterEmail:"请输入有效的邮箱。",selectTown:"请选择你的城镇。",addPhoto:"照片（可选）",choosePhoto:"添加照片",changePhoto:"更换照片",photoHint:"随手用手机拍的照片比图库图片效果更好。",forDiners:"*食客*专用",forRestaurants:"*餐厅*专用",welcomeBack:"欢迎回来",loginSub:"输入邮箱，我们会发送登录链接。",
@@ -946,7 +964,7 @@ tonightEyebrow:"Guanacaste · Heute Abend",feedTitle:"Was gerade läuft",
 feedSub:"Von Restaurants, die heute wirklich gepostet haben — keine Datenbank, keine Werbung.",
 refresh:"Aktualisieren",allTowns:"Alle Orte",allTimes:"Alle Zeiten",
 specialsCount:"Angebote heute",specialCount:"Angebot heute",
-emptyTitle:"Noch nichts da",emptySub:"Anderen Filter probieren oder später wiederkommen.",
+emptyTitle:"Noch nichts da",emptySub:"Anderen Filter probieren oder später wiederkommen.",emptyTitleLate:"Sogar die Köche schlafen schon",emptySubLate:"Um diese Uhrzeit gibt es keine Angebote — schau nach Sonnenaufgang wieder vorbei.",
 hours:"Öffnungszeiten",location:"Adresse",phone:"Telefon",menu:"Speisekarte",
 notListed:"Nicht angegeben",
 dinerJoin:"Sichere dir die erste Einladung",dinerSub:"Wir sagen dir Bescheid, wenn Restaurants in deiner Nähe etwas Gutes posten. Kein Spam, keine Werbung.",dinerTownHint:"Wir starten mit den Angeboten in deinem Ort.",dinerCta:"Zur Liste hinzufügen",restaurantInstead:"Betreibst du ein Restaurant?",restaurantSignIn:"Als Restaurant anmelden",backToDiner:"← Zurück zur Gäste-Anmeldung",dinerDoneTitle:"Du bist auf der Liste",dinerDoneBody:"Wir melden uns, sobald Restaurants in {town} anfangen zu posten.",enterEmail:"Bitte gültige E-Mail eingeben.",selectTown:"Bitte Ort auswählen.",addPhoto:"Foto (optional)",choosePhoto:"Foto hinzufügen",changePhoto:"Foto ändern",photoHint:"Ein schnelles Handyfoto wirkt besser als ein Stockbild.",forDiners:"Für *Gäste*",forRestaurants:"Für *Restaurants*",welcomeBack:"Willkommen zurück",loginSub:"E-Mail eingeben, wir senden einen Magic Link.",
@@ -1196,6 +1214,19 @@ function ago(dateStr){
   return Math.round(h/24)+'d';
 }
 function esc(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML;}
+function openLightbox(url){
+  if(!url) return;
+  const lb=document.getElementById('lightbox'); const img=document.getElementById('lightboxImg');
+  if(!lb||!img) return;
+  img.src=url;
+  lb.classList.add('show');
+}
+function closeLightbox(){
+  const lb=document.getElementById('lightbox'); if(!lb) return;
+  lb.classList.remove('show');
+  document.getElementById('lightboxImg').src='';
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox(); });
 // A special "expires" at its own until_time on the same calendar day it was posted —
 // e.g. posted this morning with "until" set to 2:00 PM disappears once the clock
 // passes 2:00 PM today. Specials with no until_time never auto-hide.
@@ -1213,7 +1244,11 @@ function renderFeedCardsInto(elId,countId,list){
   const cEl=document.getElementById(countId);
   if(cEl) cEl.textContent=list.length+' '+(list.length===1?t('specialCount'):t('specialsCount'));
   if(!list.length){
-    el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('emptyTitle')}</div><div class="ef-sub">${t('emptySub')}</div></div>`;
+    const hr=new Date().getHours();
+    const isLateNight = hr>=0 && hr<6;
+    const title = isLateNight ? t('emptyTitleLate') : t('emptyTitle');
+    const sub = isLateNight ? t('emptySubLate') : t('emptySub');
+    el.innerHTML=`<div class="empty-feed"><div class="ef-title">${title}</div><div class="ef-sub">${sub}</div></div>`;
     return;
   }
   el.innerHTML=list.map(s=>{
@@ -1229,7 +1264,7 @@ function renderFeedCardsInto(elId,countId,list){
         <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${s.rid}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
       </div>
       <div class="fc-text">${esc(s.text)}</div>
-      ${s.photo?`<img class="fc-photo" src="${s.photo}" alt="${esc(s.restaurant)}">`:''}
+      ${s.photo?`<img class="fc-photo" src="${s.photo}" alt="${esc(s.restaurant)}" onclick="event.stopPropagation();openLightbox('${s.photo}')">`:''}
       <div class="fc-meta">${meta}</div>
     </div>`;
   }).join('');
@@ -1401,7 +1436,7 @@ async function openDetail(rid){
   const ph=document.getElementById('rdPhotos');
   const photos=info.photos||[];
   if(photos.length){
-    ph.innerHTML=`<div class="photo-row">${photos.map(p=>`<img src="${p}" alt="${esc(info.name||'')}">`).join('')}</div>`;
+    ph.innerHTML=`<div class="photo-row view-only">${photos.map(p=>`<img src="${p}" alt="${esc(info.name||'')}" onclick="openLightbox('${p}')">`).join('')}</div>`;
   } else {
     ph.innerHTML=`<div class="photo-row"><div class="scribble-frame">${SCRIBBLES[(info.scribble??0)%SCRIBBLES.length]}</div></div>`;
   }
