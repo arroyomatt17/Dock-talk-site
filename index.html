@@ -364,6 +364,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
 <!-- DINER FEED -->
 <div class="screen" id="screenDiner">
   <div class="inner">
+    <div id="dinerPreviewBanner" class="recurring-badge" style="display:none;background:var(--sea-light);color:var(--sea);margin-bottom:14px;cursor:pointer;" onclick="exitDinerPreview()">Viewing as a diner — tap to go back to your dashboard</div>
     <div class="eyebrow" data-i18n="tonightEyebrow"></div>
     <div class="page-title" data-i18n="feedTitle"></div>
     <div class="page-sub" data-i18n="feedSub"></div>
@@ -634,7 +635,10 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
           <span style="color:var(--sea);cursor:pointer;font-weight:600;font-size:12.5px;" onclick="adminBackToPicker()">← Back to restaurant list</span>
         </div>
       </div>
-      <button class="btn-ghost btn-sm btn" id="signOutBtn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
+      <div style="display:flex;gap:8px;align-items:flex-start;">
+        <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="viewAsDiner()">View as diner</button>
+        <button class="btn-ghost btn-sm btn" id="signOutBtn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
+      </div>
     </div>
     <div class="dash-tabs">
       <button type="button" class="dash-tab-btn" id="dashTabBtnProfile" onclick="showDashTab('profile')" data-i18n="dashProfileTitle"></button>
@@ -1082,6 +1086,10 @@ const SCRIBBLES = [
 let selTowns=new Set(), selSlots=new Set(), showFavoritesOnly=false;
 let currentRestaurant=null, detailR=null, activeIcons=new Set(), navStack=['screenIntro'], feedCache=[];
 let isAdmin=false, adminMode=false, adminRestaurants=[];
+let dinerPreviewActive=false;
+// Guards against re-running the sign-in routing logic (see handleSession below) more
+// than once per browser session — set true the first time a session is established.
+let authRouted=false;
 let editingRecurringId=null, recurringDealsCache=[];
 let pendingLoginEmail=null, gateIntent='diner';
 let currentDiner=null, favoritesSet=new Set();
@@ -1165,6 +1173,7 @@ function goScreen(id,push=true){
   tb.classList.toggle('show', id in TAB_SCREENS);
   tb.querySelectorAll('.tabbar-btn').forEach(b=>b.classList.toggle('active', b.id===TAB_SCREENS[id]));
   window.scrollTo(0,0);
+  document.getElementById('dinerPreviewBanner').style.display=(id==='screenDiner' && dinerPreviewActive)?'block':'none';
   if(id==='screenDiner'){buildFilters();loadFeed();}
   if(id==='screenExplore'){loadExplore();}
   if(id==='screenFavorites'){loadFavoritesScreen();}
@@ -1719,8 +1728,22 @@ async function submitLogin(){
 }
 
 // Called on page load, and whenever Supabase reports an auth state change.
+//
+// IMPORTANT: this routes the signed-in user to their dashboard/admin panel/feed and
+// reloads their data from scratch every time it runs. Supabase's client re-fires a
+// session event more often than an actual sign-in — notably when the browser tab
+// regains focus after being backgrounded — and past experience (the token-refresh
+// fix a few lines down at onAuthStateChange) shows it can slip past a narrower guard.
+// authRouted makes this run exactly ONCE per page load: without it, a restaurant or
+// admin mid-task (posting a special, filling the admin "add restaurant" form) gets
+// yanked back to their dashboard/picker screen and has their in-progress data
+// silently overwritten every time that spurious event fires — which is what "the app
+// keeps auto-refreshing" turned out to be. A real subsequent login (after signOut()
+// resets this flag) still routes normally.
 async function handleSession(session){
   if(!session || !sbReady()){ return; }
+  if(authRouted){ return; }
+  authRouted=true;
   const email=session.user.email;
   const {data:restaurant,error} = await sb.from('restaurants').select('*').eq('email',email).maybeSingle();
   if(error){ console.error(error); return; }
@@ -1746,6 +1769,18 @@ async function handleSession(session){
   const active=document.querySelector('.screen.active')?.id;
   if(active==='screenGate'){ goScreen('screenDiner'); }
   else if(active==='screenDiner'){ buildFilters(); loadFeed(); }
+}
+
+// Lets a signed-in restaurant see the same public feed a diner would see, so they
+// can check how their own specials look without needing a separate diner account.
+function viewAsDiner(){
+  dinerPreviewActive=true;
+  goScreen('screenDiner');
+}
+function exitDinerPreview(){
+  dinerPreviewActive=false;
+  goScreen('screenDashboard');
+  loadDashboard();
 }
 
 /* ══════════ DASHBOARD ══════════ */
@@ -2143,6 +2178,7 @@ async function delPost(id){
 async function signOut(){
   if(sbReady()) await sb.auth.signOut();
   currentRestaurant=null; currentDiner=null; favoritesSet=new Set(); showFavoritesOnly=false;
+  isAdmin=false; adminMode=false; dinerPreviewActive=false; authRouted=false;
   refreshNavLogin();
   goScreen('screenIntro'); navStack=['screenIntro'];
 }
