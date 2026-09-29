@@ -58,7 +58,7 @@ html,body{min-height:100%;background:var(--sand-light);color:var(--ink);font-fam
 .sc.sc-active{opacity:0.45;transform:translateY(0);}
 .sc-tag{display:inline-block;font-size:9px;text-transform:uppercase;letter-spacing:1px;background:var(--palm);color:#fff;padding:2px 8px;border-radius:3px;margin-bottom:8px;}
 .sc-name{font-family:'Fraunces',serif;font-size:15px;font-weight:600;margin-bottom:5px;}
-.sc-text{font-family:'Caveat',cursive;font-size:20px;line-height:1.2;}
+.sc-text{font-family:'Caveat',cursive;font-size:20px;line-height:1.2;white-space:pre-wrap;}
 .sc-meta{font-size:10.5px;color:var(--muted);margin-top:7px;}
 .cta-block{display:flex;flex-direction:column;}
 .btn-enter{display:block;width:100%;padding:16px;text-align:center;font-family:inherit;font-weight:700;font-size:15px;
@@ -128,7 +128,7 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .fav-btn{background:none;border:none;font-size:20px;line-height:1;cursor:pointer;padding:2px 4px;color:var(--muted);flex-shrink:0;}
 .fav-btn.active{color:var(--sunset);}
 .fav-btn:hover{opacity:0.75;}
-.fc-text{font-family:'Caveat',cursive;font-size:21px;line-height:1.25;margin-bottom:10px;}
+.fc-text{font-family:'Caveat',cursive;font-size:21px;line-height:1.25;margin-bottom:10px;white-space:pre-wrap;}
 .fc-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
 .empty-feed{text-align:center;padding:48px 20px;}
 .ef-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin-bottom:8px;}
@@ -172,7 +172,7 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .deal-card{background:var(--sand);border:1px solid var(--accent);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;}
 .deal-live{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;color:#0A0A0A;background:var(--accent);border-radius:100px;padding:4px 10px;margin-bottom:10px;}
 .deal-live .dot{width:6px;height:6px;border-radius:50%;background:#0A0A0A;display:inline-block;}
-.deal-text{font-size:14.5px;line-height:1.5;color:var(--ink);margin-bottom:8px;}
+.deal-text{font-size:14.5px;line-height:1.5;color:var(--ink);margin-bottom:8px;white-space:pre-wrap;}
 .deal-meta{font-size:11.5px;color:var(--muted);}
 
 .step{display:none;}.step.active{display:block;}
@@ -192,13 +192,13 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .preview-card{background:var(--sand);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
 .pc-tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;background:var(--palm);color:#fff;padding:2px 8px;border-radius:3px;margin-bottom:10px;}
 .pc-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin-bottom:6px;}
-.pc-text{font-family:'Caveat',cursive;font-size:21px;line-height:1.25;margin-bottom:8px;}
+.pc-text{font-family:'Caveat',cursive;font-size:21px;line-height:1.25;margin-bottom:8px;white-space:pre-wrap;}
 .pc-meta{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;}
 .posted-list{margin-top:24px;}
 .posted-item{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line-soft);gap:12px;}
 .posted-item:last-child{border-bottom:none;}
 .pi-slot{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
-.pi-text{font-family:'Caveat',cursive;font-size:18px;line-height:1.2;}
+.pi-text{font-family:'Caveat',cursive;font-size:18px;line-height:1.2;white-space:pre-wrap;}
 .delete-btn{font-size:11px;color:var(--sunset);background:none;border:none;cursor:pointer;font-family:inherit;opacity:0.7;}
 .delete-btn:hover{opacity:1;}
 
@@ -703,7 +703,8 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       </div>
       <div class="hint" data-i18n="recurringNote"></div>
       <br>
-      <button class="btn btn-sea" onclick="saveRecurring()" data-i18n="saveRecurring"></button>
+      <button class="btn btn-sea" id="rdSaveBtn" onclick="saveRecurring()" data-i18n="saveRecurring"></button>
+      <button type="button" class="btn-ghost btn-sm btn" id="rdCancelBtn" style="width:auto;margin-left:8px;display:none;" onclick="cancelEditRecurring()">Cancel</button>
       <div class="status-msg" id="recurringStatus"></div>
     </div>
     <div class="posted-list" id="recurringDealsList"></div>
@@ -1025,6 +1026,7 @@ const SCRIBBLES = [
 let selTowns=new Set(), selSlots=new Set(), showFavoritesOnly=false;
 let currentRestaurant=null, detailR=null, activeIcons=new Set(), navStack=['screenIntro'], feedCache=[];
 let isAdmin=false, adminMode=false, adminRestaurants=[];
+let editingRecurringId=null, recurringDealsCache=[];
 let pendingLoginEmail=null, gateIntent='diner';
 let currentDiner=null, favoritesSet=new Set();
 
@@ -1688,23 +1690,50 @@ async function saveRecurring(){
   if(!text) return;
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
-  const {error} = await sb.from('recurring_deals').insert({
-    restaurant_id: currentRestaurant.id, text, days, start_time, end_time, enabled:true
-  });
+  const payload = { text, days, start_time, end_time };
+  const {error} = editingRecurringId
+    ? await sb.from('recurring_deals').update(payload).eq('id', editingRecurringId)
+    : await sb.from('recurring_deals').insert({ restaurant_id: currentRestaurant.id, ...payload, enabled:true });
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  const wasEditing = !!editingRecurringId;
+  resetRecurringForm();
+  st.textContent = wasEditing ? 'Saved.' : t('recurringSaved'); st.className='status-msg';
+  await loadRecurringList();
+  setTimeout(()=>{st.textContent='';},3000);
+}
+function resetRecurringForm(){
+  editingRecurringId=null;
   document.getElementById('rdText').value='';
   document.getElementById('rdStart').value='';
   document.getElementById('rdEnd').value='';
   document.querySelectorAll('#rdDays .day-pill').forEach(b=>b.classList.remove('on'));
-  st.textContent=t('recurringSaved'); st.className='status-msg';
-  await loadRecurringList();
-  setTimeout(()=>{st.textContent='';},3000);
+  document.getElementById('rdSaveBtn').textContent=t('saveRecurring');
+  document.getElementById('rdCancelBtn').style.display='none';
+}
+function cancelEditRecurring(){
+  resetRecurringForm();
+  document.getElementById('recurringStatus').textContent='';
+}
+function editRecurringDeal(id){
+  const rd=recurringDealsCache.find(x=>String(x.id)===String(id)); if(!rd) return;
+  editingRecurringId=id;
+  document.getElementById('rdText').value=rd.text||'';
+  document.getElementById('rdStart').value=rd.start_time||'';
+  document.getElementById('rdEnd').value=rd.end_time||'';
+  const activeDays=new Set(rd.days||[]);
+  document.querySelectorAll('#rdDays .day-pill').forEach(b=>b.classList.toggle('on', activeDays.has(+b.dataset.day)));
+  document.getElementById('rdSaveBtn').textContent='Save changes';
+  document.getElementById('rdCancelBtn').style.display='inline-block';
+  document.getElementById('recurringStatus').textContent='';
+  document.getElementById('rdText').focus();
+  document.getElementById('rdText').scrollIntoView({behavior:'smooth', block:'center'});
 }
 async function loadRecurringList(){
   const el=document.getElementById('recurringDealsList');
   const {data,error} = await sb.from('recurring_deals').select('*').eq('restaurant_id',currentRestaurant.id).order('created_at',{ascending:false});
   if(error){ console.error(error); el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('loadError')}</p>`; return; }
-  const mine=data||[];
+  recurringDealsCache = data||[];
+  const mine=recurringDealsCache;
   if(!mine.length){
     el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('noRecurringDeals')}</p>`;
     return;
@@ -1712,11 +1741,15 @@ async function loadRecurringList(){
   el.innerHTML=`<div class="eyebrow" style="margin-top:24px;margin-bottom:12px;">${t('recurringListTitle')}</div>`+
     mine.map(rd=>`<div class="posted-item"><div><div class="pi-slot">${esc(daysSummary(rd.days))}${rd.start_time&&rd.end_time?' · '+esc(formatTime12(rd.start_time))+'–'+esc(formatTime12(rd.end_time)):''}</div>
     <div class="pi-text">${esc(rd.text)}</div></div>
-    <button class="delete-btn" onclick="delRecurringDeal('${rd.id}')">${t('remove')}</button></div>`).join('');
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+    <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="editRecurringDeal('${rd.id}')">Edit</button>
+    <button class="delete-btn" onclick="delRecurringDeal('${rd.id}')">${t('remove')}</button>
+    </div></div>`).join('');
 }
 async function delRecurringDeal(id){
   const {error} = await sb.from('recurring_deals').delete().eq('id',id);
   if(error){ console.error(error); return; }
+  if(String(editingRecurringId)===String(id)) resetRecurringForm();
   await loadRecurringList();
 }
 
