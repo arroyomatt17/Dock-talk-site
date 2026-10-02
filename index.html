@@ -440,6 +440,9 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
         <label data-i18n="password"></label>
         <input id="dPassword" type="password" placeholder="••••••••">
       </div>
+      <p style="text-align:right;font-size:12px;margin-top:-6px;">
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="openForgotPassword('stepDiner')" data-i18n="forgotPasswordLink"></span>
+      </p>
       <br>
       <button class="btn btn-sea" onclick="submitDinerLogin()" data-i18n="dinerAcctCta"></button>
       <div class="status-msg" id="dinerStatus"></div>
@@ -515,7 +518,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
         <input id="lPassword" type="password" placeholder="••••••••">
       </div>
       <p style="text-align:right;font-size:12px;margin-top:-6px;">
-        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="openForgotPassword()" data-i18n="forgotPasswordLink"></span>
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="openForgotPassword('stepLogin')" data-i18n="forgotPasswordLink"></span>
       </p>
       <br>
       <button class="btn btn-sea" onclick="submitLogin()" data-i18n="restaurantLoginCta"></button>
@@ -545,7 +548,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <button class="btn btn-sea" onclick="submitForgotPassword()" data-i18n="sendResetLink"></button>
       <div class="status-msg" id="forgotPasswordStatus"></div>
       <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
-        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepLogin')" data-i18n="backToLoginLink"></span>
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep(forgotPasswordReturnStep)" data-i18n="backToLoginLink"></span>
       </p>
     </div>
 
@@ -924,7 +927,7 @@ posting:"Posting...",posted:"Posted — live on the diner feed.",writeFirst:"Wri
 selectSlot:"Select a time slot.",yourSpecials:"Your posted specials",remove:"Remove",
 demoEmpty:"That's it — fill in the form above and your special is live in about 10 seconds. No training, no setup.",
 noSpecials:"No specials posted yet.",previewPlaceholder:"Your special will appear here as you type...",
-checking:"Checking...",sending:"Sending magic link...",fillAll:"Fill in all fields.",forgotPasswordLink:"Forgot password?",forgotPasswordTitle:"Reset your password",forgotPasswordSub:"Enter the email on your account and we'll send you a link to set a new password.",sendResetLink:"Send reset link",resetLinkSentMsg:"If that email has an account, a reset link is on its way — check your inbox.",backToLoginLink:"Back to log in",setNewPasswordTitle:"Set a new password",setNewPasswordSub:"Choose a new password for your account.",newPassword:"New password",confirmNewPassword:"Confirm new password",saveNewPasswordCta:"Save new password",passwordUpdatedMsg:"Password updated.",changePasswordTitle:"Change password",changePasswordCta:"Change password",
+checking:"Checking...",sending:"Sending magic link...",fillAll:"Fill in all fields.",forgotPasswordLink:"Forgot password?",forgotPasswordTitle:"Reset your password",forgotPasswordSub:"Enter the email on your account and we'll send you a link to set a new password.",sendResetLink:"Send reset link",resetLinkSentMsg:"If that email has an account, a reset link is on its way — check your inbox.",resetLinkExpiredMsg:"That link has expired or was already used — enter your email below for a new one.",backToLoginLink:"Back to log in",setNewPasswordTitle:"Set a new password",setNewPasswordSub:"Choose a new password for your account.",newPassword:"New password",confirmNewPassword:"Confirm new password",saveNewPasswordCta:"Save new password",passwordUpdatedMsg:"Password updated.",changePasswordTitle:"Change password",changePasswordCta:"Change password",
 noAccount:"No restaurant found for that email. We onboard restaurants personally — reach out to get set up.",wrongCode:"Incorrect code.",
 enterPhone:"Enter your phone number.",fullCode:"Enter the full 6-digit code.",enterLoginEmail:"Enter a valid email.",
 linkSent:"Link sent — check your inbox (and spam folder).",pendingApproval:"Your account is under review. We'll be in touch shortly.",
@@ -963,7 +966,7 @@ posting:"Publicando...",posted:"Publicado — ya está en el feed.",writeFirst:"
 selectSlot:"Seleccioná un horario.",yourSpecials:"Tus especiales publicados",remove:"Eliminar",
 demoEmpty:"Eso es todo — llená el formulario de arriba y tu especial está publicado en unos 10 segundos. Sin capacitación, sin configuración.",
 noSpecials:"Todavía no publicaste especiales.",previewPlaceholder:"Tu especial aparecerá acá mientras escribís...",
-checking:"Verificando...",sending:"Enviando enlace...",fillAll:"Completá todos los campos.",forgotPasswordLink:"¿Olvidaste tu contraseña?",forgotPasswordTitle:"Restablecé tu contraseña",forgotPasswordSub:"Ingresá el email de tu cuenta y te enviaremos un enlace para elegir una nueva contraseña.",sendResetLink:"Enviar enlace",resetLinkSentMsg:"Si ese email tiene una cuenta, te enviamos un enlace — revisá tu bandeja de entrada.",backToLoginLink:"Volver a iniciar sesión",setNewPasswordTitle:"Elegí una nueva contraseña",setNewPasswordSub:"Elegí una nueva contraseña para tu cuenta.",newPassword:"Nueva contraseña",confirmNewPassword:"Confirmá la nueva contraseña",saveNewPasswordCta:"Guardar nueva contraseña",passwordUpdatedMsg:"Contraseña actualizada.",changePasswordTitle:"Cambiar contraseña",changePasswordCta:"Cambiar contraseña",
+checking:"Verificando...",sending:"Enviando enlace...",fillAll:"Completá todos los campos.",forgotPasswordLink:"¿Olvidaste tu contraseña?",forgotPasswordTitle:"Restablecé tu contraseña",forgotPasswordSub:"Ingresá el email de tu cuenta y te enviaremos un enlace para elegir una nueva contraseña.",sendResetLink:"Enviar enlace",resetLinkSentMsg:"Si ese email tiene una cuenta, te enviamos un enlace — revisá tu bandeja de entrada.",resetLinkExpiredMsg:"Ese enlace venció o ya fue usado — ingresá tu email abajo para recibir uno nuevo.",backToLoginLink:"Volver a iniciar sesión",setNewPasswordTitle:"Elegí una nueva contraseña",setNewPasswordSub:"Elegí una nueva contraseña para tu cuenta.",newPassword:"Nueva contraseña",confirmNewPassword:"Confirmá la nueva contraseña",saveNewPasswordCta:"Guardar nueva contraseña",passwordUpdatedMsg:"Contraseña actualizada.",changePasswordTitle:"Cambiar contraseña",changePasswordCta:"Cambiar contraseña",
 noAccount:"No encontramos un restaurante con ese correo. Incorporamos restaurantes personalmente — escribinos.",wrongCode:"Código incorrecto.",
 enterPhone:"Ingresá tu número.",fullCode:"Ingresá los 6 dígitos.",enterLoginEmail:"Ingresá un correo válido.",
 linkSent:"Enlace enviado — revisá tu bandeja (y spam).",pendingApproval:"Tu cuenta está en revisión. Te contactaremos pronto.",
@@ -996,7 +999,7 @@ posting:"Publication...",posted:"Publié — visible dans le fil.",writeFirst:"�
 selectSlot:"Choisissez un créneau.",yourSpecials:"Vos offres publiées",remove:"Supprimer",
 demoEmpty:"C'est tout — remplissez le formulaire ci-dessus et votre offre est en ligne en 10 secondes. Aucune formation, aucune configuration.",
 noSpecials:"Aucune offre publiée.",previewPlaceholder:"Votre offre apparaîtra ici pendant que vous écrivez...",
-checking:"Vérification...",sending:"Envoi du lien...",fillAll:"Remplissez tous les champs.",forgotPasswordLink:"Mot de passe oublié ?",forgotPasswordTitle:"Réinitialisez votre mot de passe",forgotPasswordSub:"Entrez l'email de votre compte et nous vous enverrons un lien pour choisir un nouveau mot de passe.",sendResetLink:"Envoyer le lien",resetLinkSentMsg:"Si cet email a un compte, un lien est en route — vérifiez votre boîte de réception.",backToLoginLink:"Retour à la connexion",setNewPasswordTitle:"Choisissez un nouveau mot de passe",setNewPasswordSub:"Choisissez un nouveau mot de passe pour votre compte.",newPassword:"Nouveau mot de passe",confirmNewPassword:"Confirmer le nouveau mot de passe",saveNewPasswordCta:"Enregistrer le nouveau mot de passe",passwordUpdatedMsg:"Mot de passe mis à jour.",changePasswordTitle:"Changer le mot de passe",changePasswordCta:"Changer le mot de passe",
+checking:"Vérification...",sending:"Envoi du lien...",fillAll:"Remplissez tous les champs.",forgotPasswordLink:"Mot de passe oublié ?",forgotPasswordTitle:"Réinitialisez votre mot de passe",forgotPasswordSub:"Entrez l'email de votre compte et nous vous enverrons un lien pour choisir un nouveau mot de passe.",sendResetLink:"Envoyer le lien",resetLinkSentMsg:"Si cet email a un compte, un lien est en route — vérifiez votre boîte de réception.",resetLinkExpiredMsg:"Ce lien a expiré ou a déjà été utilisé — entrez votre email ci-dessous pour en recevoir un nouveau.",backToLoginLink:"Retour à la connexion",setNewPasswordTitle:"Choisissez un nouveau mot de passe",setNewPasswordSub:"Choisissez un nouveau mot de passe pour votre compte.",newPassword:"Nouveau mot de passe",confirmNewPassword:"Confirmer le nouveau mot de passe",saveNewPasswordCta:"Enregistrer le nouveau mot de passe",passwordUpdatedMsg:"Mot de passe mis à jour.",changePasswordTitle:"Changer le mot de passe",changePasswordCta:"Changer le mot de passe",
 noAccount:"Aucun restaurant trouvé pour cet e-mail. Nous accompagnons chaque restaurant personnellement — contactez-nous.",wrongCode:"Code incorrect.",
 enterPhone:"Entrez votre numéro.",fullCode:"Entrez les 6 chiffres.",enterLoginEmail:"Entrez une adresse e-mail valide.",
 linkSent:"Lien envoyé — vérifiez votre boîte de réception (et vos spams).",pendingApproval:"Votre compte est en cours d'examen. Nous vous contacterons bientôt.",
@@ -1029,7 +1032,7 @@ posting:"发布中...",posted:"已发布 — 已在动态中显示。",writeFirs
 selectSlot:"请选择时段。",yourSpecials:"你发布的特色",remove:"删除",
 demoEmpty:"就这么简单 — 填好上面的表单，大约10秒后你的特色菜就上线了。无需培训，无需设置。",
 noSpecials:"还没有发布特色。",previewPlaceholder:"输入时，你的特色会显示在这里...",
-checking:"验证中...",sending:"发送链接...",fillAll:"请填写所有字段。",forgotPasswordLink:"忘记密码？",forgotPasswordTitle:"重置密码",forgotPasswordSub:"输入您账户的邮箱，我们会发送一个链接让您设置新密码。",sendResetLink:"发送重置链接",resetLinkSentMsg:"如果该邮箱有账户，重置链接已发送 — 请查看您的收件箱。",backToLoginLink:"返回登录",setNewPasswordTitle:"设置新密码",setNewPasswordSub:"为您的账户选择一个新密码。",newPassword:"新密码",confirmNewPassword:"确认新密码",saveNewPasswordCta:"保存新密码",passwordUpdatedMsg:"密码已更新。",changePasswordTitle:"修改密码",changePasswordCta:"修改密码",
+checking:"验证中...",sending:"发送链接...",fillAll:"请填写所有字段。",forgotPasswordLink:"忘记密码？",forgotPasswordTitle:"重置密码",forgotPasswordSub:"输入您账户的邮箱，我们会发送一个链接让您设置新密码。",sendResetLink:"发送重置链接",resetLinkSentMsg:"如果该邮箱有账户，重置链接已发送 — 请查看您的收件箱。",resetLinkExpiredMsg:"该链接已过期或已被使用 — 请在下方输入您的邮箱以获取新链接。",backToLoginLink:"返回登录",setNewPasswordTitle:"设置新密码",setNewPasswordSub:"为您的账户选择一个新密码。",newPassword:"新密码",confirmNewPassword:"确认新密码",saveNewPasswordCta:"保存新密码",passwordUpdatedMsg:"密码已更新。",changePasswordTitle:"修改密码",changePasswordCta:"修改密码",
 noAccount:"未找到该邮箱对应的餐厅。我们会亲自为每家餐厅开通 — 请联系我们。",wrongCode:"验证码错误。",
 enterPhone:"请输入手机号。",fullCode:"请输入完整的6位验证码。",enterLoginEmail:"请输入有效的邮箱。",
 linkSent:"链接已发送 — 请查看收件箱（以及垃圾邮件）。",pendingApproval:"你的账户正在审核中，我们会尽快联系你。",
@@ -1062,7 +1065,7 @@ posting:"Wird gepostet...",posted:"Gepostet — jetzt im Feed.",writeFirst:"Schr
 selectSlot:"Wähle ein Zeitfenster.",yourSpecials:"Deine geposteten Angebote",remove:"Entfernen",
 demoEmpty:"Das war's — Formular oben ausfüllen und dein Angebot ist in etwa 10 Sekunden online. Keine Schulung, keine Einrichtung.",
 noSpecials:"Noch keine Angebote gepostet.",previewPlaceholder:"Dein Angebot erscheint hier beim Tippen...",
-checking:"Wird geprüft...",sending:"Link wird gesendet...",fillAll:"Bitte alle Felder ausfüllen.",forgotPasswordLink:"Passwort vergessen?",forgotPasswordTitle:"Passwort zurücksetzen",forgotPasswordSub:"Gib die E-Mail deines Kontos ein — wir schicken dir einen Link, um ein neues Passwort festzulegen.",sendResetLink:"Link senden",resetLinkSentMsg:"Falls diese E-Mail ein Konto hat, ist ein Link unterwegs — schau in dein Postfach.",backToLoginLink:"Zurück zur Anmeldung",setNewPasswordTitle:"Neues Passwort festlegen",setNewPasswordSub:"Wähle ein neues Passwort für dein Konto.",newPassword:"Neues Passwort",confirmNewPassword:"Neues Passwort bestätigen",saveNewPasswordCta:"Neues Passwort speichern",passwordUpdatedMsg:"Passwort aktualisiert.",changePasswordTitle:"Passwort ändern",changePasswordCta:"Passwort ändern",
+checking:"Wird geprüft...",sending:"Link wird gesendet...",fillAll:"Bitte alle Felder ausfüllen.",forgotPasswordLink:"Passwort vergessen?",forgotPasswordTitle:"Passwort zurücksetzen",forgotPasswordSub:"Gib die E-Mail deines Kontos ein — wir schicken dir einen Link, um ein neues Passwort festzulegen.",sendResetLink:"Link senden",resetLinkSentMsg:"Falls diese E-Mail ein Konto hat, ist ein Link unterwegs — schau in dein Postfach.",resetLinkExpiredMsg:"Dieser Link ist abgelaufen oder wurde bereits verwendet — gib unten deine E-Mail für einen neuen ein.",backToLoginLink:"Zurück zur Anmeldung",setNewPasswordTitle:"Neues Passwort festlegen",setNewPasswordSub:"Wähle ein neues Passwort für dein Konto.",newPassword:"Neues Passwort",confirmNewPassword:"Neues Passwort bestätigen",saveNewPasswordCta:"Neues Passwort speichern",passwordUpdatedMsg:"Passwort aktualisiert.",changePasswordTitle:"Passwort ändern",changePasswordCta:"Passwort ändern",
 noAccount:"Kein Restaurant für diese E-Mail gefunden. Wir richten jedes Restaurant persönlich ein — melde dich bei uns.",wrongCode:"Falscher Code.",
 enterPhone:"Bitte Nummer eingeben.",fullCode:"Bitte alle 6 Ziffern eingeben.",enterLoginEmail:"Bitte gültige E-Mail eingeben.",
 linkSent:"Link gesendet — prüfe dein Postfach (und den Spam-Ordner).",pendingApproval:"Dein Konto wird geprüft. Wir melden uns in Kürze.",
@@ -1925,10 +1928,13 @@ async function submitLogin(){
 }
 
 /* ══════════ PASSWORD RESET (forgot password + change password) ══════════ */
-function openForgotPassword(){
-  const prefill=document.getElementById('lEmail').value.trim();
+let forgotPasswordReturnStep='stepLogin';
+function openForgotPassword(fromStep){
+  forgotPasswordReturnStep = (fromStep==='stepDiner') ? 'stepDiner' : 'stepLogin';
+  const sourceEmailId = forgotPasswordReturnStep==='stepDiner' ? 'dEmail' : 'lEmail';
+  const sourceEl=document.getElementById(sourceEmailId);
   const fp=document.getElementById('fpEmail');
-  if(fp) fp.value=prefill;
+  if(fp) fp.value = sourceEl ? sourceEl.value.trim() : '';
   const st=document.getElementById('forgotPasswordStatus'); if(st){ st.textContent=''; st.className='status-msg'; }
   showStep('stepForgotPassword');
 }
@@ -2461,6 +2467,21 @@ window.addEventListener('popstate', goBack);
   if(m){
     goScreen('screenGate'); showStep('stepClaim');
     document.getElementById('ccCode').value = decodeURIComponent(m[1]);
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+})();
+// Supabase redirects back with "#error=...&error_code=otp_expired..." when a
+// password-reset (or magic-link) link is expired or has already been used —
+// most often because it's single-use and either sat too long before being
+// clicked, or an email provider's automatic link-scanner "clicked" it first
+// to check it's safe, burning the token before the person ever saw it.
+// Without this, that lands silently on the intro screen with a broken-looking
+// URL and no explanation.
+(function(){
+  if(/error=/.test(location.hash)){
+    goScreen('screenGate'); showStep('stepForgotPassword');
+    const st=document.getElementById('forgotPasswordStatus');
+    if(st){ st.textContent=t('resetLinkExpiredMsg'); st.className='status-msg err'; }
     history.replaceState(null,'',location.pathname+location.search);
   }
 })();
