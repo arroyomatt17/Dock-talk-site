@@ -834,6 +834,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       </div>
       <br>
       <button class="btn btn-sunset" onclick="postSpecial()" id="postBtn" data-i18n="postSpecial"></button>
+      <button type="button" class="btn-ghost btn-sm btn" id="postCancelBtn" style="width:auto;margin-left:8px;display:none;" onclick="cancelEditSpecial()">Cancel</button>
       <div class="status-msg" id="postStatus"></div>
     </div>
     <div class="posted-list" id="postedList"></div>
@@ -1203,6 +1204,7 @@ let dinerPreviewActive=false;
 // than once per browser session — set true the first time a session is established.
 let authRouted=false;
 let editingRecurringId=null, recurringDealsCache=[];
+let editingSpecialId=null, specialsCache=[];
 let pendingLoginEmail=null, gateIntent='diner';
 let currentDiner=null, favoritesSet=new Set();
 
@@ -2691,22 +2693,52 @@ async function postSpecial(){
   st.textContent=t('posting'); st.className='status-msg';
   let photoUrl=null;
   if(pendingPhotoFile){ photoUrl=await uploadPendingPhoto(); }
-  const {error} = await sb.from('specials').insert({
-    restaurant_id: currentRestaurant.id, slot:+si, text:txt, until, until_time: untilTime||null, start_time: startTime||null, photo_url:photoUrl
-  });
+  const payload = { slot:+si, text:txt, until, until_time: untilTime||null, start_time: startTime||null };
+  if(pendingPhotoFile) payload.photo_url = photoUrl;
+  const {error} = editingSpecialId
+    ? await sb.from('specials').update(payload).eq('id', editingSpecialId)
+    : await sb.from('specials').insert({ restaurant_id: currentRestaurant.id, photo_url:photoUrl, ...payload });
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  const wasEditing=!!editingSpecialId;
+  resetSpecialForm();
+  st.textContent=wasEditing?'Saved.':t('posted');st.className='status-msg';
+  await loadPosted();
+  setTimeout(()=>{st.textContent='';},3000);
+}
+function resetSpecialForm(){
+  editingSpecialId=null;
   document.getElementById('pText').value='';document.getElementById('pSlot').value='';document.getElementById('pStart').value='';document.getElementById('pUntil').value='';
   clearPhoto();
   updatePreview();
-  st.textContent=t('posted');st.className='status-msg';
-  await loadPosted();
-  setTimeout(()=>{st.textContent='';},3000);
+  document.getElementById('postBtn').textContent=t('postSpecial');
+  document.getElementById('postCancelBtn').style.display='none';
+}
+function cancelEditSpecial(){
+  resetSpecialForm();
+  document.getElementById('postStatus').textContent='';
+}
+function editSpecial(id){
+  const p=specialsCache.find(x=>String(x.id)===String(id)); if(!p) return;
+  editingSpecialId=id;
+  document.getElementById('pText').value=p.text||'';
+  document.getElementById('pSlot').value=(p.slot??'');
+  document.getElementById('pStart').value=p.start_time||'';
+  document.getElementById('pUntil').value=p.until_time||'';
+  pendingPhoto=p.photo_url||null; pendingPhotoFile=null;
+  renderPhotoThumb();
+  updatePreview();
+  document.getElementById('postBtn').textContent='Save changes';
+  document.getElementById('postCancelBtn').style.display='inline-block';
+  document.getElementById('postStatus').textContent='';
+  document.getElementById('pText').focus();
+  document.getElementById('pText').scrollIntoView({behavior:'smooth', block:'center'});
 }
 async function loadPosted(){
   const el=document.getElementById('postedList');
   const {data,error} = await sb.from('specials').select('*').eq('restaurant_id',currentRestaurant.id).order('created_at',{ascending:false});
   if(error){ console.error(error); el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('loadError')}</p>`; return; }
   const mine=(data||[]).filter(p=>!isExpired(p.until_time,p.created_at));
+  specialsCache = mine;
   if(!mine.length){
     el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('noSpecials')}</p>`;
     return;
@@ -2714,11 +2746,25 @@ async function loadPosted(){
   el.innerHTML=`<div class="eyebrow" style="margin-top:24px;margin-bottom:12px;">${t('yourSpecials')}</div>`+
     mine.map(p=>`<div class="posted-item"><div><div class="pi-slot">${slotLabel(p.slot)} · ${ago(p.created_at)}</div>
     <div class="pi-text">${esc(p.text)}</div></div>
-    <button class="delete-btn" onclick="delPost('${p.id}')">${t('remove')}</button></div>`).join('');
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+    <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="editSpecial('${p.id}')">Edit</button>
+    <button class="delete-btn" onclick="delPost('${p.id}')">${t('remove')}</button>
+    </div></div>`).join('');
 }
 async function delPost(id){
-  const {error} = await sb.from('specials').delete().eq('id',id);
-  if(error){ console.error(error); return; }
+  const el=document.getElementById('postedList');
+  const {data:deletedRows, error} = await sb.from('specials').delete().eq('id',id).select();
+  if(error){
+    console.error(error);
+    if(el) el.insertAdjacentHTML('afterbegin', `<p class="status-msg err" style="margin-bottom:10px;">${t('loadError')}</p>`);
+    return;
+  }
+  if(!deletedRows || !deletedRows.length){
+    console.error('delPost: delete matched 0 rows (likely blocked by RLS policy) for id', id);
+    if(el) el.insertAdjacentHTML('afterbegin', `<p class="status-msg err" style="margin-bottom:10px;">${t('loadError')}</p>`);
+    return;
+  }
+  if(String(editingSpecialId)===String(id)) resetSpecialForm();
   await loadPosted();
 }
 async function signOut(){
