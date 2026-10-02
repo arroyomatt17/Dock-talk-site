@@ -2420,8 +2420,21 @@ async function loadRecurringList(){
     </div></div>`).join('');
 }
 async function delRecurringDeal(id){
-  const {error} = await sb.from('recurring_deals').delete().eq('id',id);
-  if(error){ console.error(error); return; }
+  const el=document.getElementById('recurringDealsList');
+  const {data:deletedRows, error} = await sb.from('recurring_deals').delete().eq('id',id).select();
+  if(error){
+    console.error(error);
+    if(el) el.insertAdjacentHTML('afterbegin', `<p class="status-msg err" style="margin-bottom:10px;">${t('loadError')}</p>`);
+    return;
+  }
+  if(!deletedRows || !deletedRows.length){
+    // No error, but nothing was actually removed — almost always a Supabase
+    // row-level-security policy blocking the delete silently. Surface this
+    // instead of pretending it worked.
+    console.error('delRecurringDeal: delete matched 0 rows (likely blocked by RLS policy) for id', id);
+    if(el) el.insertAdjacentHTML('afterbegin', `<p class="status-msg err" style="margin-bottom:10px;">${t('loadError')}</p>`);
+    return;
+  }
   if(String(editingRecurringId)===String(id)) resetRecurringForm();
   await loadRecurringList();
 }
