@@ -301,6 +301,16 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
 .lang-select{background:var(--sand);color:var(--ink);border:1px solid var(--line);}
 .photo-btn{background:var(--sand);color:var(--ink);border:2px dashed var(--line);}
 
+.section-label{display:flex;align-items:center;gap:8px;margin:22px 0 10px;}
+.section-label .line{flex:1;height:1px;background:var(--line);}
+.section-label span{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;color:var(--muted);white-space:nowrap;}
+.section-label.upcoming span{color:var(--accent);}
+.feed-card.upcoming{opacity:0.52;}
+.feed-card.upcoming:hover{opacity:0.8;transition:opacity .15s;}
+.fc-tag.upcoming-tag{color:var(--muted);border-color:var(--line);}
+.upcoming-when{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:6px;}
+.upcoming-when .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);display:inline-block;flex-shrink:0;}
+
 input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(58%) saturate(1074%) hue-rotate(31deg) brightness(104%) contrast(105%);cursor:pointer;}
 .switch-check{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0;}
 .switch-check input{opacity:0;width:0;height:0;}
@@ -390,6 +400,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <button class="refresh-btn" onclick="loadFeed()" data-i18n="refresh"></button>
     </div>
     <div id="feed"></div>
+    <div id="feedUpcoming"></div>
   </div>
 </div>
 
@@ -418,6 +429,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
     <div id="rdBadges"></div>
     <div class="icon-grid" id="iconGrid"></div>
     <div id="rdDeal"></div>
+    <div id="rdUpcoming"></div>
     <div id="rdPhotos"></div>
     <div id="detailPanels"></div>
   </div>
@@ -787,10 +799,14 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
     </div>
     <div id="dashTabPost">
     <div class="card">
+      <div class="field">
+        <label data-i18n="timeSlot"></label><select id="pSlot" onchange="updatePreview()"></select>
+      </div>
       <div class="row2">
-        <div class="field"><label data-i18n="timeSlot"></label><select id="pSlot" onchange="updatePreview()"></select></div>
+        <div class="field"><label data-i18n="startTimeLabel"></label><input id="pStart" type="time" oninput="updatePreview()"></div>
         <div class="field"><label data-i18n="validUntil"></label><input id="pUntil" type="time" oninput="updatePreview()"></div>
       </div>
+      <div class="hint" data-i18n="startTimeHint"></div>
       <div class="field">
         <label data-i18n="theSpecial"></label>
         <textarea id="pText" oninput="updatePreview()"></textarea>
@@ -845,6 +861,18 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
         <div class="field"><label data-i18n="recurringEndLabel"></label><input id="rdEnd" type="time"></div>
       </div>
       <div class="hint" data-i18n="recurringNote"></div>
+      <div class="field">
+        <label data-i18n="addPhoto"></label>
+        <div class="photo-upload" id="rdPhotoUpload">
+          <input type="file" id="rdPhoto" accept="image/*" onchange="handleRdPhoto(event)" hidden>
+          <button type="button" class="photo-btn" onclick="document.getElementById('rdPhoto').click()">
+            <span class="photo-btn-icon">📷</span>
+            <span id="rdPhotoBtnText"></span>
+          </button>
+          <div id="rdPhotoThumb"></div>
+        </div>
+        <div class="hint" data-i18n="recurringPhotoHint"></div>
+      </div>
       <br>
       <button class="btn btn-sea" id="rdSaveBtn" onclick="saveRecurring()" data-i18n="saveRecurring"></button>
       <button type="button" class="btn-ghost btn-sm btn" id="rdCancelBtn" style="width:auto;margin-left:8px;display:none;" onclick="cancelEditRecurring()">Cancel</button>
@@ -943,7 +971,7 @@ myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No fa
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
 dashProfileTitle:"Your restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead.",
 scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",
-recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Add recurring deal",recurringSaved:"Added.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing",recurringListTitle:"Your recurring deals",noRecurringDeals:"No recurring deals yet.",everyDay:"Every day"},
+recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Add recurring deal",recurringSaved:"Added.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing",recurringListTitle:"Your recurring deals",noRecurringDeals:"No recurring deals yet.",everyDay:"Every day",comingUpLabel:"Coming up",upcomingStartsAt:"Starts at {time}",upcomingOpensIn:"opens in {dur}",upcomingNextIn:"next one in {dur}",upcomingSetByRestaurant:"(set by the restaurant when they posted it)",startTimeLabel:"Starts at",startTimeHint:"Leave blank to keep today's behavior — live the moment you post it.",recurringPhotoHint:"Entirely optional — a text-only recurring deal works exactly as it does today if you skip this."},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
 heroSub:"Los restaurantes de Guanacaste publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
@@ -976,7 +1004,7 @@ checking:"Verificando...",sending:"Enviando enlace...",fillAll:"Completá todos 
 noAccount:"No encontramos un restaurante con ese correo. Incorporamos restaurantes personalmente — escribinos.",wrongCode:"Código incorrecto.",
 enterPhone:"Ingresá tu número.",fullCode:"Ingresá los 6 dígitos.",enterLoginEmail:"Ingresá un correo válido.",
 linkSent:"Enlace enviado — revisá tu bandeja (y spam).",pendingApproval:"Tu cuenta está en revisión. Te contactaremos pronto.",
-loadError:"No pudimos cargar eso ahora — probá de nuevo en un momento.",alreadyHaveAccount:"¿Ya tenés cuenta?",badLogin:"Ese email y contraseña no coinciden. Probá de nuevo o registrate abajo.",confirmPassword:"Confirmá la contraseña",dashProfileTitle:"La info de tu restaurante",dinerAcctCta:"Iniciar sesión",dinerAcctSub:"Iniciá sesión para guardar los restaurantes que te gustan y volver cuando quieras.",dinerAcctTitle:"Bienvenido de nuevo",dinerEditInfo:"¿Necesitás corregir algo? Volvé a ingresar tu info",dinerLogIn:"Iniciar sesión",dinerSignUp:"Crear una cuenta",dinerSignupCta:"Crear cuenta",dinerSignupSub:"Contanos un poco sobre vos — solo toma un minuto.",dinerSignupTitle:"Creá tu cuenta",dinerWelcomeBody:"Iniciá sesión con tu nuevo email y contraseña para empezar a explorar y guardar tus favoritos.",dinerWelcomeCta:"Ir a iniciar sesión",dinerWelcomeTitle:"Cuenta creada",emailInUse:"Ese email ya tiene una cuenta — probá iniciar sesión.",enterPassword:"Ingresá tu contraseña.",favoriteAdd:"Guardar en favoritos",favoriteRemove:"Quitar de favoritos",favoritesEmpty:"Todavía no tenés favoritos — tocá el ♡ en un restaurante para guardarlo acá.",favoritesTitle:"Tus favoritos",hidePw:"Ocultar",menuEditLabel:"Menú",menuFormatHint:"Una categoría por línea, y sus ítems abajo como \"Ítem — Precio\" (una línea en blanco entre categorías). El escaneo capta casi todo lo que está en la página — solo corregí lo que se vea mal antes de guardar.",menuSaved:"Menú guardado.",myFavorites:"Mis Favoritos",navLogIn:"Iniciar sesión",newDiner:"¿Nuevo por acá?",password:"Contraseña",passwordMismatch:"Las contraseñas no coinciden.",passwordTooShort:"La contraseña debe tener al menos 6 caracteres.",profileSaved:"Guardado.",recurringDaysLabel:"Días",recurringEnabled:"Activado",recurringEndLabel:"Termina",recurringMetaLabel:"Permanente",recurringNote:"Esto aparece automáticamente en tu página durante los días y horarios que elijas abajo — no hace falta iniciar sesión todos los días.",recurringSaved:"Agregado.",recurringStartLabel:"Empieza",recurringTab:"Oferta permanente",recurringTag:"Permanente",recurringTextLabel:"La oferta",recurringToggleHint:"Aparece en tu página como una oferta permanente durante los días/horarios de abajo.",recurringListTitle:"Tus ofertas permanentes",noRecurringDeals:"Todavía no tenés ofertas permanentes.",everyDay:"Todos los días",restaurantLoginCta:"Iniciar sesión",restaurantSignUpCta:"Registrarse",restaurantSignupCta:"Crear cuenta de restaurante",restaurantWelcomeBody:"Iniciá sesión cuando quieras para ver tu estado. Una vez que verifiquemos tu restaurante, vas a poder publicar ofertas de inmediato.",restaurantWelcomeCta:"Ir a iniciar sesión",restaurantWelcomeTitle:"Cuenta creada",saveMenu:"Guardar menú",saveProfile:"Guardar info",saveRecurring:"Agregar oferta permanente",scanDone:"Listo — revisá el texto de abajo y corregí lo que se vea mal.",scanMenu:"Escanear páginas del menú",scanMenuLabel:"Escaneá tu menú",scanningMenu:"Leyendo fotos del menú...",showPw:"Mostrar",yourPhone:"Teléfono",yourTown:"Tu pueblo",yourRegion:"Región",regionUS:"South Fork, NY",regionCR:"Costa Rica"},
+loadError:"No pudimos cargar eso ahora — probá de nuevo en un momento.",alreadyHaveAccount:"¿Ya tenés cuenta?",badLogin:"Ese email y contraseña no coinciden. Probá de nuevo o registrate abajo.",confirmPassword:"Confirmá la contraseña",dashProfileTitle:"La info de tu restaurante",dinerAcctCta:"Iniciar sesión",dinerAcctSub:"Iniciá sesión para guardar los restaurantes que te gustan y volver cuando quieras.",dinerAcctTitle:"Bienvenido de nuevo",dinerEditInfo:"¿Necesitás corregir algo? Volvé a ingresar tu info",dinerLogIn:"Iniciar sesión",dinerSignUp:"Crear una cuenta",dinerSignupCta:"Crear cuenta",dinerSignupSub:"Contanos un poco sobre vos — solo toma un minuto.",dinerSignupTitle:"Creá tu cuenta",dinerWelcomeBody:"Iniciá sesión con tu nuevo email y contraseña para empezar a explorar y guardar tus favoritos.",dinerWelcomeCta:"Ir a iniciar sesión",dinerWelcomeTitle:"Cuenta creada",emailInUse:"Ese email ya tiene una cuenta — probá iniciar sesión.",enterPassword:"Ingresá tu contraseña.",favoriteAdd:"Guardar en favoritos",favoriteRemove:"Quitar de favoritos",favoritesEmpty:"Todavía no tenés favoritos — tocá el ♡ en un restaurante para guardarlo acá.",favoritesTitle:"Tus favoritos",hidePw:"Ocultar",menuEditLabel:"Menú",menuFormatHint:"Una categoría por línea, y sus ítems abajo como \"Ítem — Precio\" (una línea en blanco entre categorías). El escaneo capta casi todo lo que está en la página — solo corregí lo que se vea mal antes de guardar.",menuSaved:"Menú guardado.",myFavorites:"Mis Favoritos",navLogIn:"Iniciar sesión",newDiner:"¿Nuevo por acá?",password:"Contraseña",passwordMismatch:"Las contraseñas no coinciden.",passwordTooShort:"La contraseña debe tener al menos 6 caracteres.",profileSaved:"Guardado.",recurringDaysLabel:"Días",recurringEnabled:"Activado",recurringEndLabel:"Termina",recurringMetaLabel:"Permanente",recurringNote:"Esto aparece automáticamente en tu página durante los días y horarios que elijas abajo — no hace falta iniciar sesión todos los días.",recurringSaved:"Agregado.",recurringStartLabel:"Empieza",recurringTab:"Oferta permanente",recurringTag:"Permanente",recurringTextLabel:"La oferta",recurringToggleHint:"Aparece en tu página como una oferta permanente durante los días/horarios de abajo.",recurringListTitle:"Tus ofertas permanentes",noRecurringDeals:"Todavía no tenés ofertas permanentes.",everyDay:"Todos los días",comingUpLabel:"Próximamente",upcomingStartsAt:"Empieza a las {time}",upcomingOpensIn:"abre en {dur}",upcomingNextIn:"la próxima es en {dur}",upcomingSetByRestaurant:"(definido por el restaurante al publicarlo)",startTimeLabel:"Empieza a las",startTimeHint:"Dejalo en blanco para mantener el comportamiento actual — en vivo apenas lo publiqués.",recurringPhotoHint:"Totalmente opcional — una oferta permanente de solo texto funciona igual que hoy si lo omitís.",restaurantLoginCta:"Iniciar sesión",restaurantSignUpCta:"Registrarse",restaurantSignupCta:"Crear cuenta de restaurante",restaurantWelcomeBody:"Iniciá sesión cuando quieras para ver tu estado. Una vez que verifiquemos tu restaurante, vas a poder publicar ofertas de inmediato.",restaurantWelcomeCta:"Ir a iniciar sesión",restaurantWelcomeTitle:"Cuenta creada",saveMenu:"Guardar menú",saveProfile:"Guardar info",saveRecurring:"Agregar oferta permanente",scanDone:"Listo — revisá el texto de abajo y corregí lo que se vea mal.",scanMenu:"Escanear páginas del menú",scanMenuLabel:"Escaneá tu menú",scanningMenu:"Leyendo fotos del menú...",showPw:"Mostrar",yourPhone:"Teléfono",yourTown:"Tu pueblo",yourRegion:"Región",regionUS:"South Fork, NY",regionCR:"Costa Rica"},
 
 fr:{region:"Guanacaste, Costa Rica",heroTitle:"Sachez ce qui est bon ce soir — <em>avant de sortir.</em>",
 heroSub:"Les restaurants du Guanacaste publient ici leurs plats du jour. Suivez les adresses que vous aimez, soyez le premier informé.",
@@ -1009,7 +1037,7 @@ checking:"Vérification...",sending:"Envoi du lien...",fillAll:"Remplissez tous 
 noAccount:"Aucun restaurant trouvé pour cet e-mail. Nous accompagnons chaque restaurant personnellement — contactez-nous.",wrongCode:"Code incorrect.",
 enterPhone:"Entrez votre numéro.",fullCode:"Entrez les 6 chiffres.",enterLoginEmail:"Entrez une adresse e-mail valide.",
 linkSent:"Lien envoyé — vérifiez votre boîte de réception (et vos spams).",pendingApproval:"Votre compte est en cours d'examen. Nous vous contacterons bientôt.",
-loadError:"Impossible de charger ça pour l'instant — réessayez dans un instant.",alreadyHaveAccount:"Vous avez déjà un compte ?",badLogin:"Cet email et ce mot de passe ne correspondent pas. Réessayez, ou inscrivez-vous ci-dessous.",confirmPassword:"Confirmer le mot de passe",dashProfileTitle:"Les infos de votre restaurant",dinerAcctCta:"Se connecter",dinerAcctSub:"Connectez-vous pour enregistrer les restaurants que vous aimez et revenir à tout moment.",dinerAcctTitle:"Content de vous revoir",dinerEditInfo:"Besoin de corriger quelque chose ? Ressaisissez vos infos",dinerLogIn:"Se connecter",dinerSignUp:"Créer un compte",dinerSignupCta:"Créer un compte",dinerSignupSub:"Dites-nous en un peu plus sur vous — ça ne prend qu'une minute.",dinerSignupTitle:"Créez votre compte",dinerWelcomeBody:"Connectez-vous avec votre nouvel email et mot de passe pour commencer à parcourir et enregistrer vos favoris.",dinerWelcomeCta:"Aller à la connexion",dinerWelcomeTitle:"Compte créé",emailInUse:"Cet email a déjà un compte — essayez de vous connecter.",enterPassword:"Entrez votre mot de passe.",favoriteAdd:"Ajouter aux favoris",favoriteRemove:"Retirer des favoris",favoritesEmpty:"Pas encore de favoris — appuyez sur le ♡ d'un restaurant pour l'enregistrer ici.",favoritesTitle:"Vos favoris",hidePw:"Masquer",menuEditLabel:"Menu",menuFormatHint:"Une catégorie par ligne, puis ses plats en dessous sous la forme \"Plat — Prix\" (ligne vide entre les catégories). Le scan récupère la plupart de ce qui est sur la page — corrigez simplement ce qui semble erroné avant d'enregistrer.",menuSaved:"Menu enregistré.",myFavorites:"Mes Favoris",navLogIn:"Se connecter",newDiner:"Nouveau ici ?",password:"Mot de passe",passwordMismatch:"Les mots de passe ne correspondent pas.",passwordTooShort:"Le mot de passe doit contenir au moins 6 caractères.",profileSaved:"Enregistré.",recurringDaysLabel:"Jours",recurringEnabled:"Activé",recurringEndLabel:"Fin",recurringMetaLabel:"En continu",recurringNote:"Ceci s'affiche automatiquement sur votre page pendant les jours et horaires que vous définissez ci-dessous — pas besoin de vous connecter chaque jour.",recurringSaved:"Ajouté.",recurringStartLabel:"Début",recurringTab:"Offre permanente",recurringTag:"Permanente",recurringTextLabel:"L'offre",recurringToggleHint:"S'affiche sur votre page comme une offre en continu pendant les jours/horaires ci-dessous.",recurringListTitle:"Vos offres permanentes",noRecurringDeals:"Aucune offre permanente pour l'instant.",everyDay:"Tous les jours",restaurantLoginCta:"Se connecter",restaurantSignUpCta:"S'inscrire",restaurantSignupCta:"Créer un compte restaurant",restaurantWelcomeBody:"Connectez-vous à tout moment pour vérifier votre statut. Une fois votre restaurant vérifié, vous pourrez publier des offres immédiatement.",restaurantWelcomeCta:"Aller à la connexion",restaurantWelcomeTitle:"Compte créé",saveMenu:"Enregistrer le menu",saveProfile:"Enregistrer les infos",saveRecurring:"Ajouter une offre permanente",scanDone:"C'est fait — vérifiez le texte ci-dessous et corrigez ce qui semble erroné.",scanMenu:"Scanner les pages du menu",scanMenuLabel:"Scannez votre menu",scanningMenu:"Lecture des photos du menu...",showPw:"Afficher",yourPhone:"Téléphone",yourTown:"Votre ville",yourRegion:"Région",regionUS:"South Fork, NY",regionCR:"Costa Rica"},
+loadError:"Impossible de charger ça pour l'instant — réessayez dans un instant.",alreadyHaveAccount:"Vous avez déjà un compte ?",badLogin:"Cet email et ce mot de passe ne correspondent pas. Réessayez, ou inscrivez-vous ci-dessous.",confirmPassword:"Confirmer le mot de passe",dashProfileTitle:"Les infos de votre restaurant",dinerAcctCta:"Se connecter",dinerAcctSub:"Connectez-vous pour enregistrer les restaurants que vous aimez et revenir à tout moment.",dinerAcctTitle:"Content de vous revoir",dinerEditInfo:"Besoin de corriger quelque chose ? Ressaisissez vos infos",dinerLogIn:"Se connecter",dinerSignUp:"Créer un compte",dinerSignupCta:"Créer un compte",dinerSignupSub:"Dites-nous en un peu plus sur vous — ça ne prend qu'une minute.",dinerSignupTitle:"Créez votre compte",dinerWelcomeBody:"Connectez-vous avec votre nouvel email et mot de passe pour commencer à parcourir et enregistrer vos favoris.",dinerWelcomeCta:"Aller à la connexion",dinerWelcomeTitle:"Compte créé",emailInUse:"Cet email a déjà un compte — essayez de vous connecter.",enterPassword:"Entrez votre mot de passe.",favoriteAdd:"Ajouter aux favoris",favoriteRemove:"Retirer des favoris",favoritesEmpty:"Pas encore de favoris — appuyez sur le ♡ d'un restaurant pour l'enregistrer ici.",favoritesTitle:"Vos favoris",hidePw:"Masquer",menuEditLabel:"Menu",menuFormatHint:"Une catégorie par ligne, puis ses plats en dessous sous la forme \"Plat — Prix\" (ligne vide entre les catégories). Le scan récupère la plupart de ce qui est sur la page — corrigez simplement ce qui semble erroné avant d'enregistrer.",menuSaved:"Menu enregistré.",myFavorites:"Mes Favoris",navLogIn:"Se connecter",newDiner:"Nouveau ici ?",password:"Mot de passe",passwordMismatch:"Les mots de passe ne correspondent pas.",passwordTooShort:"Le mot de passe doit contenir au moins 6 caractères.",profileSaved:"Enregistré.",recurringDaysLabel:"Jours",recurringEnabled:"Activé",recurringEndLabel:"Fin",recurringMetaLabel:"En continu",recurringNote:"Ceci s'affiche automatiquement sur votre page pendant les jours et horaires que vous définissez ci-dessous — pas besoin de vous connecter chaque jour.",recurringSaved:"Ajouté.",recurringStartLabel:"Début",recurringTab:"Offre permanente",recurringTag:"Permanente",recurringTextLabel:"L'offre",recurringToggleHint:"S'affiche sur votre page comme une offre en continu pendant les jours/horaires ci-dessous.",recurringListTitle:"Vos offres permanentes",noRecurringDeals:"Aucune offre permanente pour l'instant.",everyDay:"Tous les jours",comingUpLabel:"À venir",upcomingStartsAt:"Commence à {time}",upcomingOpensIn:"ouvre dans {dur}",upcomingNextIn:"la prochaine dans {dur}",upcomingSetByRestaurant:"(défini par le restaurant lors de la publication)",startTimeLabel:"Commence à",startTimeHint:"Laissez vide pour garder le comportement actuel — en ligne dès la publication.",recurringPhotoHint:"Entièrement facultatif — une offre permanente en texte seul fonctionne comme aujourd'hui si vous l'omettez.",restaurantLoginCta:"Se connecter",restaurantSignUpCta:"S'inscrire",restaurantSignupCta:"Créer un compte restaurant",restaurantWelcomeBody:"Connectez-vous à tout moment pour vérifier votre statut. Une fois votre restaurant vérifié, vous pourrez publier des offres immédiatement.",restaurantWelcomeCta:"Aller à la connexion",restaurantWelcomeTitle:"Compte créé",saveMenu:"Enregistrer le menu",saveProfile:"Enregistrer les infos",saveRecurring:"Ajouter une offre permanente",scanDone:"C'est fait — vérifiez le texte ci-dessous et corrigez ce qui semble erroné.",scanMenu:"Scanner les pages du menu",scanMenuLabel:"Scannez votre menu",scanningMenu:"Lecture des photos du menu...",showPw:"Afficher",yourPhone:"Téléphone",yourTown:"Votre ville",yourRegion:"Région",regionUS:"South Fork, NY",regionCR:"Costa Rica"},
 
 zh:{region:"哥斯达黎加 瓜纳卡斯特",heroTitle:"出门前 — <em>先看看今晚有什么好吃的。</em>",
 heroSub:"瓜纳卡斯特的餐厅在这里发布每日特色菜。关注你信任的店，第一时间收到消息。",
@@ -1042,7 +1070,7 @@ checking:"验证中...",sending:"发送链接...",fillAll:"请填写所有字段
 noAccount:"未找到该邮箱对应的餐厅。我们会亲自为每家餐厅开通 — 请联系我们。",wrongCode:"验证码错误。",
 enterPhone:"请输入手机号。",fullCode:"请输入完整的6位验证码。",enterLoginEmail:"请输入有效的邮箱。",
 linkSent:"链接已发送 — 请查看收件箱（以及垃圾邮件）。",pendingApproval:"你的账户正在审核中，我们会尽快联系你。",
-loadError:"暂时无法加载 — 请稍后重试。",alreadyHaveAccount:"已经有账户了？",badLogin:"该邮箱和密码不匹配。请重试，或在下方注册。",confirmPassword:"确认密码",dashProfileTitle:"您的餐厅信息",dinerAcctCta:"登录",dinerAcctSub:"登录以保存您信任的餐厅，随时回来查看。",dinerAcctTitle:"欢迎回来",dinerEditInfo:"需要修改信息？重新填写",dinerLogIn:"登录",dinerSignUp:"创建账户",dinerSignupCta:"创建账户",dinerSignupSub:"告诉我们一点关于您的信息 — 只需一分钟。",dinerSignupTitle:"创建您的账户",dinerWelcomeBody:"使用您的新邮箱和密码登录，开始浏览并保存您的收藏。",dinerWelcomeCta:"前往登录",dinerWelcomeTitle:"账户已创建",emailInUse:"该邮箱已注册账户 — 请尝试登录。",enterPassword:"请输入您的密码。",favoriteAdd:"加入收藏",favoriteRemove:"移出收藏",favoritesEmpty:"还没有收藏 — 点击餐厅上的♡即可保存到这里。",favoritesTitle:"您的收藏",hidePw:"隐藏",menuEditLabel:"菜单",menuFormatHint:"每行一个分类，下面列出该分类的菜品，格式为\"菜品 — 价格\"（分类之间空一行）。扫描会自动识别页面上的大部分内容 — 保存前请检查并修正看起来不对的地方。",menuSaved:"菜单已保存。",myFavorites:"我的收藏",navLogIn:"登录",newDiner:"第一次来？",password:"密码",passwordMismatch:"两次密码不一致。",passwordTooShort:"密码至少需要6个字符。",profileSaved:"已保存。",recurringDaysLabel:"天数",recurringEnabled:"已启用",recurringEndLabel:"结束时间",recurringMetaLabel:"长期",recurringNote:"这会在您下面设置的日期和时间自动显示在您的页面上 — 无需每天登录。",recurringSaved:"已添加。",recurringStartLabel:"开始时间",recurringTab:"长期优惠",recurringTag:"长期",recurringTextLabel:"优惠内容",recurringToggleHint:"在下方设置的日期/时间内，会作为长期优惠显示在您的页面上。",recurringListTitle:"你的长期优惠",noRecurringDeals:"还没有长期优惠。",everyDay:"每天",restaurantLoginCta:"登录",restaurantSignUpCta:"注册",restaurantSignupCta:"创建餐厅账户",restaurantWelcomeBody:"随时登录查看您的状态。一旦我们审核通过您的餐厅，您就可以立即发布特价信息。",restaurantWelcomeCta:"前往登录",restaurantWelcomeTitle:"账户已创建",saveMenu:"保存菜单",saveProfile:"保存信息",saveRecurring:"添加长期优惠",scanDone:"完成 — 请检查下方文字并修正看起来不对的地方。",scanMenu:"扫描菜单页面",scanMenuLabel:"扫描您的菜单",scanningMenu:"正在读取菜单照片...",showPw:"显示",yourPhone:"电话",yourTown:"您的城镇",yourRegion:"地区",regionUS:"纽约南叉地区",regionCR:"哥斯达黎加"},
+loadError:"暂时无法加载 — 请稍后重试。",alreadyHaveAccount:"已经有账户了？",badLogin:"该邮箱和密码不匹配。请重试，或在下方注册。",confirmPassword:"确认密码",dashProfileTitle:"您的餐厅信息",dinerAcctCta:"登录",dinerAcctSub:"登录以保存您信任的餐厅，随时回来查看。",dinerAcctTitle:"欢迎回来",dinerEditInfo:"需要修改信息？重新填写",dinerLogIn:"登录",dinerSignUp:"创建账户",dinerSignupCta:"创建账户",dinerSignupSub:"告诉我们一点关于您的信息 — 只需一分钟。",dinerSignupTitle:"创建您的账户",dinerWelcomeBody:"使用您的新邮箱和密码登录，开始浏览并保存您的收藏。",dinerWelcomeCta:"前往登录",dinerWelcomeTitle:"账户已创建",emailInUse:"该邮箱已注册账户 — 请尝试登录。",enterPassword:"请输入您的密码。",favoriteAdd:"加入收藏",favoriteRemove:"移出收藏",favoritesEmpty:"还没有收藏 — 点击餐厅上的♡即可保存到这里。",favoritesTitle:"您的收藏",hidePw:"隐藏",menuEditLabel:"菜单",menuFormatHint:"每行一个分类，下面列出该分类的菜品，格式为\"菜品 — 价格\"（分类之间空一行）。扫描会自动识别页面上的大部分内容 — 保存前请检查并修正看起来不对的地方。",menuSaved:"菜单已保存。",myFavorites:"我的收藏",navLogIn:"登录",newDiner:"第一次来？",password:"密码",passwordMismatch:"两次密码不一致。",passwordTooShort:"密码至少需要6个字符。",profileSaved:"已保存。",recurringDaysLabel:"天数",recurringEnabled:"已启用",recurringEndLabel:"结束时间",recurringMetaLabel:"长期",recurringNote:"这会在您下面设置的日期和时间自动显示在您的页面上 — 无需每天登录。",recurringSaved:"已添加。",recurringStartLabel:"开始时间",recurringTab:"长期优惠",recurringTag:"长期",recurringTextLabel:"优惠内容",recurringToggleHint:"在下方设置的日期/时间内，会作为长期优惠显示在您的页面上。",recurringListTitle:"你的长期优惠",noRecurringDeals:"还没有长期优惠。",everyDay:"每天",comingUpLabel:"即将开始",upcomingStartsAt:"{time} 开始",upcomingOpensIn:"{dur}后开始",upcomingNextIn:"{dur}后再次开始",upcomingSetByRestaurant:"（由餐厅发布时设定）",startTimeLabel:"开始时间",startTimeHint:"留空则保持现有方式 — 发布后立即生效。",recurringPhotoHint:"完全可选 — 如果跳过，纯文字的长期优惠和现在一样正常显示。",restaurantLoginCta:"登录",restaurantSignUpCta:"注册",restaurantSignupCta:"创建餐厅账户",restaurantWelcomeBody:"随时登录查看您的状态。一旦我们审核通过您的餐厅，您就可以立即发布特价信息。",restaurantWelcomeCta:"前往登录",restaurantWelcomeTitle:"账户已创建",saveMenu:"保存菜单",saveProfile:"保存信息",saveRecurring:"添加长期优惠",scanDone:"完成 — 请检查下方文字并修正看起来不对的地方。",scanMenu:"扫描菜单页面",scanMenuLabel:"扫描您的菜单",scanningMenu:"正在读取菜单照片...",showPw:"显示",yourPhone:"电话",yourTown:"您的城镇",yourRegion:"地区",regionUS:"纽约南叉地区",regionCR:"哥斯达黎加"},
 
 de:{region:"Guanacaste, Costa Rica",heroTitle:"Wissen, was heute Abend gut ist — <em>bevor du losgehst.</em>",
 heroSub:"Restaurants in Guanacaste posten hier ihre Tagesangebote. Folge den Orten, denen du vertraust, und erfahre es zuerst.",
@@ -1075,7 +1103,7 @@ checking:"Wird geprüft...",sending:"Link wird gesendet...",fillAll:"Bitte alle 
 noAccount:"Kein Restaurant für diese E-Mail gefunden. Wir richten jedes Restaurant persönlich ein — melde dich bei uns.",wrongCode:"Falscher Code.",
 enterPhone:"Bitte Nummer eingeben.",fullCode:"Bitte alle 6 Ziffern eingeben.",enterLoginEmail:"Bitte gültige E-Mail eingeben.",
 linkSent:"Link gesendet — prüfe dein Postfach (und den Spam-Ordner).",pendingApproval:"Dein Konto wird geprüft. Wir melden uns in Kürze.",
-loadError:"Konnte das gerade nicht laden — versuch es gleich nochmal.",alreadyHaveAccount:"Schon ein Konto?",badLogin:"Diese E-Mail und dieses Passwort passen nicht zusammen. Versuch es erneut oder registriere dich unten.",confirmPassword:"Passwort bestätigen",dashProfileTitle:"Deine Restaurant-Infos",dinerAcctCta:"Anmelden",dinerAcctSub:"Melde dich an, um Restaurants zu speichern, denen du vertraust, und jederzeit wiederzukommen.",dinerAcctTitle:"Willkommen zurück",dinerEditInfo:"Musst du etwas korrigieren? Gib deine Infos erneut ein",dinerLogIn:"Anmelden",dinerSignUp:"Konto erstellen",dinerSignupCta:"Konto erstellen",dinerSignupSub:"Erzähl uns kurz etwas über dich — dauert nur eine Minute.",dinerSignupTitle:"Erstelle dein Konto",dinerWelcomeBody:"Melde dich mit deiner neuen E-Mail und deinem Passwort an, um Favoriten zu durchstöbern und zu speichern.",dinerWelcomeCta:"Zur Anmeldung",dinerWelcomeTitle:"Konto erstellt",emailInUse:"Diese E-Mail hat bereits ein Konto — versuch dich stattdessen anzumelden.",enterPassword:"Gib dein Passwort ein.",favoriteAdd:"Zu Favoriten hinzufügen",favoriteRemove:"Aus Favoriten entfernen",favoritesEmpty:"Noch keine Favoriten — tippe auf das ♡ bei einem Restaurant, um es hier zu speichern.",favoritesTitle:"Deine Favoriten",hidePw:"Verbergen",menuEditLabel:"Speisekarte",menuFormatHint:"Eine Kategorie pro Zeile, darunter die Gerichte als \"Gericht — Preis\" (Leerzeile zwischen den Kategorien). Das Scannen erfasst das meiste von der Seite — korrigiere vor dem Speichern einfach, was nicht stimmt.",menuSaved:"Speisekarte gespeichert.",myFavorites:"Meine Favoriten",navLogIn:"Anmelden",newDiner:"Neu hier?",password:"Passwort",passwordMismatch:"Die Passwörter stimmen nicht überein.",passwordTooShort:"Das Passwort muss mindestens 6 Zeichen lang sein.",profileSaved:"Gespeichert.",recurringDaysLabel:"Tage",recurringEnabled:"Aktiviert",recurringEndLabel:"Endet",recurringMetaLabel:"Dauerhaft",recurringNote:"Das erscheint automatisch auf deiner Seite an den Tagen und zu den Zeiten, die du unten festlegst — kein tägliches Anmelden nötig.",recurringSaved:"Hinzugefügt.",recurringStartLabel:"Beginnt",recurringTab:"Dauerangebot",recurringTag:"Dauerhaft",recurringTextLabel:"Das Angebot",recurringToggleHint:"Erscheint auf deiner Seite als Dauerangebot während der unten festgelegten Tage/Zeiten.",recurringListTitle:"Deine Dauerangebote",noRecurringDeals:"Noch keine Dauerangebote.",everyDay:"Jeden Tag",restaurantLoginCta:"Anmelden",restaurantSignUpCta:"Registrieren",restaurantSignupCta:"Restaurant-Konto erstellen",restaurantWelcomeBody:"Melde dich jederzeit an, um deinen Status zu prüfen. Sobald wir dein Restaurant verifiziert haben, kannst du sofort Angebote posten.",restaurantWelcomeCta:"Zur Anmeldung",restaurantWelcomeTitle:"Konto erstellt",saveMenu:"Speisekarte speichern",saveProfile:"Infos speichern",saveRecurring:"Dauerangebot hinzufügen",scanDone:"Fertig — überprüfe den Text unten und korrigiere, was nicht stimmt.",scanMenu:"Speisekartenseiten scannen",scanMenuLabel:"Scanne deine Speisekarte",scanningMenu:"Speisekartenfotos werden gelesen...",showPw:"Anzeigen",yourPhone:"Telefon",yourTown:"Deine Stadt",yourRegion:"Region",regionUS:"South Fork, NY",regionCR:"Costa Rica"}
+loadError:"Konnte das gerade nicht laden — versuch es gleich nochmal.",alreadyHaveAccount:"Schon ein Konto?",badLogin:"Diese E-Mail und dieses Passwort passen nicht zusammen. Versuch es erneut oder registriere dich unten.",confirmPassword:"Passwort bestätigen",dashProfileTitle:"Deine Restaurant-Infos",dinerAcctCta:"Anmelden",dinerAcctSub:"Melde dich an, um Restaurants zu speichern, denen du vertraust, und jederzeit wiederzukommen.",dinerAcctTitle:"Willkommen zurück",dinerEditInfo:"Musst du etwas korrigieren? Gib deine Infos erneut ein",dinerLogIn:"Anmelden",dinerSignUp:"Konto erstellen",dinerSignupCta:"Konto erstellen",dinerSignupSub:"Erzähl uns kurz etwas über dich — dauert nur eine Minute.",dinerSignupTitle:"Erstelle dein Konto",dinerWelcomeBody:"Melde dich mit deiner neuen E-Mail und deinem Passwort an, um Favoriten zu durchstöbern und zu speichern.",dinerWelcomeCta:"Zur Anmeldung",dinerWelcomeTitle:"Konto erstellt",emailInUse:"Diese E-Mail hat bereits ein Konto — versuch dich stattdessen anzumelden.",enterPassword:"Gib dein Passwort ein.",favoriteAdd:"Zu Favoriten hinzufügen",favoriteRemove:"Aus Favoriten entfernen",favoritesEmpty:"Noch keine Favoriten — tippe auf das ♡ bei einem Restaurant, um es hier zu speichern.",favoritesTitle:"Deine Favoriten",hidePw:"Verbergen",menuEditLabel:"Speisekarte",menuFormatHint:"Eine Kategorie pro Zeile, darunter die Gerichte als \"Gericht — Preis\" (Leerzeile zwischen den Kategorien). Das Scannen erfasst das meiste von der Seite — korrigiere vor dem Speichern einfach, was nicht stimmt.",menuSaved:"Speisekarte gespeichert.",myFavorites:"Meine Favoriten",navLogIn:"Anmelden",newDiner:"Neu hier?",password:"Passwort",passwordMismatch:"Die Passwörter stimmen nicht überein.",passwordTooShort:"Das Passwort muss mindestens 6 Zeichen lang sein.",profileSaved:"Gespeichert.",recurringDaysLabel:"Tage",recurringEnabled:"Aktiviert",recurringEndLabel:"Endet",recurringMetaLabel:"Dauerhaft",recurringNote:"Das erscheint automatisch auf deiner Seite an den Tagen und zu den Zeiten, die du unten festlegst — kein tägliches Anmelden nötig.",recurringSaved:"Hinzugefügt.",recurringStartLabel:"Beginnt",recurringTab:"Dauerangebot",recurringTag:"Dauerhaft",recurringTextLabel:"Das Angebot",recurringToggleHint:"Erscheint auf deiner Seite als Dauerangebot während der unten festgelegten Tage/Zeiten.",recurringListTitle:"Deine Dauerangebote",noRecurringDeals:"Noch keine Dauerangebote.",everyDay:"Jeden Tag",comingUpLabel:"Demnächst",upcomingStartsAt:"Beginnt um {time}",upcomingOpensIn:"öffnet in {dur}",upcomingNextIn:"das nächste in {dur}",upcomingSetByRestaurant:"(vom Restaurant beim Posten festgelegt)",startTimeLabel:"Beginnt um",startTimeHint:"Leer lassen, um das bisherige Verhalten beizubehalten — live, sobald gepostet.",recurringPhotoHint:"Völlig optional — ein reines Textangebot funktioniert genau wie bisher, wenn du das überspringst.",restaurantLoginCta:"Anmelden",restaurantSignUpCta:"Registrieren",restaurantSignupCta:"Restaurant-Konto erstellen",restaurantWelcomeBody:"Melde dich jederzeit an, um deinen Status zu prüfen. Sobald wir dein Restaurant verifiziert haben, kannst du sofort Angebote posten.",restaurantWelcomeCta:"Zur Anmeldung",restaurantWelcomeTitle:"Konto erstellt",saveMenu:"Speisekarte speichern",saveProfile:"Infos speichern",saveRecurring:"Dauerangebot hinzufügen",scanDone:"Fertig — überprüfe den Text unten und korrigiere, was nicht stimmt.",scanMenu:"Speisekartenseiten scannen",scanMenuLabel:"Scanne deine Speisekarte",scanningMenu:"Speisekartenfotos werden gelesen...",showPw:"Anzeigen",yourPhone:"Telefon",yourTown:"Deine Stadt",yourRegion:"Region",regionUS:"South Fork, NY",regionCR:"Costa Rica"}
 };
 
 let lang = 'en';
@@ -1197,6 +1225,7 @@ function setLang(l){
   document.getElementById('pvText').textContent=t('previewPlaceholder');
   document.getElementById('gateTagline').innerHTML=gateIntent==='diner'?taglineHTML('forDiners'):taglineHTML('forRestaurants');
   if(document.getElementById('photoBtnText')) renderPhotoThumb();
+  if(document.getElementById('rdPhotoBtnText')) renderRdPhotoThumb();
   fillSelect('pSlot',t('slots'),t('selectOpt'));
   fillSelect('dsTown',TOWNS,t('selectTown'));
   fillRsRegion();
@@ -1489,30 +1518,41 @@ async function loadFeed(){
   if(!sbReady()){ el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
   el.innerHTML=`<div class="empty-feed"><div class="ef-sub">…</div></div>`;
   let query = sb.from('specials')
-    .select('id,slot,text,until,until_time,photo_url,created_at,restaurant_id,restaurants!inner(id,name,town,region,status)')
+    .select('id,slot,text,until,until_time,start_time,photo_url,created_at,restaurant_id,restaurants!inner(id,name,town,region,status)')
     .eq('restaurants.status','approved')
     .eq('restaurants.region',region)
     .order('created_at',{ascending:false});
   const {data,error} = await query;
   if(error){ console.error(error); el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
-  let list=(data||[]).filter(s=>!isExpired(s.until_time,s.created_at)).map(s=>({
+  const notExpired=(data||[]).filter(s=>!isExpired(s.until_time,s.created_at));
+  let list=notExpired.filter(s=>!upcomingSpecialInfo(s)).map(s=>({
     id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
     slot:s.slot, text:s.text, until:s.until, photo:s.photo_url, created_at:s.created_at
   }));
+  let upcomingSpecials = notExpired.map(s=>{
+    const info=upcomingSpecialInfo(s); if(!info) return null;
+    return { rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
+      slot:s.slot, text:s.text, photo:s.photo_url, sortKey:info.sortKey, whenHTML:info.whenHTML };
+  }).filter(Boolean);
   if(selTowns.size) list=list.filter(s=>selTowns.has(s.town));
   if(selSlots.size) list=list.filter(s=>selSlots.has(s.slot));
   if(showFavoritesOnly) list=list.filter(s=>favoritesSet.has(s.rid));
-  let recurringList=[];
+  let recurringList=[]; let upcomingRecurring=[];
   try{
     const {data:rdata, error:rderr} = await sb.from('recurring_deals')
-      .select('id,text,days,start_time,end_time,restaurant_id,restaurants!inner(id,name,town,region,status)')
+      .select('id,text,days,start_time,end_time,photo_url,restaurant_id,restaurants!inner(id,name,town,region,status)')
       .eq('restaurants.status','approved')
       .eq('restaurants.region',region);
     if(!rderr && rdata){
       recurringList = rdata.filter(isRecurringActive).map(rd=>({
         id:'rd-'+rd.id, rid:rd.restaurant_id, restaurant:rd.restaurants.name, town:rd.restaurants.town, slot:null,
-        text:rd.text, until:formatTime12(rd.end_time), photo:null, created_at:null, recurring:true
+        text:rd.text, until:formatTime12(rd.end_time), photo:rd.photo_url||null, created_at:null, recurring:true
       }));
+      (rdata||[]).forEach(rd=>{
+        const info=upcomingRecurringInfo(rd); if(!info) return;
+        upcomingRecurring.push({ rid:rd.restaurant_id, restaurant:rd.restaurants.name, town:rd.restaurants.town,
+          text:rd.text, recurring:true, sortKey:info.sortKey, whenHTML:info.whenHTML });
+      });
     }
   }catch(e){ console.error(e); }
   if(selTowns.size) recurringList=recurringList.filter(s=>selTowns.has(s.town));
@@ -1520,6 +1560,10 @@ async function loadFeed(){
   if(!selSlots.size) list=[...list, ...recurringList];
   feedCache=list;
   renderFeedCardsInto('feed','feedCount',list);
+  let upcomingAll=[...upcomingSpecials, ...upcomingRecurring];
+  if(selTowns.size) upcomingAll=upcomingAll.filter(s=>selTowns.has(s.town));
+  if(showFavoritesOnly) upcomingAll=upcomingAll.filter(s=>favoritesSet.has(s.rid));
+  renderUpcomingSectionInto('feedUpcoming', upcomingAll);
 }
 // Full, unfiltered directory of every approved restaurant in the current
 // region — the Explore tab. Independent of the Tonight/Search feed above.
@@ -1639,10 +1683,25 @@ async function openDetail(rid){
   });
   document.getElementById('rdBadges').innerHTML=badges;
   const {data:rdSpecials} = await sb.from('specials').select('*').eq('restaurant_id',rid).order('created_at',{ascending:false});
-  const activeDeal=(rdSpecials||[]).find(s=>!isExpired(s.until_time,s.created_at));
+  const notExpiredSpecials=(rdSpecials||[]).filter(s=>!isExpired(s.until_time,s.created_at));
+  const activeDeal=notExpiredSpecials.find(s=>!upcomingSpecialInfo(s));
   document.getElementById('rdDeal').innerHTML = activeDeal
     ? `<div class="deal-card"><div class="deal-live"><span class="dot"></span>${t('liveNow')}</div><div class="deal-text">${esc(activeDeal.text)}</div><div class="deal-meta">${ago(activeDeal.created_at)}${activeDeal.until?' · '+esc(activeDeal.until):''}</div></div>`
     : '';
+  // "Coming up" on a restaurant's own page is unconditional — every deal of
+  // theirs (posted or recurring) that isn't live yet, regardless of what day
+  // it falls on, so it's shown here even while something else is live.
+  const upcomingHere=[
+    ...notExpiredSpecials.map(s=>{
+      const info=upcomingSpecialInfo(s); if(!info) return null;
+      return { rid, restaurant:info.name, text:s.text, sortKey:info.sortKey, whenHTML:info.whenHTML };
+    }).filter(Boolean),
+    ...(rdRows||[]).map(rd=>{
+      const info=upcomingRecurringInfo(rd); if(!info) return null;
+      return { rid, restaurant:info.name, text:rd.text, recurring:true, sortKey:info.sortKey, whenHTML:info.whenHTML };
+    }).filter(Boolean)
+  ];
+  renderUpcomingSectionInto('rdUpcoming', upcomingHere);
   const icons=[['hours','🕐'],['location','📍'],['phone','📞'],['menu','📋']];
   document.getElementById('iconGrid').innerHTML=icons.map(([k,e])=>
     `<button class="icon-btn" id="ic-${k}" onclick="toggleIcon('${k}')">
@@ -1697,6 +1756,39 @@ function clearPhoto(){
   pendingPhoto = null; pendingPhotoFile = null;
   document.getElementById('pPhoto').value = '';
   renderPhotoThumb(); updatePreview();
+}
+let pendingRdPhoto = null;       // data URL for local preview
+let pendingRdPhotoFile = null;   // raw File for upload
+let rdPhotoRemoved = false;      // true when editing and the existing photo was explicitly removed
+let existingRdPhotoUrl = null;   // the photo_url already saved on the deal being edited, if any
+function handleRdPhoto(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  pendingRdPhotoFile = file;
+  rdPhotoRemoved = false;
+  const reader = new FileReader();
+  reader.onload = ev => { pendingRdPhoto = ev.target.result; renderRdPhotoThumb(); };
+  reader.readAsDataURL(file);
+}
+function renderRdPhotoThumb(){
+  const el=document.getElementById('rdPhotoThumb');
+  const shown = pendingRdPhoto || (!rdPhotoRemoved ? existingRdPhotoUrl : null);
+  el.innerHTML = shown
+    ? `<div class="thumb-wrap"><img src="${shown}" alt=""><button class="thumb-x" onclick="clearRdPhoto()">✕</button></div>`
+    : '';
+  document.getElementById('rdPhotoBtnText').textContent = shown ? t('changePhoto') : t('choosePhoto');
+}
+function clearRdPhoto(){
+  pendingRdPhoto = null; pendingRdPhotoFile = null; rdPhotoRemoved = true;
+  renderRdPhotoThumb();
+}
+async function uploadPendingRdPhoto(){
+  if(!pendingRdPhotoFile) return null;
+  const path = `${currentRestaurant.id}/${Date.now()}-${pendingRdPhotoFile.name}`;
+  const {error} = await sb.storage.from('specials-photos').upload(path, pendingRdPhotoFile);
+  if(error){ console.error(error); return null; }
+  const {data} = sb.storage.from('specials-photos').getPublicUrl(path);
+  return data?.publicUrl || null;
 }
 async function uploadPendingPhoto(){
   if(!pendingPhotoFile) return null;
@@ -2064,6 +2156,7 @@ async function loadDashboard(){
   document.getElementById('dashTown').innerHTML=`<span class="recurring-badge" style="margin:0 8px 0 0;">${dR.flag} ${esc(dR.label[lang]||dR.label.en)}</span>${esc(currentRestaurant.town||'')}`;
   document.getElementById('pvName').textContent=currentRestaurant.name;
   updatePreview(); await loadPosted(); loadProfileForm(); loadMenuForm(); await loadRecurringList();
+  renderRdPhotoThumb();
   showDashTab('post');
 }
 function showDashTab(tab){
@@ -2095,6 +2188,87 @@ function isRecurringActive(rd){
   if(endMin>startMin) return curMin>=startMin && curMin<endMin;
   return curMin>=startMin || curMin<endMin;
 }
+// Minutes-until duration, formatted the way the mock shows it: "2h 10m",
+// "45m", or "2 days" once it's a full day or more out.
+function formatDurationUntil(ms){
+  const mins = Math.max(1, Math.round(ms/60000));
+  if(mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins/60), rem = mins%60;
+  if(hrs < 24) return rem ? `${hrs}h ${rem}m` : `${hrs}h`;
+  const days = Math.round(hrs/24);
+  return days===1 ? '1 day' : `${days} days`;
+}
+// A one-off special that hasn't gone live yet today (it has a start_time in
+// the future). Not "upcoming" at all if it has no start_time (live the
+// instant it was posted) or its start_time has already passed.
+function upcomingSpecialInfo(s){
+  if(!s.start_time || !s.created_at) return null;
+  const created = new Date(s.created_at);
+  const [h,m] = s.start_time.split(':').map(Number);
+  const startsAt = new Date(created.getFullYear(), created.getMonth(), created.getDate(), h, m, 0, 0);
+  if(startsAt <= created) startsAt.setDate(startsAt.getDate()+1);
+  const now = new Date();
+  if(startsAt <= now) return null;
+  const whenHTML = `${t('upcomingStartsAt').replace('{time}', esc(formatTime12(s.start_time)))} — ${t('upcomingOpensIn').replace('{dur}', formatDurationUntil(startsAt-now))}`;
+  return { sortKey: startsAt-now, whenHTML };
+}
+// A recurring deal that is not currently active — either it runs today but
+// hasn't started yet, or its next occurrence is on a future day of the week.
+function upcomingRecurringInfo(rd){
+  if(!rd || rd.enabled===false || !rd.text) return null;
+  if(isRecurringActive(rd)) return null;
+  const now = new Date();
+  const curDay = (now.getDay()+6)%7;
+  const curMin = now.getHours()*60+now.getMinutes();
+  // No days/times set at all means it's always-on (isRecurringActive would
+  // already have returned true above), so nothing upcoming to compute here.
+  if(!rd.days || !rd.days.length || !rd.start_time || !rd.end_time) return null;
+  const [sh,sm] = rd.start_time.split(':').map(Number);
+  const startMin = sh*60+sm;
+  // Does it run today, later today (before its start time)?
+  if(rd.days.includes(curDay) && curMin < startMin){
+    const startsAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), sh, sm, 0, 0);
+    const whenHTML = `${t('upcomingStartsAt').replace('{time}', esc(formatTime12(rd.start_time)))} — ${t('upcomingOpensIn').replace('{dur}', formatDurationUntil(startsAt-now))}`;
+    return { sortKey: startsAt-now, whenHTML };
+  }
+  // Otherwise, find the soonest future day (1-7 days out) it runs on.
+  const sortedDays=[...rd.days].sort((a,b)=>a-b);
+  let daysOut=null;
+  for(let i=1;i<=7;i++){
+    const candidate=(curDay+i)%7;
+    if(sortedDays.includes(candidate)){ daysOut=i; break; }
+  }
+  if(daysOut===null) return null;
+  const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()+daysOut, sh, sm, 0, 0);
+  const range = `${daysSummary(rd.days)}, ${formatTime12(rd.start_time)}–${formatTime12(rd.end_time)}`;
+  const whenHTML = `${esc('Every '+range)} — ${t('upcomingNextIn').replace('{dur}', formatDurationUntil(nextDate-now))}`;
+  return { sortKey: nextDate-now, whenHTML };
+}
+// One upcoming feed-card's markup — visually dimmed, no favorite/fav-count
+// chrome needed since these aren't live yet; tapping the name still opens
+// the restaurant's page.
+function upcomingTagHTML(u){
+  const label = u.recurring ? t('recurringTag') : slotLabel(u.slot);
+  return u.town ? `${label} · ${esc(u.town)}` : label;
+}
+function renderUpcomingCardHTML(u){
+  const nameRow = u.town
+    ? `<div class="fc-row"><button class="fc-name-link" onclick="openDetail('${u.rid}')">${esc(u.restaurant)}</button></div>`
+    : '';
+  return `<div class="feed-card upcoming">
+      <span class="fc-tag upcoming-tag">${upcomingTagHTML(u)}</span>
+      ${nameRow}
+      <div class="fc-text">${esc(u.text)}</div>
+      <div class="upcoming-when"><span class="dot"></span>${u.whenHTML}</div>
+    </div>`;
+}
+function renderUpcomingSectionInto(elId, upcomingList){
+  const el=document.getElementById(elId); if(!el) return;
+  if(!upcomingList.length){ el.innerHTML=''; return; }
+  upcomingList.sort((a,b)=>a.sortKey-b.sortKey);
+  el.innerHTML = `<div class="section-label upcoming"><div class="line"></div><span>${t('comingUpLabel')}</span><div class="line"></div></div>` +
+    upcomingList.map(renderUpcomingCardHTML).join('');
+}
 async function saveRecurring(){
   const st=document.getElementById('recurringStatus');
   const text=document.getElementById('rdText').value.trim();
@@ -2105,6 +2279,13 @@ async function saveRecurring(){
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
   const payload = { text, days, start_time, end_time };
+  if(pendingRdPhotoFile){
+    payload.photo_url = await uploadPendingRdPhoto();
+  } else if(rdPhotoRemoved){
+    payload.photo_url = null;
+  }
+  // else: editing without touching the photo field — leave photo_url untouched
+  // on update, and a brand-new deal with no photo simply omits the key (null column).
   const {error} = editingRecurringId
     ? await sb.from('recurring_deals').update(payload).eq('id', editingRecurringId)
     : await sb.from('recurring_deals').insert({ restaurant_id: currentRestaurant.id, ...payload, enabled:true });
@@ -2123,6 +2304,8 @@ function resetRecurringForm(){
   document.querySelectorAll('#rdDays .day-pill').forEach(b=>b.classList.remove('on'));
   document.getElementById('rdSaveBtn').textContent=t('saveRecurring');
   document.getElementById('rdCancelBtn').style.display='none';
+  pendingRdPhoto=null; pendingRdPhotoFile=null; rdPhotoRemoved=false; existingRdPhotoUrl=null;
+  renderRdPhotoThumb();
 }
 function cancelEditRecurring(){
   resetRecurringForm();
@@ -2139,6 +2322,9 @@ function editRecurringDeal(id){
   document.getElementById('rdSaveBtn').textContent='Save changes';
   document.getElementById('rdCancelBtn').style.display='inline-block';
   document.getElementById('recurringStatus').textContent='';
+  pendingRdPhoto=null; pendingRdPhotoFile=null; rdPhotoRemoved=false;
+  existingRdPhotoUrl=rd.photo_url||null;
+  renderRdPhotoThumb();
   document.getElementById('rdText').focus();
   document.getElementById('rdText').scrollIntoView({behavior:'smooth', block:'center'});
 }
@@ -2401,12 +2587,15 @@ function updatePreview(){
     ? `<img class="pc-photo" src="${pendingPhoto}" alt="">` : '';
   const untilTime=document.getElementById('pUntil').value;
   const until=formatTime12(untilTime);
+  const startTimeVal=document.getElementById('pStart')?document.getElementById('pStart').value:'';
+  const startLabel=startTimeVal?`${t('startTimeLabel')} ${formatTime12(startTimeVal)}`:t('justNow');
   document.getElementById('pvMeta').innerHTML =
-    `<span>${t('justNow')}</span>${until?`<span>${esc(until)}</span>`:''}`;
+    `<span>${esc(startLabel)}</span>${until?`<span>${esc(until)}</span>`:''}`;
 }
 async function postSpecial(){
   const txt=document.getElementById('pText').value.trim();
   const si=document.getElementById('pSlot').value;
+  const startTime=document.getElementById('pStart').value;
   const untilTime=document.getElementById('pUntil').value;
   const until=formatTime12(untilTime);
   const st=document.getElementById('postStatus');
@@ -2417,10 +2606,10 @@ async function postSpecial(){
   let photoUrl=null;
   if(pendingPhotoFile){ photoUrl=await uploadPendingPhoto(); }
   const {error} = await sb.from('specials').insert({
-    restaurant_id: currentRestaurant.id, slot:+si, text:txt, until, until_time: untilTime||null, photo_url:photoUrl
+    restaurant_id: currentRestaurant.id, slot:+si, text:txt, until, until_time: untilTime||null, start_time: startTime||null, photo_url:photoUrl
   });
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
-  document.getElementById('pText').value='';document.getElementById('pSlot').value='';document.getElementById('pUntil').value='';
+  document.getElementById('pText').value='';document.getElementById('pSlot').value='';document.getElementById('pStart').value='';document.getElementById('pUntil').value='';
   clearPhoto();
   updatePreview();
   st.textContent=t('posted');st.className='status-msg';
