@@ -2485,6 +2485,13 @@ window.addEventListener('popstate', goBack);
     history.replaceState(null,'',location.pathname+location.search);
   }
 })();
+// Detected synchronously, before Supabase's client has a chance to establish
+// anything from the URL — see the big comment further down at isPasswordRecoveryLink's
+// use for why this matters.
+const isPasswordRecoveryLink = /type=recovery/.test(location.hash);
+if(isPasswordRecoveryLink){
+  goScreen('screenGate'); showStep('stepSetNewPassword');
+}
 // Re-checks every minute for specials whose "valid until" time has passed, so a
 // tile disappears from the feed (and from the restaurant's own list) on its own
 // without needing a page refresh.
@@ -2494,7 +2501,17 @@ setInterval(()=>{
   if(postTab && !postTab.hidden) loadPosted();
 }, 60000);
 if(sbReady()){
-  sb.auth.getSession().then(({data})=>handleSession(data.session));
+  // isPasswordRecoveryLink (set just above): a password-recovery link gives a
+  // REAL, valid session — the same kind getSession() would normally use to
+  // sign an already-logged-in visitor straight into their dashboard. Without
+  // this guard, that's exactly what happened: the recovery session was
+  // indistinguishable from an ordinary one, so people were signed straight in
+  // and never saw the "set a new password" screen at all. Skipping
+  // handleSession() here (and in the SIGNED_IN listener below) while a
+  // recovery link is being processed leaves stepSetNewPassword, shown above,
+  // on screen until the password is actually changed — only submitNewPassword()
+  // is allowed to route them in after that, once there's a real new password set.
+  if(!isPasswordRecoveryLink) sb.auth.getSession().then(({data})=>handleSession(data.session));
   // Supabase silently refreshes the login token in the background (and also
   // re-checks it whenever the tab regains focus) — that fires this same
   // callback with event 'TOKEN_REFRESHED', not a real sign-in. handleSession()
@@ -2503,10 +2520,12 @@ if(sbReady()){
   // quietly happens. Only react to an actual sign-in; the page's initial load
   // (a few lines up) already handles routing an already-logged-in visitor in.
   sb.auth.onAuthStateChange((event, session)=>{
-    if(event==='SIGNED_IN' && session) handleSession(session);
+    if(event==='SIGNED_IN' && session && !isPasswordRecoveryLink) handleSession(session);
     // Supabase lands someone here with a temporary session after they click
     // the emailed reset link — show the "set a new password" step instead of
-    // routing them into their dashboard right away.
+    // routing them into their dashboard right away. (Also shown synchronously
+    // above the instant the link is detected — this is a second, redundant
+    // trigger in case that event fires on its own, e.g. a slower client.)
     if(event==='PASSWORD_RECOVERY' && session){ goScreen('screenGate'); showStep('stepSetNewPassword'); }
   });
 } else {
