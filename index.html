@@ -1524,13 +1524,20 @@ async function loadFeed(){
     .order('created_at',{ascending:false});
   const {data,error} = await query;
   if(error){ console.error(error); el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
+  // Coming Up in the Tonight feed only reaches through the end of tomorrow —
+  // a deal further out than that is simply not shown at all here (it's not
+  // "live" and it's past the window to be "upcoming" either), so one
+  // restaurant's whole week of recurring deals doesn't pile up in the feed
+  // every single day. A restaurant's own page has no such limit (see
+  // openDetail below), since every one of its own deals is useful there.
+  const feedCutoff = new Date(); feedCutoff.setDate(feedCutoff.getDate()+2); feedCutoff.setHours(0,0,0,0);
   const notExpired=(data||[]).filter(s=>!isExpired(s.until_time,s.created_at));
-  let list=notExpired.filter(s=>!upcomingSpecialInfo(s)).map(s=>({
+  let list=notExpired.filter(s=>!upcomingSpecialInfo(s,feedCutoff)).map(s=>({
     id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
     slot:s.slot, text:s.text, until:s.until, photo:s.photo_url, created_at:s.created_at
   }));
   let upcomingSpecials = notExpired.map(s=>{
-    const info=upcomingSpecialInfo(s); if(!info) return null;
+    const info=upcomingSpecialInfo(s,feedCutoff); if(!info) return null;
     return { rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
       slot:s.slot, text:s.text, photo:s.photo_url, sortKey:info.sortKey, whenHTML:info.whenHTML };
   }).filter(Boolean);
@@ -1549,7 +1556,7 @@ async function loadFeed(){
         text:rd.text, until:formatTime12(rd.end_time), photo:rd.photo_url||null, created_at:null, recurring:true
       }));
       (rdata||[]).forEach(rd=>{
-        const info=upcomingRecurringInfo(rd); if(!info) return;
+        const info=upcomingRecurringInfo(rd,feedCutoff); if(!info) return;
         upcomingRecurring.push({ rid:rd.restaurant_id, restaurant:rd.restaurants.name, town:rd.restaurants.town,
           text:rd.text, recurring:true, sortKey:info.sortKey, whenHTML:info.whenHTML });
       });
@@ -2201,7 +2208,7 @@ function formatDurationUntil(ms){
 // A one-off special that hasn't gone live yet today (it has a start_time in
 // the future). Not "upcoming" at all if it has no start_time (live the
 // instant it was posted) or its start_time has already passed.
-function upcomingSpecialInfo(s){
+function upcomingSpecialInfo(s, cutoff){
   if(!s.start_time || !s.created_at) return null;
   const created = new Date(s.created_at);
   const [h,m] = s.start_time.split(':').map(Number);
@@ -2209,12 +2216,13 @@ function upcomingSpecialInfo(s){
   if(startsAt <= created) startsAt.setDate(startsAt.getDate()+1);
   const now = new Date();
   if(startsAt <= now) return null;
+  if(cutoff && startsAt > cutoff) return null;
   const whenHTML = `${t('upcomingStartsAt').replace('{time}', esc(formatTime12(s.start_time)))} — ${t('upcomingOpensIn').replace('{dur}', formatDurationUntil(startsAt-now))}`;
   return { sortKey: startsAt-now, whenHTML };
 }
 // A recurring deal that is not currently active — either it runs today but
 // hasn't started yet, or its next occurrence is on a future day of the week.
-function upcomingRecurringInfo(rd){
+function upcomingRecurringInfo(rd, cutoff){
   if(!rd || rd.enabled===false || !rd.text) return null;
   if(isRecurringActive(rd)) return null;
   const now = new Date();
@@ -2228,6 +2236,7 @@ function upcomingRecurringInfo(rd){
   // Does it run today, later today (before its start time)?
   if(rd.days.includes(curDay) && curMin < startMin){
     const startsAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), sh, sm, 0, 0);
+    if(cutoff && startsAt > cutoff) return null;
     const whenHTML = `${t('upcomingStartsAt').replace('{time}', esc(formatTime12(rd.start_time)))} — ${t('upcomingOpensIn').replace('{dur}', formatDurationUntil(startsAt-now))}`;
     return { sortKey: startsAt-now, whenHTML };
   }
@@ -2240,6 +2249,7 @@ function upcomingRecurringInfo(rd){
   }
   if(daysOut===null) return null;
   const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()+daysOut, sh, sm, 0, 0);
+  if(cutoff && nextDate > cutoff) return null;
   const range = `${daysSummary(rd.days)}, ${formatTime12(rd.start_time)}–${formatTime12(rd.end_time)}`;
   const whenHTML = `${esc('Every '+range)} — ${t('upcomingNextIn').replace('{dur}', formatDurationUntil(nextDate-now))}`;
   return { sortKey: nextDate-now, whenHTML };
@@ -2262,12 +2272,75 @@ function renderUpcomingCardHTML(u){
       <div class="upcoming-when"><span class="dot"></span>${u.whenHTML}</div>
     </div>`;
 }
+// A restaurant with more than one upcoming deal gets a single grouped card
+// (same arrows/dots mechanic as the live feed's multi-deal card), so a
+// restaurant with several deals starting later doesn't flood the section.
+// Kept in its own state object (mdealUpcomingState) so it never collides
+// with a same-restaurant card in the live section above it.
+let mdealUpcomingState={};
+function renderUpcomingMultiDealCardHTML(rid, deals){
+  const tags = deals.map(upcomingTagHTML);
+  mdealUpcomingState[rid] = {deals, tags, idx:0};
+  const nameRow = deals[0].town
+    ? `<div class="fc-row"><button class="fc-name-link" onclick="openDetail('${rid}')">${esc(deals[0].restaurant)}</button></div>`
+    : '';
+  const slides = deals.map((d,i)=>`
+    <div class="mdeal-slide${i===0?' active':''}" data-idx="${i}">
+      <div class="fc-text">${esc(d.text)}</div>
+      <div class="upcoming-when"><span class="dot"></span>${d.whenHTML}</div>
+    </div>`).join('');
+  const dots = deals.map((_,i)=>`<button class="mdeal-dot${i===0?' active':''}" onclick="mdealUpcomingGoTo('${rid}',${i})" aria-label="Deal ${i+1}"></button>`).join('');
+  return `<div class="feed-card upcoming mdeal-card">
+      <div class="fc-row" style="margin-bottom:9px;">
+        <span class="fc-tag upcoming-tag" id="mduTag-${rid}">${tags[0]}</span>
+        <span class="mdeal-count-pill" id="mduCount-${rid}">1/${deals.length}</span>
+      </div>
+      ${nameRow}
+      <div class="mdeal-slides" id="mduSlides-${rid}">${slides}</div>
+      <div class="mdeal-nav">
+        <button class="mdeal-arrow" onclick="mdealUpcomingGo('${rid}',-1)" aria-label="Previous deal">‹</button>
+        <div class="mdeal-dots" id="mduDots-${rid}">${dots}</div>
+        <button class="mdeal-arrow" onclick="mdealUpcomingGo('${rid}',1)" aria-label="Next deal">›</button>
+      </div>
+    </div>`;
+}
+function mdealUpcomingRender(rid){
+  const st=mdealUpcomingState[rid]; if(!st) return;
+  const wrap=document.getElementById('mduSlides-'+rid);
+  if(wrap) wrap.querySelectorAll('.mdeal-slide').forEach((el,i)=>el.classList.toggle('active', i===st.idx));
+  const dotsWrap=document.getElementById('mduDots-'+rid);
+  if(dotsWrap) dotsWrap.querySelectorAll('.mdeal-dot').forEach((el,i)=>el.classList.toggle('active', i===st.idx));
+  const tagEl=document.getElementById('mduTag-'+rid); if(tagEl) tagEl.textContent=st.tags[st.idx];
+  const countEl=document.getElementById('mduCount-'+rid); if(countEl) countEl.textContent=(st.idx+1)+'/'+st.deals.length;
+}
+function mdealUpcomingGo(rid,dir){
+  const st=mdealUpcomingState[rid]; if(!st) return;
+  st.idx=(st.idx+dir+st.deals.length)%st.deals.length;
+  mdealUpcomingRender(rid);
+}
+function mdealUpcomingGoTo(rid,i){
+  const st=mdealUpcomingState[rid]; if(!st) return;
+  st.idx=i;
+  mdealUpcomingRender(rid);
+}
+// Groups the incoming upcoming list by restaurant (preserving soonest-first
+// order at each restaurant's first appearance), same pattern as
+// renderFeedCardsInto for the live section.
 function renderUpcomingSectionInto(elId, upcomingList){
   const el=document.getElementById(elId); if(!el) return;
+  mdealUpcomingState={};
   if(!upcomingList.length){ el.innerHTML=''; return; }
   upcomingList.sort((a,b)=>a.sortKey-b.sortKey);
+  const order=[]; const groups={};
+  upcomingList.forEach(u=>{
+    if(!groups[u.rid]){ groups[u.rid]=[]; order.push(u.rid); }
+    groups[u.rid].push(u);
+  });
   el.innerHTML = `<div class="section-label upcoming"><div class="line"></div><span>${t('comingUpLabel')}</span><div class="line"></div></div>` +
-    upcomingList.map(renderUpcomingCardHTML).join('');
+    order.map(rid=>{
+      const deals=groups[rid];
+      return deals.length>1 ? renderUpcomingMultiDealCardHTML(rid,deals) : renderUpcomingCardHTML(deals[0]);
+    }).join('');
 }
 async function saveRecurring(){
   const st=document.getElementById('recurringStatus');
