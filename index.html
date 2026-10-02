@@ -438,7 +438,10 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       </div>
       <div class="field">
         <label data-i18n="password"></label>
-        <input id="dPassword" type="password" placeholder="••••••••">
+        <div class="pw-wrap">
+          <input id="dPassword" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('dPassword',this)" data-i18n="showPw"></button>
+        </div>
       </div>
       <p style="text-align:right;font-size:12px;margin-top:-6px;">
         <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="openForgotPassword('stepDiner')" data-i18n="forgotPasswordLink"></span>
@@ -515,7 +518,10 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       </div>
       <div class="field">
         <label data-i18n="password"></label>
-        <input id="lPassword" type="password" placeholder="••••••••">
+        <div class="pw-wrap">
+          <input id="lPassword" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('lPassword',this)" data-i18n="showPw"></button>
+        </div>
       </div>
       <p style="text-align:right;font-size:12px;margin-top:-6px;">
         <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="openForgotPassword('stepLogin')" data-i18n="forgotPasswordLink"></span>
