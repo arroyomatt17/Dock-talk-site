@@ -139,6 +139,20 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .fav-btn:hover{opacity:0.75;}
 .fc-text{font-family:'Caveat',cursive;font-size:21px;line-height:1.25;margin-bottom:10px;white-space:pre-wrap;}
 .fc-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+.mdeal-count-pill{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap;}
+.mdeal-slides{position:relative;}
+.mdeal-slide{display:none;}
+.mdeal-slide.active{display:block;animation:mdealFade .18s ease-out;}
+@keyframes mdealFade{from{opacity:0;transform:translateX(6px);}to{opacity:1;transform:translateX(0);}}
+.mdeal-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;margin-top:2px;border-top:1px solid var(--line-soft);}
+.mdeal-arrow{background:var(--sand-light);border:1px solid var(--line);border-radius:50%;width:30px;height:30px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);flex-shrink:0;
+  font-size:15px;line-height:1;transition:background .12s,border-color .12s,color .12s;font-family:inherit;}
+.mdeal-arrow:hover{background:var(--sea-light);border-color:var(--accent,var(--sea));color:var(--accent,var(--sea));}
+.mdeal-arrow:active{transform:scale(0.94);}
+.mdeal-dots{display:flex;gap:6px;align-items:center;}
+.mdeal-dot{width:6px;height:6px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:background .15s,width .15s;}
+.mdeal-dot.active{background:var(--accent,var(--sea));width:16px;border-radius:4px;}
 .empty-feed{text-align:center;padding:48px 20px;}
 .ef-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin-bottom:8px;}
 .ef-sub{font-size:14px;color:var(--muted);line-height:1.6;}
@@ -500,6 +514,9 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
         <label data-i18n="password"></label>
         <input id="lPassword" type="password" placeholder="••••••••">
       </div>
+      <p style="text-align:right;font-size:12px;margin-top:-6px;">
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="openForgotPassword()" data-i18n="forgotPasswordLink"></span>
+      </p>
       <br>
       <button class="btn btn-sea" onclick="submitLogin()" data-i18n="restaurantLoginCta"></button>
       <div class="status-msg" id="loginStatus"></div>
@@ -515,6 +532,43 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
           <span style="color:var(--sea);cursor:pointer;font-weight:600;font-size:12.5px;" onclick="showStep('stepDiner')" data-i18n="backToDiner"></span>
         </p>
       </div>
+    </div>
+
+    <div class="r-card step" id="stepForgotPassword">
+      <h2 data-i18n="forgotPasswordTitle"></h2>
+      <div class="r-sub" data-i18n="forgotPasswordSub"></div>
+      <div class="field">
+        <label data-i18n="email"></label>
+        <input id="fpEmail" type="email" placeholder="you@email.com">
+      </div>
+      <br>
+      <button class="btn btn-sea" onclick="submitForgotPassword()" data-i18n="sendResetLink"></button>
+      <div class="status-msg" id="forgotPasswordStatus"></div>
+      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
+        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepLogin')" data-i18n="backToLoginLink"></span>
+      </p>
+    </div>
+
+    <div class="r-card step" id="stepSetNewPassword">
+      <h2 data-i18n="setNewPasswordTitle"></h2>
+      <div class="r-sub" data-i18n="setNewPasswordSub"></div>
+      <div class="field">
+        <label data-i18n="newPassword"></label>
+        <div class="pw-wrap">
+          <input id="npPassword" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('npPassword',this)" data-i18n="showPw"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="confirmNewPassword"></label>
+        <div class="pw-wrap">
+          <input id="npPassword2" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('npPassword2',this)" data-i18n="showPw"></button>
+        </div>
+      </div>
+      <br>
+      <button class="btn btn-sea" onclick="submitNewPassword()" data-i18n="saveNewPasswordCta"></button>
+      <div class="status-msg" id="setNewPasswordStatus"></div>
     </div>
 
     <div class="r-card step" id="stepClaim">
@@ -677,6 +731,26 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <br>
       <button class="btn btn-sea" onclick="saveProfile()" data-i18n="saveProfile"></button>
       <div class="status-msg" id="profileStatus"></div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <h2 data-i18n="changePasswordTitle" style="font-size:16px;margin-bottom:12px;"></h2>
+      <div class="field">
+        <label data-i18n="newPassword"></label>
+        <div class="pw-wrap">
+          <input id="dpNewPassword" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('dpNewPassword',this)" data-i18n="showPw"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="confirmNewPassword"></label>
+        <div class="pw-wrap">
+          <input id="dpNewPassword2" type="password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('dpNewPassword2',this)" data-i18n="showPw"></button>
+        </div>
+      </div>
+      <br>
+      <button class="btn btn-ghost" onclick="submitChangePassword()" data-i18n="changePasswordCta"></button>
+      <div class="status-msg" id="changePasswordStatus"></div>
     </div>
     </div>
     <div id="dashTabMenu" hidden>
@@ -850,7 +924,7 @@ posting:"Posting...",posted:"Posted — live on the diner feed.",writeFirst:"Wri
 selectSlot:"Select a time slot.",yourSpecials:"Your posted specials",remove:"Remove",
 demoEmpty:"That's it — fill in the form above and your special is live in about 10 seconds. No training, no setup.",
 noSpecials:"No specials posted yet.",previewPlaceholder:"Your special will appear here as you type...",
-checking:"Checking...",sending:"Sending magic link...",fillAll:"Fill in all fields.",
+checking:"Checking...",sending:"Sending magic link...",fillAll:"Fill in all fields.",forgotPasswordLink:"Forgot password?",forgotPasswordTitle:"Reset your password",forgotPasswordSub:"Enter the email on your account and we'll send you a link to set a new password.",sendResetLink:"Send reset link",resetLinkSentMsg:"If that email has an account, a reset link is on its way — check your inbox.",backToLoginLink:"Back to log in",setNewPasswordTitle:"Set a new password",setNewPasswordSub:"Choose a new password for your account.",newPassword:"New password",confirmNewPassword:"Confirm new password",saveNewPasswordCta:"Save new password",passwordUpdatedMsg:"Password updated.",changePasswordTitle:"Change password",changePasswordCta:"Change password",
 noAccount:"No restaurant found for that email. We onboard restaurants personally — reach out to get set up.",wrongCode:"Incorrect code.",
 enterPhone:"Enter your phone number.",fullCode:"Enter the full 6-digit code.",enterLoginEmail:"Enter a valid email.",
 linkSent:"Link sent — check your inbox (and spam folder).",pendingApproval:"Your account is under review. We'll be in touch shortly.",
@@ -889,7 +963,7 @@ posting:"Publicando...",posted:"Publicado — ya está en el feed.",writeFirst:"
 selectSlot:"Seleccioná un horario.",yourSpecials:"Tus especiales publicados",remove:"Eliminar",
 demoEmpty:"Eso es todo — llená el formulario de arriba y tu especial está publicado en unos 10 segundos. Sin capacitación, sin configuración.",
 noSpecials:"Todavía no publicaste especiales.",previewPlaceholder:"Tu especial aparecerá acá mientras escribís...",
-checking:"Verificando...",sending:"Enviando enlace...",fillAll:"Completá todos los campos.",
+checking:"Verificando...",sending:"Enviando enlace...",fillAll:"Completá todos los campos.",forgotPasswordLink:"¿Olvidaste tu contraseña?",forgotPasswordTitle:"Restablecé tu contraseña",forgotPasswordSub:"Ingresá el email de tu cuenta y te enviaremos un enlace para elegir una nueva contraseña.",sendResetLink:"Enviar enlace",resetLinkSentMsg:"Si ese email tiene una cuenta, te enviamos un enlace — revisá tu bandeja de entrada.",backToLoginLink:"Volver a iniciar sesión",setNewPasswordTitle:"Elegí una nueva contraseña",setNewPasswordSub:"Elegí una nueva contraseña para tu cuenta.",newPassword:"Nueva contraseña",confirmNewPassword:"Confirmá la nueva contraseña",saveNewPasswordCta:"Guardar nueva contraseña",passwordUpdatedMsg:"Contraseña actualizada.",changePasswordTitle:"Cambiar contraseña",changePasswordCta:"Cambiar contraseña",
 noAccount:"No encontramos un restaurante con ese correo. Incorporamos restaurantes personalmente — escribinos.",wrongCode:"Código incorrecto.",
 enterPhone:"Ingresá tu número.",fullCode:"Ingresá los 6 dígitos.",enterLoginEmail:"Ingresá un correo válido.",
 linkSent:"Enlace enviado — revisá tu bandeja (y spam).",pendingApproval:"Tu cuenta está en revisión. Te contactaremos pronto.",
@@ -922,7 +996,7 @@ posting:"Publication...",posted:"Publié — visible dans le fil.",writeFirst:"�
 selectSlot:"Choisissez un créneau.",yourSpecials:"Vos offres publiées",remove:"Supprimer",
 demoEmpty:"C'est tout — remplissez le formulaire ci-dessus et votre offre est en ligne en 10 secondes. Aucune formation, aucune configuration.",
 noSpecials:"Aucune offre publiée.",previewPlaceholder:"Votre offre apparaîtra ici pendant que vous écrivez...",
-checking:"Vérification...",sending:"Envoi du lien...",fillAll:"Remplissez tous les champs.",
+checking:"Vérification...",sending:"Envoi du lien...",fillAll:"Remplissez tous les champs.",forgotPasswordLink:"Mot de passe oublié ?",forgotPasswordTitle:"Réinitialisez votre mot de passe",forgotPasswordSub:"Entrez l'email de votre compte et nous vous enverrons un lien pour choisir un nouveau mot de passe.",sendResetLink:"Envoyer le lien",resetLinkSentMsg:"Si cet email a un compte, un lien est en route — vérifiez votre boîte de réception.",backToLoginLink:"Retour à la connexion",setNewPasswordTitle:"Choisissez un nouveau mot de passe",setNewPasswordSub:"Choisissez un nouveau mot de passe pour votre compte.",newPassword:"Nouveau mot de passe",confirmNewPassword:"Confirmer le nouveau mot de passe",saveNewPasswordCta:"Enregistrer le nouveau mot de passe",passwordUpdatedMsg:"Mot de passe mis à jour.",changePasswordTitle:"Changer le mot de passe",changePasswordCta:"Changer le mot de passe",
 noAccount:"Aucun restaurant trouvé pour cet e-mail. Nous accompagnons chaque restaurant personnellement — contactez-nous.",wrongCode:"Code incorrect.",
 enterPhone:"Entrez votre numéro.",fullCode:"Entrez les 6 chiffres.",enterLoginEmail:"Entrez une adresse e-mail valide.",
 linkSent:"Lien envoyé — vérifiez votre boîte de réception (et vos spams).",pendingApproval:"Votre compte est en cours d'examen. Nous vous contacterons bientôt.",
@@ -955,7 +1029,7 @@ posting:"发布中...",posted:"已发布 — 已在动态中显示。",writeFirs
 selectSlot:"请选择时段。",yourSpecials:"你发布的特色",remove:"删除",
 demoEmpty:"就这么简单 — 填好上面的表单，大约10秒后你的特色菜就上线了。无需培训，无需设置。",
 noSpecials:"还没有发布特色。",previewPlaceholder:"输入时，你的特色会显示在这里...",
-checking:"验证中...",sending:"发送链接...",fillAll:"请填写所有字段。",
+checking:"验证中...",sending:"发送链接...",fillAll:"请填写所有字段。",forgotPasswordLink:"忘记密码？",forgotPasswordTitle:"重置密码",forgotPasswordSub:"输入您账户的邮箱，我们会发送一个链接让您设置新密码。",sendResetLink:"发送重置链接",resetLinkSentMsg:"如果该邮箱有账户，重置链接已发送 — 请查看您的收件箱。",backToLoginLink:"返回登录",setNewPasswordTitle:"设置新密码",setNewPasswordSub:"为您的账户选择一个新密码。",newPassword:"新密码",confirmNewPassword:"确认新密码",saveNewPasswordCta:"保存新密码",passwordUpdatedMsg:"密码已更新。",changePasswordTitle:"修改密码",changePasswordCta:"修改密码",
 noAccount:"未找到该邮箱对应的餐厅。我们会亲自为每家餐厅开通 — 请联系我们。",wrongCode:"验证码错误。",
 enterPhone:"请输入手机号。",fullCode:"请输入完整的6位验证码。",enterLoginEmail:"请输入有效的邮箱。",
 linkSent:"链接已发送 — 请查看收件箱（以及垃圾邮件）。",pendingApproval:"你的账户正在审核中，我们会尽快联系你。",
@@ -988,7 +1062,7 @@ posting:"Wird gepostet...",posted:"Gepostet — jetzt im Feed.",writeFirst:"Schr
 selectSlot:"Wähle ein Zeitfenster.",yourSpecials:"Deine geposteten Angebote",remove:"Entfernen",
 demoEmpty:"Das war's — Formular oben ausfüllen und dein Angebot ist in etwa 10 Sekunden online. Keine Schulung, keine Einrichtung.",
 noSpecials:"Noch keine Angebote gepostet.",previewPlaceholder:"Dein Angebot erscheint hier beim Tippen...",
-checking:"Wird geprüft...",sending:"Link wird gesendet...",fillAll:"Bitte alle Felder ausfüllen.",
+checking:"Wird geprüft...",sending:"Link wird gesendet...",fillAll:"Bitte alle Felder ausfüllen.",forgotPasswordLink:"Passwort vergessen?",forgotPasswordTitle:"Passwort zurücksetzen",forgotPasswordSub:"Gib die E-Mail deines Kontos ein — wir schicken dir einen Link, um ein neues Passwort festzulegen.",sendResetLink:"Link senden",resetLinkSentMsg:"Falls diese E-Mail ein Konto hat, ist ein Link unterwegs — schau in dein Postfach.",backToLoginLink:"Zurück zur Anmeldung",setNewPasswordTitle:"Neues Passwort festlegen",setNewPasswordSub:"Wähle ein neues Passwort für dein Konto.",newPassword:"Neues Passwort",confirmNewPassword:"Neues Passwort bestätigen",saveNewPasswordCta:"Neues Passwort speichern",passwordUpdatedMsg:"Passwort aktualisiert.",changePasswordTitle:"Passwort ändern",changePasswordCta:"Passwort ändern",
 noAccount:"Kein Restaurant für diese E-Mail gefunden. Wir richten jedes Restaurant persönlich ein — melde dich bei uns.",wrongCode:"Falscher Code.",
 enterPhone:"Bitte Nummer eingeben.",fullCode:"Bitte alle 6 Ziffern eingeben.",enterLoginEmail:"Bitte gültige E-Mail eingeben.",
 linkSent:"Link gesendet — prüfe dein Postfach (und den Spam-Ordner).",pendingApproval:"Dein Konto wird geprüft. Wir melden uns in Kürze.",
@@ -1085,6 +1159,7 @@ const SCRIBBLES = [
 /* ══════════ STATE ══════════ */
 let selTowns=new Set(), selSlots=new Set(), showFavoritesOnly=false;
 let currentRestaurant=null, detailR=null, activeIcons=new Set(), navStack=['screenIntro'], feedCache=[];
+let mdealState={}; // { [restaurantId]: {deals:[...], tags:[...], idx:0} } — feed cards with >1 active deal
 let isAdmin=false, adminMode=false, adminRestaurants=[];
 let dinerPreviewActive=false;
 // Guards against re-running the sign-in routing logic (see handleSession below) more
@@ -1143,15 +1218,71 @@ function fillSelect(id,arr,placeholder){
   if(prev>0) el.selectedIndex=prev;
 }
 
-/* ══════════ INTRO SAMPLE (decorative teaser only — not live data) ══════════ */
-function buildSample(){
-  const s=REGIONS[region].sample;
-  document.getElementById('sampleCards').innerHTML=`
+/* ══════════ INTRO SAMPLE ══════════
+   Cycles through real, currently-active recurring deals for the region.
+   If none are active right this second, it randomly picks one that's still
+   reasonably close in time (later today, earlier today, or tomorrow) rather
+   than showing nothing relevant. Falls back to a static example line only
+   if the region has no recurring deals in Supabase at all. */
+let introSampleCache={}; // { [region]: [deal,...] } — fetched once per region, reused on language switches
+let introSampleIdx=0;
+let introSampleTimer=null;
+
+function staticSampleAsDeal(r){
+  const s=REGIONS[r].sample;
+  return {restaurant:s.restaurant, town:s.town, slot:s.slot, text:(s.text[lang]||s.text.en), isStatic:true};
+}
+function renderIntroSampleCard(pool){
+  const el=document.getElementById('sampleCards'); if(!el || !pool.length) return;
+  const d=pool[introSampleIdx % pool.length];
+  const tag = d.isStatic ? `${slotLabel(d.slot)} · ${esc(d.town)}` : `${t('recurringTag')} · ${esc(d.town)}`;
+  const text = d.isStatic ? d.text : esc(d.text);
+  el.innerHTML=`
     <div class="sc sc-active">
-      <span class="sc-tag">${slotLabel(s.slot)} · ${s.town}</span>
-      <div class="sc-name">${s.restaurant}</div>
-      <div class="sc-text">${s.text[lang]||s.text.en}</div>
+      <span class="sc-tag">${tag}</span>
+      <div class="sc-name">${esc(d.restaurant)}</div>
+      <div class="sc-text">${text}</div>
     </div>`;
+}
+function startIntroSampleRotation(pool){
+  if(introSampleTimer){ clearInterval(introSampleTimer); introSampleTimer=null; }
+  introSampleIdx=0;
+  renderIntroSampleCard(pool);
+  if(pool.length>1){
+    introSampleTimer=setInterval(()=>{
+      introSampleIdx=(introSampleIdx+1)%pool.length;
+      renderIntroSampleCard(pool);
+    }, 5000);
+  }
+}
+function buildSample(){
+  const cached=introSampleCache[region];
+  if(cached){ startIntroSampleRotation(cached); return; }
+  startIntroSampleRotation([staticSampleAsDeal(region)]); // shown immediately while the real deals load
+  loadIntroSample(region);
+}
+async function loadIntroSample(forRegion){
+  if(!sbReady()) return;
+  let rows=[];
+  try{
+    const {data,error} = await sb.from('recurring_deals')
+      .select('id,text,days,start_time,end_time,enabled,restaurant_id,restaurants!inner(id,name,town,region,status)')
+      .eq('restaurants.status','approved')
+      .eq('restaurants.region',forRegion);
+    if(!error && data) rows=data;
+  }catch(e){ console.error(e); }
+  if(forRegion!==region) return; // region changed while this was in flight — stale, ignore
+
+  let pool = rows.filter(isRecurringActive);
+  if(!pool.length){
+    const now=new Date(); const today=(now.getDay()+6)%7; const tomorrow=(today+1)%7;
+    const reasonable = rows.filter(rd => rd.enabled!==false && rd.text && rd.days && rd.days.length && (rd.days.includes(today) || rd.days.includes(tomorrow)));
+    if(reasonable.length) pool=[ reasonable[Math.floor(Math.random()*reasonable.length)] ];
+  }
+  const mapped = pool.map(rd=>({restaurant:rd.restaurants.name, town:rd.restaurants.town, text:rd.text}));
+  const finalPool = mapped.length ? mapped : [staticSampleAsDeal(forRegion)];
+  introSampleCache[forRegion]=finalPool;
+  startIntroSampleRotation(finalPool);
 }
 
 /* ══════════ NAV ══════════ */
@@ -1248,6 +1379,77 @@ function isExpired(untilTime, createdAt){
   return new Date() > expiry;
 }
 
+function dealTagHTML(s){
+  return s.recurring ? `${t('recurringTag')} · ${esc(s.town)}` : `${slotLabel(s.slot)} · ${esc(s.town)}`;
+}
+function dealMetaHTML(s){
+  return s.recurring
+    ? `<span>${t('recurringMetaLabel')}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`
+    : `<span>${ago(s.created_at)}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`;
+}
+function renderSingleDealCardHTML(s){
+  const fav=favoritesSet.has(s.rid);
+  return `<div class="feed-card">
+      <span class="fc-tag">${dealTagHTML(s)}</span>
+      <div class="fc-row">
+        <button class="fc-name-link" onclick="openDetail('${s.rid}')">${esc(s.restaurant)}</button>
+        <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${s.rid}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
+      </div>
+      <div class="fc-text">${esc(s.text)}</div>
+      ${s.photo?`<img class="fc-photo" src="${s.photo}" alt="${esc(s.restaurant)}" onclick="event.stopPropagation();openLightbox('${s.photo}')">`:''}
+      <div class="fc-meta">${dealMetaHTML(s)}</div>
+    </div>`;
+}
+// A restaurant with more than one active deal (posted + recurring, mixed)
+// gets one card, with arrows/dots to step through its deals in place —
+// keeps the feed from filling up with several cards from the same place.
+function renderMultiDealCardHTML(rid, deals){
+  const fav=favoritesSet.has(rid);
+  const tags = deals.map(dealTagHTML);
+  mdealState[rid] = {deals, tags, idx:0};
+  const slides = deals.map((d,i)=>`
+    <div class="mdeal-slide${i===0?' active':''}" data-idx="${i}">
+      <div class="fc-text">${esc(d.text)}</div>
+      ${d.photo?`<img class="fc-photo" src="${d.photo}" alt="${esc(d.restaurant)}" onclick="event.stopPropagation();openLightbox('${d.photo}')">`:''}
+      <div class="fc-meta">${dealMetaHTML(d)}</div>
+    </div>`).join('');
+  const dots = deals.map((_,i)=>`<button class="mdeal-dot${i===0?' active':''}" onclick="mdealGoTo('${rid}',${i})" aria-label="Deal ${i+1}"></button>`).join('');
+  return `<div class="feed-card mdeal-card">
+      <div class="fc-row" style="margin-bottom:9px;">
+        <span class="fc-tag" id="mdTag-${rid}">${tags[0]}</span>
+        <span class="mdeal-count-pill" id="mdCount-${rid}">1/${deals.length}</span>
+      </div>
+      <div class="fc-row">
+        <button class="fc-name-link" onclick="openDetail('${rid}')">${esc(deals[0].restaurant)}</button>
+        <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${rid}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
+      </div>
+      <div class="mdeal-slides" id="mdSlides-${rid}">${slides}</div>
+      <div class="mdeal-nav">
+        <button class="mdeal-arrow" onclick="mdealGo('${rid}',-1)" aria-label="Previous deal">‹</button>
+        <div class="mdeal-dots" id="mdDots-${rid}">${dots}</div>
+        <button class="mdeal-arrow" onclick="mdealGo('${rid}',1)" aria-label="Next deal">›</button>
+      </div>
+    </div>`;
+}
+function mdealRender(rid){
+  const st=mdealState[rid]; if(!st) return;
+  const wrap=document.getElementById('mdSlides-'+rid);
+  if(wrap) wrap.querySelectorAll('.mdeal-slide').forEach((el,i)=>el.classList.toggle('active', i===st.idx));
+  const dotsWrap=document.getElementById('mdDots-'+rid);
+  if(dotsWrap) dotsWrap.querySelectorAll('.mdeal-dot').forEach((el,i)=>el.classList.toggle('active', i===st.idx));
+  const tagEl=document.getElementById('mdTag-'+rid); if(tagEl) tagEl.textContent=st.tags[st.idx];
+  const countEl=document.getElementById('mdCount-'+rid); if(countEl) countEl.textContent=(st.idx+1)+'/'+st.deals.length;
+}
+function mdealGo(rid,dir){
+  const st=mdealState[rid]; if(!st) return;
+  st.idx=(st.idx+dir+st.deals.length)%st.deals.length;
+  mdealRender(rid);
+}
+function mdealGoTo(rid,i){
+  const st=mdealState[rid]; if(!st) return;
+  st.idx=i;
+  mdealRender(rid);
+}
 function renderFeedCardsInto(elId,countId,list){
   const el=document.getElementById(elId); if(!el) return;
   const cEl=document.getElementById(countId);
@@ -1260,22 +1462,17 @@ function renderFeedCardsInto(elId,countId,list){
     el.innerHTML=`<div class="empty-feed"><div class="ef-title">${title}</div><div class="ef-sub">${sub}</div></div>`;
     return;
   }
-  el.innerHTML=list.map(s=>{
-    const fav=favoritesSet.has(s.rid);
-    const tag = s.recurring ? `${t('recurringTag')} · ${esc(s.town)}` : `${slotLabel(s.slot)} · ${esc(s.town)}`;
-    const meta = s.recurring
-      ? `<span>${t('recurringMetaLabel')}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`
-      : `<span>${ago(s.created_at)}</span>${s.until?`<span>${esc(s.until)}</span>`:''}`;
-    return `<div class="feed-card">
-      <span class="fc-tag">${tag}</span>
-      <div class="fc-row">
-        <button class="fc-name-link" onclick="openDetail('${s.rid}')">${esc(s.restaurant)}</button>
-        <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${s.rid}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
-      </div>
-      <div class="fc-text">${esc(s.text)}</div>
-      ${s.photo?`<img class="fc-photo" src="${s.photo}" alt="${esc(s.restaurant)}" onclick="event.stopPropagation();openLightbox('${s.photo}')">`:''}
-      <div class="fc-meta">${meta}</div>
-    </div>`;
+  // Group deals by restaurant, preserving the incoming (newest-first) order
+  // at each restaurant's first appearance in the list.
+  mdealState={};
+  const order=[]; const groups={};
+  list.forEach(s=>{
+    if(!groups[s.rid]){ groups[s.rid]=[]; order.push(s.rid); }
+    groups[s.rid].push(s);
+  });
+  el.innerHTML=order.map(rid=>{
+    const deals=groups[rid];
+    return deals.length>1 ? renderMultiDealCardHTML(rid,deals) : renderSingleDealCardHTML(deals[0]);
   }).join('');
 }
 async function loadFeed(){
@@ -1725,6 +1922,68 @@ async function submitLogin(){
   const {error} = await sb.auth.signInWithPassword({email, password});
   if(error){ console.error(error); st.textContent=t('badLogin'); st.className='status-msg err'; return; }
   st.textContent='';
+}
+
+/* ══════════ PASSWORD RESET (forgot password + change password) ══════════ */
+function openForgotPassword(){
+  const prefill=document.getElementById('lEmail').value.trim();
+  const fp=document.getElementById('fpEmail');
+  if(fp) fp.value=prefill;
+  const st=document.getElementById('forgotPasswordStatus'); if(st){ st.textContent=''; st.className='status-msg'; }
+  showStep('stepForgotPassword');
+}
+// Sends the Supabase password-recovery email. The confirmation message is
+// the same whether or not the email actually has an account — avoids
+// revealing which emails are registered.
+async function submitForgotPassword(){
+  const email=document.getElementById('fpEmail').value.trim();
+  const st=document.getElementById('forgotPasswordStatus');
+  if(!email || !email.includes('@')){ st.textContent=t('enterLoginEmail'); st.className='status-msg err'; return; }
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('sending'); st.className='status-msg';
+  const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo: window.location.origin+window.location.pathname});
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('resetLinkSentMsg'); st.className='status-msg';
+}
+// Reached automatically when someone clicks the link from that email —
+// Supabase's client parses the URL and fires a PASSWORD_RECOVERY auth event
+// with a real (temporary) session, handled in the onAuthStateChange listener
+// below, which routes here instead of straight into handleSession().
+async function submitNewPassword(){
+  const p1=document.getElementById('npPassword').value;
+  const p2=document.getElementById('npPassword2').value;
+  const st=document.getElementById('setNewPasswordStatus');
+  if(!p1){ st.textContent=t('enterPassword'); st.className='status-msg err'; return; }
+  if(p1.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
+  if(p1!==p2){ st.textContent=t('passwordMismatch'); st.className='status-msg err'; return; }
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  const {error} = await sb.auth.updateUser({password:p1});
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('passwordUpdatedMsg'); st.className='status-msg';
+  // Route them straight into their dashboard/admin panel/feed, same as a
+  // normal login — the recovery session Supabase just gave them is a real,
+  // valid session.
+  const {data} = await sb.auth.getSession();
+  authRouted=false;
+  if(data.session) handleSession(data.session);
+}
+// Change password from inside the dashboard — for a restaurant that's
+// already signed in and just wants to set a new one, no email round-trip.
+async function submitChangePassword(){
+  const p1=document.getElementById('dpNewPassword').value;
+  const p2=document.getElementById('dpNewPassword2').value;
+  const st=document.getElementById('changePasswordStatus');
+  if(!p1){ st.textContent=t('enterPassword'); st.className='status-msg err'; return; }
+  if(p1.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
+  if(p1!==p2){ st.textContent=t('passwordMismatch'); st.className='status-msg err'; return; }
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  const {error} = await sb.auth.updateUser({password:p1});
+  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  document.getElementById('dpNewPassword').value='';
+  document.getElementById('dpNewPassword2').value='';
+  st.textContent=t('passwordUpdatedMsg'); st.className='status-msg';
 }
 
 // Called on page load, and whenever Supabase reports an auth state change.
@@ -2222,7 +2481,13 @@ if(sbReady()){
   // would otherwise wipe out anything someone's mid-typing every time that
   // quietly happens. Only react to an actual sign-in; the page's initial load
   // (a few lines up) already handles routing an already-logged-in visitor in.
-  sb.auth.onAuthStateChange((event, session)=>{ if(event==='SIGNED_IN' && session) handleSession(session); });
+  sb.auth.onAuthStateChange((event, session)=>{
+    if(event==='SIGNED_IN' && session) handleSession(session);
+    // Supabase lands someone here with a temporary session after they click
+    // the emailed reset link — show the "set a new password" step instead of
+    // routing them into their dashboard right away.
+    if(event==='PASSWORD_RECOVERY' && session){ goScreen('screenGate'); showStep('stepSetNewPassword'); }
+  });
 } else {
   console.warn('Dock Talk: Supabase is not configured yet. Set SUPABASE_URL and SUPABASE_ANON_KEY at the top of the <script> block.');
 }
