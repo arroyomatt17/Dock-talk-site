@@ -311,6 +311,16 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
 .upcoming-when{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:6px;}
 .upcoming-when .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);display:inline-block;flex-shrink:0;}
 
+/* Intro sample card: fixed height, tag + name on one row, text clamped at 3 lines,
+   so a long deal can never grow past its box and cover the Browse deals button. */
+.sample-cards{height:128px;margin-bottom:28px;}
+.sc{padding:14px 18px;height:128px;overflow:hidden;}
+.sc.sc-active{opacity:0.62;}
+.sc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.sc-head .sc-tag{margin:0;font-size:9.5px;padding:3px 10px;white-space:nowrap;flex-shrink:0;}
+.sc-head .sc-name{margin:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.sc-text{font-size:14.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;}
+
 input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(58%) saturate(1074%) hue-rotate(31deg) brightness(104%) contrast(105%);cursor:pointer;}
 .switch-check{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0;}
 .switch-check input{opacity:0;width:0;height:0;}
@@ -1293,8 +1303,10 @@ function renderIntroSampleCard(pool){
   const text = d.isStatic ? d.text : esc(d.text);
   el.innerHTML=`
     <div class="sc sc-active">
-      <span class="sc-tag">${tag}</span>
-      <div class="sc-name">${esc(d.restaurant)}</div>
+      <div class="sc-head">
+        <span class="sc-tag">${tag}</span>
+        <span class="sc-name">${esc(d.restaurant)}</span>
+      </div>
       <div class="sc-text">${text}</div>
     </div>`;
 }
