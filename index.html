@@ -2530,26 +2530,39 @@ function menuToText(menu){
   return Object.entries(menu||{}).map(([cat,items])=>[cat, ...(items||[])].join('\n')).join('\n\n');
 }
 function parseMenuText(text){
+  // Blocks are separated by blank lines. A block's first line is the category
+  // heading, every other line is an item (price optional). Nothing is ever
+  // dropped: text that can't be placed under a heading goes under "Menu".
   const menu = {};
-  let currentCat = null;
-  const lines = text.split('\n').map(l=>l.trim());
-  for(const raw of lines){
-    if(!raw) continue;
-    let line = raw.replace(/\s+[-–—]\s+/g, ' — ');
-    let isItem = line.includes(' — ');
-    if(!isItem){
-      const m = line.match(/^(.*?)\s+(\$?\d+(?:\.\d{2})?)$/);
-      if(m && currentCat){ line = `${m[1].trim()} — ${m[2].trim()}`; isItem = true; }
+  const priced = l => l.includes(' — ') || /\s\$?\d+(?:\.\d{1,2})?$/.test(l);
+  const norm = l => {
+    let line = l.replace(/\s+[-–—]\s+/g, ' — ');
+    if(!line.includes(' — ')){
+      const m = line.match(/^(.*?)\s+(\$?\d+(?:\.\d{1,2})?)$/);
+      if(m) line = `${m[1].trim()} — ${m[2].trim()}`;
     }
-    if(isItem && currentCat){
-      menu[currentCat] = menu[currentCat] || [];
-      menu[currentCat].push(line);
+    return line;
+  };
+  const add = (cat,item) => { (menu[cat] = menu[cat] || []).push(item); };
+  let cur = null;
+  const blocks = String(text||'').split(/\n\s*\n/).map(b=>b.split('\n').map(l=>l.trim()).filter(Boolean)).filter(b=>b.length);
+  for(const lines of blocks){
+    let rest = lines;
+    if(priced(lines[0])){
+      // block starts with an item: keep adding to the current category
+      if(!cur) cur = 'Menu';
+    } else if(lines.length>1 || !cur){
+      cur = lines[0].replace(/:$/,'').trim();
+      menu[cur] = menu[cur] || [];
+      rest = lines.slice(1);
     } else {
-      currentCat = line.replace(/:$/,'').trim();
-      menu[currentCat] = menu[currentCat] || [];
+      // lone unpriced line under an existing category: it's an item
     }
+    for(const l of rest) add(cur, norm(l));
   }
-  Object.keys(menu).forEach(k=>{ if(!menu[k].length) delete menu[k]; });
+  // a heading that never got any items (e.g. a lone line) becomes an item itself
+  const empty = Object.keys(menu).filter(k=>!menu[k].length);
+  empty.forEach(k=>{ delete menu[k]; add('Menu', k); });
   return menu;
 }
 function loadMenuForm(){
@@ -2601,6 +2614,7 @@ async function saveMenu(){
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
   if(!upd || !upd.length){ st.textContent=t('saveBlocked'); st.className='status-msg err'; return; }
   currentRestaurant.menu = menu;
+  document.getElementById('menuText').value = menuToText(menu);
   st.textContent=t('menuSaved'); st.className='status-msg';
   setTimeout(()=>{st.textContent='';},3000);
 }
