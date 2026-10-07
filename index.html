@@ -166,6 +166,18 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .detail-panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:14px;}
 .dp-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sea);font-weight:700;margin-bottom:10px;}
 .dp-value{font-size:15px;line-height:1.6;}
+.h-status{font-size:15px;font-weight:700;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:2px;}
+.h-open{color:var(--accent);}.h-closed{color:var(--sunset);}.h-soon{color:#FFB84D;}
+.h-dim{color:var(--muted);font-weight:500;}
+.h-toggle{background:none;border:none;color:var(--ink);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:8px 0 0;display:flex;align-items:center;gap:6px;}
+.h-chev{display:inline-block;transition:transform .2s;color:var(--muted);}
+.h-toggle.on .h-chev{transform:rotate(180deg);}
+.h-days{margin-top:10px;display:none;border-top:1px solid var(--line);padding-top:6px;}
+.h-days.on{display:block;}
+.h-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14px;border-bottom:1px solid var(--line-soft);}
+.h-row:last-child{border-bottom:none;}
+.h-d{color:var(--muted);min-width:56px;}.h-t{text-align:right;}.h-t.x{color:var(--muted);}
+.h-row.today{font-weight:700;}.h-row.today .h-d{color:var(--accent);}
 .menu-category{margin-bottom:16px;}
 .menu-category:last-child{margin-bottom:0;}
 .menu-category h4{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--palm);font-weight:700;margin-bottom:8px;}
@@ -955,7 +967,7 @@ refresh:"Refresh",allTowns:"All towns",allTimes:"All times",
 specialsCount:"specials tonight",specialCount:"special tonight",
 emptyTitle:"Nothing here yet",emptySub:"Try a different filter, or check back later.",emptyTitleLate:"Even the chefs are asleep",emptySubLate:"No specials posted at this hour — check back after the sun's up.",
 hours:"Hours",location:"Location",phone:"Phone",menu:"Menu",
-notListed:"Not listed",
+notListed:"Not listed",hOpen:"Open",hClosed:"Closed",hClosingSoon:"Closing soon",hCloses:"Closes",hOpens:"Opens",hTomorrow:"tomorrow",hSeeAll:"See all hours",hHideAll:"Hide hours",
 dinerJoin:"Get the first invite",dinerSub:"We'll tell you when restaurants near you post something good. No spam, no ads.",dinerTownHint:"We'll start with specials in your town.",dinerCta:"Join the list",restaurantInstead:"Run a restaurant?",restaurantSignIn:"Sign in as a restaurant",backToDiner:"← Back to diner sign-up",dinerDoneTitle:"You're on the list",dinerDoneBody:"We'll email you when {town} restaurants start posting.",enterEmail:"Enter a valid email.",selectTown:"Select your town.",addPhoto:"Photo (optional)",choosePhoto:"Add a photo",changePhoto:"Change photo",photoHint:"A quick phone shot works better than a stock image.",forDiners:"For *diners*",forRestaurants:"For *restaurants*",welcomeBack:"Welcome back",loginSub:"Enter your email and we'll send you a magic link.",
 sendCode:"Send magic link",newRestaurant:"New restaurant? ",signUp:"Learn more",
 claimSpot:"Mind if we talk about you?",claimSub:"Create your own login below — once we verify your restaurant you can start posting.",emailUsCta:"Email us to get set up",restaurantLoginCta:"Log in",restaurantSignUpCta:"Sign up",yourPhone:"Phone",restaurantPhone:"Restaurant phone",regionVT:"Stowe, VT",restaurantSignupCta:"Create restaurant account",restaurantWelcomeTitle:"Account created",restaurantWelcomeBody:"Log in anytime to check your status. Once we verify your restaurant, you'll be able to post specials right away.",restaurantWelcomeCta:"Go to log in",
@@ -982,7 +994,7 @@ dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you t
 myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
 dashProfileTitle:"Your restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead.",
-scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",
+scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",saveBlocked:"Couldn't save — your account doesn't have permission to edit this restaurant.",
 recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Add recurring deal",recurringSaved:"Added.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing",recurringListTitle:"Your recurring deals",noRecurringDeals:"No recurring deals yet.",everyDay:"Every day",comingUpLabel:"Coming up",upcomingStartsAt:"Starts at {time}",upcomingOpensIn:"opens in {dur}",upcomingNextIn:"next one in {dur}",upcomingSetByRestaurant:"(set by the restaurant when they posted it)",startTimeLabel:"Starts at",startTimeHint:"Leave blank to keep today's behavior — live the moment you post it.",recurringPhotoHint:"Entirely optional — a text-only recurring deal works exactly as it does today if you skip this."},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
@@ -994,7 +1006,7 @@ refresh:"Actualizar",allTowns:"Todos los pueblos",allTimes:"Todos los horarios",
 specialsCount:"especiales hoy",specialCount:"especial hoy",
 emptyTitle:"Todavía no hay nada",emptySub:"Probá otro filtro, o volvé más tarde.",emptyTitleLate:"Hasta los cocineros están durmiendo",emptySubLate:"No hay ofertas publicadas a esta hora — volvé cuando salga el sol.",
 hours:"Horario",location:"Ubicación",phone:"Teléfono",menu:"Menú",
-notListed:"No indicado",
+notListed:"No indicado",hOpen:"Abierto",hClosed:"Cerrado",hClosingSoon:"Cierra pronto",hCloses:"Cierra",hOpens:"Abre",hTomorrow:"mañana",hSeeAll:"Ver todos los horarios",hHideAll:"Ocultar horarios",
 dinerJoin:"Recibí la primera invitación",dinerSub:"Te avisamos cuando los restaurantes cerca tuyo publiquen algo bueno. Sin spam, sin anuncios.",dinerTownHint:"Empezamos con los especiales de tu pueblo.",dinerCta:"Unirme a la lista",restaurantInstead:"¿Tenés un restaurante?",restaurantSignIn:"Ingresar como restaurante",backToDiner:"← Volver al registro de comensales",dinerDoneTitle:"Ya estás en la lista",dinerDoneBody:"Te escribimos cuando los restaurantes de {town} empiecen a publicar.",enterEmail:"Ingresá un correo válido.",selectTown:"Seleccioná tu pueblo.",addPhoto:"Foto (opcional)",choosePhoto:"Agregar foto",changePhoto:"Cambiar foto",photoHint:"Una foto rápida del celular funciona mejor que una imagen de stock.",forDiners:"Para *comensales*",forRestaurants:"Para *restaurantes*",welcomeBack:"Bienvenido de nuevo",loginSub:"Ingresá tu correo y te enviamos un enlace mágico.",
 sendCode:"Enviar enlace mágico",newRestaurant:"¿Restaurante nuevo? ",signUp:"Más información",
 claimSpot:"¿Querés Dock Talk en tu restaurante?",claimSub:"Incorporamos restaurantes personalmente — escribinos y te configuramos un acceso en minutos.",emailUsCta:"Escribinos para arrancar",
@@ -1027,7 +1039,7 @@ refresh:"Actualiser",allTowns:"Toutes les villes",allTimes:"Tous les horaires",
 specialsCount:"offres ce soir",specialCount:"offre ce soir",
 emptyTitle:"Rien pour l'instant",emptySub:"Essayez un autre filtre, ou revenez plus tard.",emptyTitleLate:"Même les chefs dorment",emptySubLate:"Aucune offre publiée à cette heure — revenez au lever du soleil.",
 hours:"Horaires",location:"Adresse",phone:"Téléphone",menu:"Menu",
-notListed:"Non indiqué",
+notListed:"Non indiqué",hOpen:"Ouvert",hClosed:"Fermé",hClosingSoon:"Ferme bientôt",hCloses:"Ferme à",hOpens:"Ouvre",hTomorrow:"demain",hSeeAll:"Voir tous les horaires",hHideAll:"Masquer les horaires",
 dinerJoin:"Recevez la première invitation",dinerSub:"Nous vous prévenons quand les restaurants près de chez vous publient quelque chose de bien. Pas de spam, pas de pub.",dinerTownHint:"Nous commencerons par les offres de votre ville.",dinerCta:"Rejoindre la liste",restaurantInstead:"Vous gérez un restaurant ?",restaurantSignIn:"Se connecter en tant que restaurant",backToDiner:"← Retour à l'inscription client",dinerDoneTitle:"Vous êtes sur la liste",dinerDoneBody:"Nous vous écrirons quand les restaurants de {town} commenceront à publier.",enterEmail:"Entrez une adresse e-mail valide.",selectTown:"Sélectionnez votre ville.",addPhoto:"Photo (facultatif)",choosePhoto:"Ajouter une photo",changePhoto:"Changer la photo",photoHint:"Une photo prise au téléphone marche mieux qu'une image de stock.",forDiners:"Pour les *clients*",forRestaurants:"Pour les *restaurants*",welcomeBack:"Bon retour",loginSub:"Entrez votre e-mail, nous vous enverrons un lien magique.",
 sendCode:"Envoyer le lien magique",newRestaurant:"Nouveau restaurant ? ",signUp:"En savoir plus",
 claimSpot:"Envie de Dock Talk dans votre restaurant ?",claimSub:"Nous accompagnons chaque restaurant personnellement — contactez-nous, accès prêt en quelques minutes.",emailUsCta:"Écrivez-nous pour démarrer",
@@ -1060,7 +1072,7 @@ refresh:"刷新",allTowns:"全部城镇",allTimes:"全部时段",
 specialsCount:"个今晚特色",specialCount:"个今晚特色",
 emptyTitle:"暂时还没有",emptySub:"换个筛选条件，或稍后再来看看。",emptyTitleLate:"厨师们都睡着了",emptySubLate:"这个时间还没有特价发布 — 太阳出来后再来看看吧。",
 hours:"营业时间",location:"地址",phone:"电话",menu:"菜单",
-notListed:"未提供",
+notListed:"未提供",hOpen:"营业中",hClosed:"已打烊",hClosingSoon:"即将打烊",hCloses:"打烊时间",hOpens:"开门时间",hTomorrow:"明天",hSeeAll:"查看全部营业时间",hHideAll:"收起营业时间",
 dinerJoin:"抢先获得邀请",dinerSub:"附近餐厅发布好消息时我们会通知你。没有垃圾信息，没有广告。",dinerTownHint:"我们会从你所在城镇的特色菜开始。",dinerCta:"加入名单",restaurantInstead:"经营餐厅？",restaurantSignIn:"以餐厅身份登录",backToDiner:"← 返回食客注册",dinerDoneTitle:"你已加入名单",dinerDoneBody:"{town}的餐厅开始发布时，我们会给你发邮件。",enterEmail:"请输入有效的邮箱。",selectTown:"请选择你的城镇。",addPhoto:"照片（可选）",choosePhoto:"添加照片",changePhoto:"更换照片",photoHint:"随手用手机拍的照片比图库图片效果更好。",forDiners:"*食客*专用",forRestaurants:"*餐厅*专用",welcomeBack:"欢迎回来",loginSub:"输入邮箱，我们会发送登录链接。",
 sendCode:"发送登录链接",newRestaurant:"新餐厅？",signUp:"了解更多",
 claimSpot:"想让你的餐厅加入 Dock Talk？",claimSub:"我们会亲自为每家餐厅开通 — 联系我们，几分钟内为你设置好登录。",emailUsCta:"发邮件联系我们开通",
@@ -1093,7 +1105,7 @@ refresh:"Aktualisieren",allTowns:"Alle Orte",allTimes:"Alle Zeiten",
 specialsCount:"Angebote heute",specialCount:"Angebot heute",
 emptyTitle:"Noch nichts da",emptySub:"Anderen Filter probieren oder später wiederkommen.",emptyTitleLate:"Sogar die Köche schlafen schon",emptySubLate:"Um diese Uhrzeit gibt es keine Angebote — schau nach Sonnenaufgang wieder vorbei.",
 hours:"Öffnungszeiten",location:"Adresse",phone:"Telefon",menu:"Speisekarte",
-notListed:"Nicht angegeben",
+notListed:"Nicht angegeben",hOpen:"Geöffnet",hClosed:"Geschlossen",hClosingSoon:"Schließt bald",hCloses:"Schließt",hOpens:"Öffnet",hTomorrow:"morgen",hSeeAll:"Alle Öffnungszeiten",hHideAll:"Öffnungszeiten ausblenden",
 dinerJoin:"Sichere dir die erste Einladung",dinerSub:"Wir sagen dir Bescheid, wenn Restaurants in deiner Nähe etwas Gutes posten. Kein Spam, keine Werbung.",dinerTownHint:"Wir starten mit den Angeboten in deinem Ort.",dinerCta:"Zur Liste hinzufügen",restaurantInstead:"Betreibst du ein Restaurant?",restaurantSignIn:"Als Restaurant anmelden",backToDiner:"← Zurück zur Gäste-Anmeldung",dinerDoneTitle:"Du bist auf der Liste",dinerDoneBody:"Wir melden uns, sobald Restaurants in {town} anfangen zu posten.",enterEmail:"Bitte gültige E-Mail eingeben.",selectTown:"Bitte Ort auswählen.",addPhoto:"Foto (optional)",choosePhoto:"Foto hinzufügen",changePhoto:"Foto ändern",photoHint:"Ein schnelles Handyfoto wirkt besser als ein Stockbild.",forDiners:"Für *Gäste*",forRestaurants:"Für *Restaurants*",welcomeBack:"Willkommen zurück",loginSub:"E-Mail eingeben, wir senden einen Magic Link.",
 sendCode:"Magic Link senden",newRestaurant:"Neues Restaurant? ",signUp:"Mehr erfahren",
 claimSpot:"Dock Talk für dein Restaurant?",claimSub:"Wir richten jedes Restaurant persönlich ein — melde dich, und du hast in wenigen Minuten einen Zugang.",emailUsCta:"Schreib uns, um loszulegen",
@@ -1704,7 +1716,7 @@ async function openDetail(rid){
   if(!sbReady()) return;
   const {data:info,error} = await sb.from('restaurants').select('*').eq('id',rid).single();
   if(error || !info){ console.error(error); return; }
-  detailR={id:rid,name:info.name,town:info.town,info};
+  detailR={id:rid,name:info.name,town:info.town,info}; hoursExpanded=false;
   activeIcons=new Set();
   document.getElementById('rdTown').textContent=info.town||'';
   document.getElementById('rdName').textContent=info.name||'';
@@ -1751,6 +1763,49 @@ async function openDetail(rid){
   }
   goScreen('screenDetail');
 }
+/* ══════════ HOURS DISPLAY (Google-style: live status + expandable week) ══════════ */
+let hoursExpanded=false;
+function hmMin(h){const [a,b]=h.split(':').map(Number);return a*60+b;}
+function hFmt(h){
+  const [a,b]=h.split(':').map(Number);
+  if(lang==='en'){const x=a%12||12;return `${x}${b?':'+String(b).padStart(2,'0'):''} ${a>=12?'PM':'AM'}`;}
+  try{return new Intl.DateTimeFormat(lang,{hour:'numeric',minute:'2-digit'}).format(new Date(2024,0,1,a,b));}catch(e){return h;}
+}
+function hDayName(i){
+  try{return new Intl.DateTimeFormat(lang,{weekday:'short'}).format(new Date(2024,0,1+i));}catch(e){return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i];}
+}
+function hoursStatus(days,day,m){
+  const ok=d=>d&&!d.closed&&d.open&&d.close;
+  const y=days[(day+6)%7];
+  if(ok(y) && hmMin(y.close)<=hmMin(y.open) && m<hmMin(y.close)) return {c:'open',a:t('hOpen'),b:t('hCloses')+' '+hFmt(y.close)};
+  const d=days[day];
+  if(ok(d)){
+    const o=hmMin(d.open), c=hmMin(d.close)<=o?hmMin(d.close)+1440:hmMin(d.close);
+    if(m>=o&&m<c) return (c-m)<=60?{c:'soon',a:t('hClosingSoon'),b:hFmt(d.close)}:{c:'open',a:t('hOpen'),b:t('hCloses')+' '+hFmt(d.close)};
+    if(m<o) return {c:'closed',a:t('hClosed'),b:t('hOpens')+' '+hFmt(d.open)};
+  }
+  for(let k=1;k<=7;k++){
+    const nd=days[(day+k)%7];
+    if(ok(nd)) return {c:'closed',a:t('hClosed'),b:t('hOpens')+' '+(k===1?t('hTomorrow'):hDayName((day+k)%7))+' '+hFmt(nd.open)};
+  }
+  return {c:'closed',a:t('hClosed'),b:''};
+}
+function renderHoursPanel(days){
+  const n=new Date(), day=(n.getDay()+6)%7, m=n.getHours()*60+n.getMinutes();
+  const st=hoursStatus(days,day,m);
+  const rows=days.map((d,i)=>{
+    const txt=d.closed?t('hClosed'):(d.open&&d.close?`${hFmt(d.open)} – ${hFmt(d.close)}`:t('notListed'));
+    return `<div class="h-row${i===day?' today':''}"><span class="h-d">${esc(hDayName(i))}</span><span class="h-t${d.closed||!(d.open&&d.close)?' x':''}">${esc(txt)}</span></div>`;
+  }).join('');
+  return `<div class="h-status"><span class="h-${st.c}">${esc(st.a)}</span>${st.b?`<span class="h-dim">· ${esc(st.b)}</span>`:''}</div>`+
+    `<button class="h-toggle${hoursExpanded?' on':''}" onclick="toggleHoursExpand()">${t(hoursExpanded?'hHideAll':'hSeeAll')} <span class="h-chev">▾</span></button>`+
+    `<div class="h-days${hoursExpanded?' on':''}">${rows}</div>`;
+}
+function toggleHoursExpand(){
+  hoursExpanded=!hoursExpanded;
+  const b=document.getElementById('hoursBox');
+  if(b && detailR && detailR.info) b.innerHTML=renderHoursPanel(detailR.info.hours_json);
+}
 function toggleIcon(k){
   activeIcons.has(k)?activeIcons.delete(k):activeIcons.add(k);
   document.getElementById('ic-'+k).classList.toggle('active',activeIcons.has(k));
@@ -1763,6 +1818,9 @@ function toggleIcon(k){
         Object.keys(m).map(c=>`<div class="menu-category"><h4>${esc(c)}</h4>`+
           m[c].map(i=>{const p=i.split(' — ');return `<div class="menu-item"><span>${esc(p[0])}</span><span>${esc(p[1]||'')}</span></div>`;}).join('')+
         `</div>`).join('')+`</div>`;
+    }
+    if(x==='hours' && Array.isArray(info.hours_json) && info.hours_json.length===7){
+      return `<div class="detail-panel"><div class="dp-label">${t('hours')}</div><div id="hoursBox">${renderHoursPanel(info.hours_json)}</div></div>`;
     }
     const val=x==='hours'?info.hours:x==='location'?info.address:info.phone;
     return `<div class="detail-panel"><div class="dp-label">${t(x)}</div><div class="dp-value">${esc(val||t('notListed'))}</div></div>`;
@@ -2539,8 +2597,9 @@ async function saveMenu(){
   const st = document.getElementById('menuStatus');
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
-  const {error} = await sb.from('restaurants').update({menu}).eq('id', currentRestaurant.id);
+  const {data:upd,error} = await sb.from('restaurants').update({menu}).eq('id', currentRestaurant.id).select('id');
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  if(!upd || !upd.length){ st.textContent=t('saveBlocked'); st.className='status-msg err'; return; }
   currentRestaurant.menu = menu;
   st.textContent=t('menuSaved'); st.className='status-msg';
   setTimeout(()=>{st.textContent='';},3000);
@@ -2681,8 +2740,9 @@ async function saveProfile(){
     const {data} = sb.storage.from('specials-photos').getPublicUrl(path);
     if(data?.publicUrl) finalPhotos.push(data.publicUrl);
   }
-  const {error} = await sb.from('restaurants').update({hours, hours_json: hoursDays, phone, address, photos: finalPhotos}).eq('id', currentRestaurant.id);
+  const {data:upd,error} = await sb.from('restaurants').update({hours, hours_json: hoursDays, phone, address, photos: finalPhotos}).eq('id', currentRestaurant.id).select('id');
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  if(!upd || !upd.length){ st.textContent=t('saveBlocked'); st.className='status-msg err'; return; }
   currentRestaurant.hours=hours; currentRestaurant.hours_json=hoursDays; currentRestaurant.phone=phone; currentRestaurant.address=address; currentRestaurant.photos=finalPhotos;
   dpPhotos = finalPhotos.map(url=>({url, file:null, preview:url}));
   renderProfilePhotoGrid();
