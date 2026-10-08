@@ -166,6 +166,30 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .detail-panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:14px;}
 .dp-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sea);font-weight:700;margin-bottom:10px;}
 .dp-value{font-size:15px;line-height:1.6;}
+.an-seg{display:flex;background:var(--sand);border:1px solid var(--line);border-radius:100px;padding:3px;margin:14px 0;}
+.an-seg button{flex:1;font-family:inherit;font-weight:700;font-size:13px;border:none;border-radius:100px;padding:9px;background:none;color:var(--ink);cursor:pointer;}
+.an-seg button.on{background:var(--accent);color:#0A0A0A;}
+.an-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.an-chip{font-family:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:100px;padding:6px 12px;background:var(--sand);color:var(--ink);cursor:pointer;}
+.an-chip.on{border-color:var(--accent);color:var(--accent);}
+.an-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.an-tile,.an-card{background:var(--sand);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;}
+.an-card{margin-bottom:12px;}
+.an-tl{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.an-tv{font-size:28px;font-weight:700;letter-spacing:-1px;}
+.an-td{font-size:11.5px;color:var(--muted);margin-top:2px;}.an-up{color:var(--accent);}.an-down{color:var(--sunset);}
+.an-ct{font-size:13px;font-weight:700;margin-bottom:2px;}.an-cs{font-size:11.5px;color:var(--muted);margin-bottom:12px;}
+.an-bars{display:flex;align-items:flex-end;gap:3px;height:110px;}
+.an-bar{flex:1;background:var(--accent);border-radius:4px 4px 0 0;min-height:3px;opacity:.9;position:relative;cursor:pointer;}
+.an-bar:hover{opacity:1;}
+.an-bar:hover::after{content:attr(data-t);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#fff;color:#0A0A0A;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;white-space:nowrap;z-index:2;}
+.an-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px;}
+.an-row{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px;}
+.an-row:last-child{border-bottom:none;}
+.an-row .n{font-weight:600;}.an-row .v{color:var(--muted);font-size:12.5px;text-align:right;}
+.an-track{grid-column:1/-1;height:5px;background:var(--line-soft);border-radius:3px;overflow:hidden;}
+.an-fill{height:100%;background:var(--accent);border-radius:3px;}
+.an-empty{color:var(--muted);font-size:12.5px;padding:6px 0;}
 .h-status{font-size:15px;font-weight:700;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:2px;}
 .h-open{color:var(--accent);}.h-closed{color:var(--sunset);}.h-soon{color:#FFB84D;}
 .h-dim{color:var(--muted);font-weight:500;}
@@ -351,7 +375,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
 <body>
 
 <div class="nav">
-  <div class="wordmark">DOCK <em>TALK</em></div>
+  <div class="wordmark" id="navWordmark" role="button" tabindex="0" onclick="goHome()" onkeydown="if(event.key==='Enter')goHome()" style="cursor:pointer;">DOCK <em>TALK</em></div>
   <div class="nav-right">
     <button class="nav-back" id="navBack" onclick="window.history.back()">←</button>
     <button class="nav-login" id="navLogin" onclick="goScreen('screenGate')"></button>
@@ -918,6 +942,8 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       </div>
       <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
     </div>
+    <div class="an-seg"><button id="anTabPost" class="on" onclick="adminTab('post')">Post for a restaurant</button><button id="anTabAn" onclick="adminTab('an')">Analytics</button></div>
+    <div id="adminPostPane">
     <div class="card">
       <div class="field">
         <label>Search restaurants</label>
@@ -937,6 +963,13 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <br>
       <button class="btn btn-sunset" onclick="adminCreateRestaurant()">Add restaurant &amp; get claim link</button>
       <div class="status-msg" id="adminCreateStatus"></div>
+    </div>
+    </div>
+    <div id="adminAnalyticsPane" style="display:none;">
+      <div class="an-chips" id="anRange"></div>
+      <div class="an-chips" id="anRegion"></div>
+      <div class="status-msg" id="anStatus"></div>
+      <div id="anBody"></div>
     </div>
   </div>
 </div>
@@ -1386,6 +1419,11 @@ function goScreen(id,push=true){
   if(id==='screenDiner'){buildFilters();loadFeed();}
   if(id==='screenExplore'){loadExplore();}
   if(id==='screenFavorites'){loadFavoritesScreen();}
+}
+function goHome(){
+  // Tapping the DOCK TALK wordmark always lands on the live feed, from any screen.
+  navStack=['screenIntro'];
+  goScreen('screenDiner');
 }
 function goBack(){
   // The sign-in/sign-up screen holds several steps (diner and restaurant, login and
@@ -2957,6 +2995,116 @@ if(sbReady()){
   });
 } else {
   console.warn('Dock Talk: Supabase is not configured yet. Set SUPABASE_URL and SUPABASE_ANON_KEY at the top of the <script> block.');
+}
+
+/* ══════════ ANALYTICS: anonymous tracking (events table) ══════════ */
+const TRACK_SCREEN_NAMES={screenIntro:'Intro',screenDiner:'Feed (Tonight)',screenExplore:'Explore',screenDetail:'Restaurant page',screenGate:'Sign in / sign up',screenFavorites:'Profile',screenDashboard:'Restaurant dashboard'};
+const trk={q:[],cur:null,start:null,anon:null,sess:null};
+(function(){
+  const rid=()=>(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now());
+  try{ trk.anon=localStorage.getItem('dt_anon'); if(!trk.anon){trk.anon=rid(); localStorage.setItem('dt_anon',trk.anon);} }catch(e){ trk.anon=rid(); }
+  try{ trk.sess=sessionStorage.getItem('dt_sess'); if(!trk.sess){trk.sess=rid(); sessionStorage.setItem('dt_sess',trk.sess);} }catch(e){ trk.sess=rid(); }
+})();
+function trackEvent(name,extra){
+  if(isAdmin || !trk.anon) return;
+  trk.q.push(Object.assign({anon_id:trk.anon,session_id:trk.sess,region:region,name:name},extra||{}));
+  if(trk.q.length>=20) trackFlush();
+}
+function trackFlush(){
+  if(!trk.q.length || isAdmin) { if(isAdmin) trk.q=[]; return; }
+  const body=JSON.stringify(trk.q); trk.q=[];
+  try{
+    fetch(SUPABASE_URL+'/rest/v1/events',{method:'POST',keepalive:true,
+      headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body}).catch(()=>{});
+  }catch(e){}
+}
+function trackScreenEnd(){
+  if(trk.cur && trk.start){
+    const dur=Math.min(1800,Math.round((Date.now()-trk.start)/1000));
+    if(dur>=1) trackEvent('screen_time',{screen:TRACK_SCREEN_NAMES[trk.cur]||trk.cur,duration_s:dur});
+  }
+  trk.start=document.hidden?null:Date.now();
+}
+function trackScreenStart(id){ trackScreenEnd(); trk.cur=id; trk.start=document.hidden?null:Date.now(); }
+(function(){
+  const _go=goScreen;
+  goScreen=function(id,push){ const r=_go.apply(this,arguments); trackScreenStart(id); return r; };
+  const _od=openDetail;
+  openDetail=async function(rid){ const r=await _od.apply(this,arguments); trackEvent('restaurant_open',{restaurant_id:rid,screen:'Restaurant page'}); return r; };
+  const _ti=toggleIcon;
+  toggleIcon=function(k){ const was=activeIcons.has(k); const r=_ti.apply(this,arguments); if(!was) trackEvent('icon_tap',{restaurant_id:detailR&&detailR.id,meta:{k:k}}); return r; };
+  const _tf=toggleFavorite;
+  toggleFavorite=function(rid,evt){ if(!favoritesSet.has(rid)) trackEvent('favorite',{restaurant_id:rid}); return _tf.apply(this,arguments); };
+  document.addEventListener('click',e=>{
+    const own=e.target.closest&&e.target.closest('.own-restaurant button'); if(own){ trackEvent('own_restaurant'); return; }
+    const link=e.target.closest&&e.target.closest('.fc-name-link');
+    if(link){ const card=link.closest('.feed-card'); const tg=card&&card.querySelector('.fc-tag'); const tag=tg?tg.textContent.split('·')[0].trim().slice(0,40):''; if(tag) trackEvent('card_tap',{meta:{tag:tag}}); }
+  },true);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){ trackScreenEnd(); trk.start=null; trackFlush(); }
+    else trk.start=Date.now();
+  });
+  window.addEventListener('pagehide',()=>{ trackScreenEnd(); trk.start=null; trackFlush(); });
+  setInterval(()=>{ trackScreenEnd(); trackFlush(); },20000);
+  const act=document.querySelector('.screen.active'); trk.cur=act?act.id:'screenIntro'; trk.start=document.hidden?null:Date.now();
+  trackEvent('session_start',{screen:TRACK_SCREEN_NAMES[trk.cur]});
+})();
+
+/* ══════════ ADMIN: Analytics tab ══════════ */
+let anRange=7, anRegion=null, anLoaded=false;
+function adminTab(which){
+  document.getElementById('anTabPost').classList.toggle('on',which==='post');
+  document.getElementById('anTabAn').classList.toggle('on',which==='an');
+  document.getElementById('adminPostPane').style.display=which==='post'?'':'none';
+  document.getElementById('adminAnalyticsPane').style.display=which==='an'?'':'none';
+  if(which==='an') loadAnalytics();
+}
+function anChips(){
+  const R=[['Today',1],['7 days',7],['30 days',30],['All time',null]];
+  const G=[['All regions',null],['South Fork','us'],['Costa Rica','cr'],['Stowe','vt']];
+  document.getElementById('anRange').innerHTML=R.map(([l,v])=>`<button class="an-chip${anRange===v?' on':''}" onclick="anRange=${v};loadAnalytics()">${l}</button>`).join('');
+  document.getElementById('anRegion').innerHTML=G.map(([l,v])=>`<button class="an-chip${anRegion===v?' on':''}" onclick="anRegion=${v===null?'null':`'${v}'`};loadAnalytics()">${l}</button>`).join('');
+}
+function anFmtSecs(s){ s=Math.round(s||0); return s>=60?Math.floor(s/60)+'m '+String(s%60).padStart(2,'0')+'s':s+'s'; }
+function anDelta(cur,prev,hasPrev,unit,label){
+  if(!hasPrev) return '';
+  if(!prev) return cur?`<span class="an-up">▲ new</span> ${label}`:`${label}`;
+  if(unit==='s'){ const d=cur-prev; return `<span class="${d>=0?'an-up':'an-down'}">${d>=0?'▲':'▼'} ${Math.abs(d)}s</span> ${label}`; }
+  const p=Math.round((cur-prev)/prev*100); return `<span class="${p>=0?'an-up':'an-down'}">${p>=0?'▲':'▼'} ${Math.abs(p)}%</span> ${label}`;
+}
+function anRows(list,fmt){
+  if(!list.length) return '<div class="an-empty">No data yet for this range.</div>';
+  const m=Math.max(...list.map(d=>d[1]),1);
+  return list.map(d=>`<div class="an-row"><span class="n">${esc(d[0])}</span><span class="v">${fmt?fmt(d):d[1].toLocaleString()}</span><div class="an-track"><div class="an-fill" style="width:${d[1]/m*100}%"></div></div></div>`).join('');
+}
+async function loadAnalytics(){
+  anChips();
+  const st=document.getElementById('anStatus'), body=document.getElementById('anBody');
+  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent='…'; st.className='status-msg';
+  const {data:d,error}=await sb.rpc('analytics_summary',{p_days:anRange,p_region:anRegion});
+  if(error||!d){ console.error(error); st.textContent="Couldn't load analytics — have you run analytics.sql in Supabase yet?"; st.className='status-msg err'; return; }
+  st.textContent='';
+  const lbl=anRange===1?'vs yesterday':anRange?`vs previous ${anRange} days`:'';
+  const T=d.taps||{}; const n=k=>T[k]||0;
+  const dd=d.daily||[]; const mx=Math.max(...dd.map(x=>x.v),1);
+  const perV=d.visitors?(d.opens/d.visitors).toFixed(1):'0.0';
+  const retPct=d.visitors?Math.round(d.returning/d.visitors*100):0;
+  body.innerHTML=`
+  <div class="an-tiles">
+    <div class="an-tile"><div class="an-tl">Visitors</div><div class="an-tv">${d.visitors.toLocaleString()}</div><div class="an-td">${anDelta(d.visitors,d.prev_visitors,d.has_prev,'%',lbl)}</div></div>
+    <div class="an-tile"><div class="an-tl">Avg. time on site</div><div class="an-tv">${anFmtSecs(d.avg_session_s)}</div><div class="an-td">${anDelta(d.avg_session_s,d.prev_avg_session_s,d.has_prev,'s','per visit')||'per visit'}</div></div>
+    <div class="an-tile"><div class="an-tl">Restaurant opens</div><div class="an-tv">${d.opens.toLocaleString()}</div><div class="an-td">${perV} per visitor</div></div>
+    <div class="an-tile"><div class="an-tl">Returning visitors</div><div class="an-tv">${retPct}%</div><div class="an-td">visited on 2+ different days</div></div>
+  </div>
+  <div class="an-card"><div class="an-ct">Visitors per day</div><div class="an-cs">Hover a bar for the exact count</div>
+    <div class="an-bars">${dd.map(x=>`<div class="an-bar" style="height:${x.v/mx*100}%" data-t="${x.d.slice(5)} · ${x.v} visitor${x.v===1?'':'s'}"></div>`).join('')}</div>
+    <div class="an-axis"><span>${dd.length?dd[0].d.slice(5):''}</span><span>${dd.length?dd[dd.length-1].d.slice(5):''}</span></div></div>
+  <div class="an-card"><div class="an-ct">Time spent per screen</div><div class="an-cs">Average seconds per visit</div>${anRows((d.screens||[]).map(x=>[x.screen,x.secs]),x=>anFmtSecs(x[1]))}</div>
+  <div class="an-card"><div class="an-ct">What people tap</div><div class="an-cs">Times tapped, all visitors</div>${anRows([['Opened a restaurant',n('restaurant_open')],['Hours',n('icon_hours')],['Menu',n('icon_menu')],['Location',n('icon_location')],['Phone',n('icon_phone')],['Favorited (♥)',n('favorite')],['"I own a restaurant"',n('own_restaurant')]])}</div>
+  <div class="an-card"><div class="an-ct">Top restaurants</div><div class="an-cs">Page opens · taps on hours, location, phone or menu</div>${anRows((d.top||[]).map(x=>[x.name+(x.town?' · '+x.town:''),x.opens,x.taps]),x=>`<b style="color:var(--ink)">${x[1]}</b> · ${x[2]}`)}</div>
+  <div class="an-card"><div class="an-ct">Deal cards tapped</div><div class="an-cs">Which deal tags get taps in the feed</div>${anRows((d.deals||[]).map(x=>[x.tag,x.n]))}</div>
+  <div style="font-size:12px;color:var(--muted);line-height:1.5;">Visitors are counted from a random anonymous ID on their phone — no names, emails or IPs. Your own admin visits are not counted.</div>`;
 }
 </script>
 </body>
