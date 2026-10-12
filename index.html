@@ -166,6 +166,25 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .detail-panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:14px;}
 .dp-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sea);font-weight:700;margin-bottom:10px;}
 .dp-value{font-size:15px;line-height:1.6;}
+.rsw{position:relative;margin:12px 0 4px;}
+.rsw-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;font-family:inherit;background:var(--sand);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:15px;font-weight:700;cursor:pointer;text-align:left;}
+.rsw-btn.open{border-color:var(--accent);}
+.rsw-btn small{display:block;color:var(--muted);font-weight:500;font-size:11px;margin-bottom:1px;text-transform:uppercase;letter-spacing:.6px;}
+.rsw-chev{color:var(--muted);transition:transform .2s;}.rsw-btn.open .rsw-chev{transform:rotate(180deg);}
+.rsw-menu{display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;background:#1b1b1b;border:1px solid var(--accent);border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.6);}
+.rsw-menu.show{display:block;}
+.rsw-item{padding:11px 14px;font-size:14px;font-weight:600;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;}
+.rsw-item:last-child{border-bottom:none;color:var(--accent);}
+.rsw-item.cur{background:rgba(198,255,61,.12);}
+.rsw-item.pend{opacity:.7;cursor:default;}
+.rsw-item small{display:block;color:var(--muted);font-weight:500;font-size:11.5px;margin-top:1px;}
+.rsw-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;border:1px solid #FFB84D;color:#FFB84D;letter-spacing:.4px;white-space:nowrap;}
+.pick-card{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;margin-bottom:12px;}
+.pick-card:hover{border-color:var(--accent);}
+.pick-card.pend{opacity:.7;cursor:default;}
+.pick-card.pend:hover{border-color:var(--line);}
+.pick-name{font-size:17px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px;}
+.pick-meta{font-size:12.5px;color:var(--muted);}
 .an-seg{display:flex;background:var(--sand);border:1px solid var(--line);border-radius:100px;padding:3px;margin:14px 0;}
 .an-seg button{flex:1;font-family:inherit;font-weight:700;font-size:13px;border:none;border-radius:100px;padding:9px;background:none;color:var(--ink);cursor:pointer;}
 .an-seg button.on{background:var(--accent);color:#0A0A0A;}
@@ -762,6 +781,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
         <button class="btn-ghost btn-sm btn" id="signOutBtn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
       </div>
     </div>
+    <div id="dashSwitchWrap"></div>
     <div class="dash-tabs">
       <button type="button" class="dash-tab-btn" id="dashTabBtnProfile" onclick="showDashTab('profile')" data-i18n="dashProfileTitle"></button>
       <button type="button" class="dash-tab-btn" id="dashTabBtnMenu" onclick="showDashTab('menu')" data-i18n="menu"></button>
@@ -974,6 +994,34 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
   </div>
 </div>
 
+<!-- OWNER: pick which of their restaurants to manage -->
+<div class="screen" id="screenPicker">
+  <div class="inner">
+    <div class="page-title" data-i18n="pickTitle"></div>
+    <div style="font-size:13.5px;color:var(--muted);margin-bottom:16px;line-height:1.5;"><span data-i18n="pickSignedInAs"></span> <b style="color:var(--ink)" id="pickEmail"></b>. <span data-i18n="pickSub"></span></div>
+    <div id="pickList"></div>
+    <button class="btn btn-ghost" style="margin-top:6px;" onclick="openAddRestaurant()" data-i18n="pickAdd"></button>
+    <div style="text-align:center;margin-top:14px;"><button class="btn-ghost btn-sm btn" style="width:auto;border:none;" onclick="signOut()" data-i18n="signOut"></button></div>
+  </div>
+</div>
+
+<!-- OWNER: add another restaurant to the same login -->
+<div class="screen" id="screenAddRest">
+  <div class="inner">
+    <div class="page-title" data-i18n="addRestTitle"></div>
+    <div style="font-size:13.5px;color:var(--muted);margin-bottom:16px;line-height:1.5;" data-i18n="addRestSub"></div>
+    <div class="card">
+      <div class="field"><label data-i18n="restaurantName"></label><input id="arName" type="text"></div>
+      <div class="field"><label data-i18n="yourRegion"></label><select id="arRegion" onchange="onAddRestRegionChange()"></select></div>
+      <div class="field"><label data-i18n="yourTown"></label><select id="arTown"></select></div>
+      <div class="field"><label data-i18n="restaurantPhone"></label><input id="arPhone" type="tel"></div>
+      <button class="btn btn-sea" onclick="submitAddRestaurant()" data-i18n="addRestSubmit"></button>
+      <div class="status-msg" id="arStatus"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px;"><button class="btn-ghost btn-sm btn" style="width:auto;border:none;" onclick="goBack()">←</button></div>
+  </div>
+</div>
+
 <!-- DINER FAVORITES -->
 <div class="screen" id="screenFavorites">
   <div class="inner">
@@ -1027,7 +1075,7 @@ dinerAcctTitle:"Welcome back",dinerAcctSub:"Log in to save the restaurants you t
 myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No favorites yet — tap the ♡ on a restaurant to save it here.",
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
 dashProfileTitle:"Your restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead.",
-scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",saveBlocked:"Couldn't save — your account doesn't have permission to edit this restaurant.",
+scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",saveBlocked:"Couldn't save — your account doesn't have permission to edit this restaurant.",pickTitle:"Which restaurant?",pickSub:"Pick one to manage — you can switch anytime.",pickSignedInAs:"Signed in as",pickPending:"Pending approval",pickAdd:"+ Add another restaurant",managing:"Managing",addRestTitle:"Add another restaurant",addRestSub:"It'll be linked to your account. We'll review it and let you know when it's live.",addRestSubmit:"Submit for approval",addRestDone:"Submitted — we'll review it and it'll show up here once approved.",restPendingTag:"PENDING",switchedTo:"Switched to",
 recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Add recurring deal",recurringSaved:"Added.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing",recurringListTitle:"Your recurring deals",noRecurringDeals:"No recurring deals yet.",everyDay:"Every day",comingUpLabel:"Coming up",upcomingStartsAt:"Starts at {time}",upcomingOpensIn:"opens in {dur}",upcomingNextIn:"next one in {dur}",upcomingSetByRestaurant:"(set by the restaurant when they posted it)",startTimeLabel:"Starts at",startTimeHint:"Leave blank to keep today's behavior — live the moment you post it.",recurringPhotoHint:"Entirely optional — a text-only recurring deal works exactly as it does today if you skip this."},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
@@ -2239,13 +2287,16 @@ async function handleSession(session){
   if(authRouted){ return; }
   authRouted=true;
   const email=session.user.email;
-  const {data:restaurant,error} = await sb.from('restaurants').select('*').eq('email',email).maybeSingle();
+  const {data:ownedList,error} = await sb.from('restaurants').select('*').eq('email',email).order('name');
   if(error){ console.error(error); return; }
-  if(restaurant){
-    if(restaurant.status!=='approved'){ showStep('stepPending'); return; }
-    currentRestaurant=restaurant;
-    if(restaurant.region && REGIONS[restaurant.region]) setRegion(restaurant.region);
-    goScreen('screenDashboard'); loadDashboard();
+  ownerRestaurants = ownedList || [];
+  ownerEmail = email;
+  if(ownerRestaurants.length){
+    const approved = ownerRestaurants.filter(r=>r.status==='approved');
+    if(!approved.length){ showStep('stepPending'); return; }
+    // Several restaurants on one login (and more than one usable): let them pick.
+    if(ownerRestaurants.length>1 && approved.length>1){ renderOwnerPicker(); goScreen('screenPicker'); return; }
+    enterRestaurant(approved[0]);
     return;
   }
   const {data:adminRow,error:adminErr} = await sb.from('admins').select('email').eq('email',email).maybeSingle();
@@ -2265,6 +2316,81 @@ async function handleSession(session){
   else if(active==='screenDiner'){ buildFilters(); loadFeed(); }
 }
 
+/* ══════════ MULTI-RESTAURANT OWNERS (one login, several restaurants) ══════════ */
+let ownerRestaurants=[], ownerEmail='';
+function enterRestaurant(r){
+  currentRestaurant=r;
+  if(r.region && REGIONS[r.region]) setRegion(r.region);
+  goScreen('screenDashboard'); loadDashboard();
+}
+function renderOwnerPicker(){
+  document.getElementById('pickEmail').textContent=ownerEmail;
+  document.getElementById('pickList').innerHTML=ownerRestaurants.map(r=>{
+    const reg=REGIONS[r.region]; const ok=r.status==='approved';
+    return `<div class="card pick-card${ok?'':' pend'}" ${ok?`onclick="pickRestaurant('${r.id}')"`:''}>
+      <div><div class="pick-name">${esc(r.name)}</div>
+      <div class="pick-meta">${esc(r.town||'')}${reg?' · '+esc(reg.label[lang]||reg.label.en):''} · ${ok?'<span style="color:var(--accent)">'+t('approved')+'</span>':'<span style="color:#FFB84D">'+t('pickPending')+'</span>'}</div></div>
+      ${ok?'<span style="color:var(--muted);font-size:20px;">›</span>':''}</div>`;
+  }).join('');
+}
+function pickRestaurant(id){
+  const r=ownerRestaurants.find(x=>x.id===id); if(r && r.status==='approved') enterRestaurant(r);
+}
+function renderDashSwitcher(){
+  const wrap=document.getElementById('dashSwitchWrap'); if(!wrap) return;
+  if(adminMode || ownerRestaurants.length<2 || !currentRestaurant){ wrap.innerHTML=''; return; }
+  wrap.innerHTML=`<div class="rsw"><button type="button" class="rsw-btn" id="rswBtn" onclick="toggleDashSwitcher()"><span><small>${t('managing')}</small>${esc(currentRestaurant.name)}</span><span class="rsw-chev">▾</span></button><div class="rsw-menu" id="rswMenu">`+
+    ownerRestaurants.map(r=>{
+      const ok=r.status==='approved', cur=r.id===currentRestaurant.id;
+      return `<div class="rsw-item${cur?' cur':''}${ok?'':' pend'}" ${ok&&!cur?`onclick="switchRestaurant('${r.id}')"`:''}><span>${esc(r.name)}<small>${esc(r.town||'')}</small></span>${cur?'<span>✓</span>':ok?'':`<span class="rsw-pill">${t('restPendingTag')}</span>`}</div>`;
+    }).join('')+
+    `<div class="rsw-item" onclick="openAddRestaurant()"><span>${t('pickAdd')}</span></div></div></div>`;
+}
+function toggleDashSwitcher(){
+  const m=document.getElementById('rswMenu'), b=document.getElementById('rswBtn'); if(!m) return;
+  const open=!m.classList.contains('show'); m.classList.toggle('show',open); b.classList.toggle('open',open);
+}
+function switchRestaurant(id){
+  const r=ownerRestaurants.find(x=>x.id===id); if(!r || r.status!=='approved') return;
+  currentRestaurant=r;
+  if(r.region && REGIONS[r.region]) setRegion(r.region);
+  if(typeof cancelEditSpecial==='function') try{cancelEditSpecial();}catch(e){}
+  loadDashboard();
+}
+function openAddRestaurant(){
+  const rSel=document.getElementById('arRegion');
+  rSel.innerHTML=Object.keys(REGIONS).map(k=>`<option value="${k}">${REGIONS[k].flag} ${REGIONS[k].label.en}</option>`).join('');
+  rSel.value=(currentRestaurant&&currentRestaurant.region&&REGIONS[currentRestaurant.region])?currentRestaurant.region:Object.keys(REGIONS)[0];
+  onAddRestRegionChange();
+  ['arName','arPhone'].forEach(i=>document.getElementById(i).value='');
+  const st=document.getElementById('arStatus'); st.textContent=''; st.className='status-msg';
+  goScreen('screenAddRest');
+}
+function onAddRestRegionChange(){
+  const r=document.getElementById('arRegion').value;
+  document.getElementById('arTown').innerHTML=(REGIONS[r]?.towns||[]).map(x=>`<option value="${x}">${x}</option>`).join('');
+}
+async function submitAddRestaurant(){
+  const st=document.getElementById('arStatus');
+  const name=document.getElementById('arName').value.trim();
+  const rRegion=document.getElementById('arRegion').value;
+  const town=document.getElementById('arTown').value;
+  const phone=document.getElementById('arPhone').value.trim();
+  if(!name||!rRegion||!town){ st.textContent=t('fillAll'); st.className='status-msg err'; return; }
+  if(!sbReady()||!ownerEmail){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  st.textContent=t('checking'); st.className='status-msg';
+  const {data,error}=await sb.from('restaurants').insert({region:rRegion,name,town,phone:phone||null,email:ownerEmail,status:'pending'}).select('*');
+  if(error||!data||!data.length){ console.error(error); st.textContent=t('saveBlocked'); st.className='status-msg err'; return; }
+  ownerRestaurants.push(data[0]);
+  ownerRestaurants.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  st.textContent=t('addRestDone'); st.className='status-msg';
+  setTimeout(()=>{
+    if(currentRestaurant){ goScreen('screenDashboard'); loadDashboard(); }
+    else { renderOwnerPicker(); goScreen('screenPicker'); }
+  },1400);
+}
+document.addEventListener('click',e=>{ const m=document.getElementById('rswMenu'); if(m && m.classList.contains('show') && !e.target.closest('.rsw')) toggleDashSwitcher(); });
+
 // Lets a signed-in restaurant see the same public feed a diner would see, so they
 // can check how their own specials look without needing a separate diner account.
 function viewAsDiner(){
@@ -2283,6 +2409,7 @@ async function loadDashboard(){
   document.getElementById('dashApprovedTag').style.display = adminMode?'none':'inline-block';
   document.getElementById('adminBackRow').style.display = adminMode?'block':'none';
   document.getElementById('dashName').textContent=currentRestaurant.name;
+  renderDashSwitcher();
   const dR=REGIONS[currentRestaurant.region]||REGIONS[region];
   document.getElementById('dashTown').innerHTML=`<span class="recurring-badge" style="margin:0 8px 0 0;">${dR.flag} ${esc(dR.label[lang]||dR.label.en)}</span>${esc(currentRestaurant.town||'')}`;
   document.getElementById('pvName').textContent=currentRestaurant.name;
@@ -2908,7 +3035,7 @@ async function delPost(id){
 async function signOut(){
   if(sbReady()) await sb.auth.signOut();
   currentRestaurant=null; currentDiner=null; favoritesSet=new Set(); showFavoritesOnly=false;
-  isAdmin=false; adminMode=false; dinerPreviewActive=false; authRouted=false;
+  isAdmin=false; adminMode=false; dinerPreviewActive=false; authRouted=false; ownerRestaurants=[]; ownerEmail='';
   refreshNavLogin();
   goScreen('screenIntro'); navStack=['screenIntro'];
 }
