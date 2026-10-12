@@ -401,8 +401,6 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
     <button class="nav-login" id="navLogin" onclick="goScreen('screenGate')"></button>
     <select class="lang-select" id="regionSelect" onchange="setRegion(this.value)">
       <option value="us">🇺🇸 South Fork</option>
-      <option value="cr">🇨🇷 Costa Rica</option>
-      <option value="vt">🇺🇸 Stowe, VT</option>
     </select>
     <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
       <option value="en">🇬🇧 EN</option>
@@ -1233,6 +1231,9 @@ const SLOT_KEYS = ["lunch","happy","dinner","late"];
 function slotLabel(i){ return t('slots')[i]; }
 
 /* ══════════ REGION DATA (towns + copy only — specials/restaurants come from Supabase) ══════════ */
+// Regions people can currently pick. Costa Rica ('cr') and Stowe ('vt') are paused —
+// add them back here to re-enable them everywhere (their data is untouched).
+const ACTIVE_REGIONS = ['us'];
 const REGIONS = {
 us:{
   flag:"🇺🇸", label:{en:"United States",es:"Estados Unidos",fr:"États-Unis",zh:"美国",de:"USA"},
@@ -1359,7 +1360,7 @@ function setLang(l){
 function fillRsRegion(){
   const el=document.getElementById('rsRegion'); if(!el) return;
   const prev=el.value || region;
-  el.innerHTML=Object.keys(REGIONS).map(k=>`<option value="${k}">${REGIONS[k].flag} ${t('region'+k.toUpperCase())}</option>`).join('');
+  el.innerHTML=ACTIVE_REGIONS.map(k=>`<option value="${k}">${REGIONS[k].flag} ${t('region'+k.toUpperCase())}</option>`).join('');
   el.value=REGIONS[prev]?prev:region;
 }
 // Restaurant signup: changing the region swaps in that region's town list.
@@ -2076,7 +2077,7 @@ async function loadAdminPicker(){
   if(error){ console.error(error); adminRestaurants=[]; } else { adminRestaurants=data||[]; }
   const rSel=document.getElementById('admNewRegion');
   if(rSel && !rSel.options.length){
-    rSel.innerHTML=Object.keys(REGIONS).map(k=>`<option value="${k}">${REGIONS[k].flag} ${REGIONS[k].label.en}</option>`).join('');
+    rSel.innerHTML=ACTIVE_REGIONS.map(k=>`<option value="${k}">${REGIONS[k].flag} ${REGIONS[k].label.en}</option>`).join('');
     onAdminNewRegionChange();
   }
   renderAdminList();
@@ -2386,8 +2387,8 @@ function switchRestaurant(id){
 }
 function openAddRestaurant(){
   const rSel=document.getElementById('arRegion');
-  rSel.innerHTML=Object.keys(REGIONS).map(k=>`<option value="${k}">${REGIONS[k].flag} ${REGIONS[k].label.en}</option>`).join('');
-  rSel.value=(currentRestaurant&&currentRestaurant.region&&REGIONS[currentRestaurant.region])?currentRestaurant.region:Object.keys(REGIONS)[0];
+  rSel.innerHTML=ACTIVE_REGIONS.map(k=>`<option value="${k}">${REGIONS[k].flag} ${REGIONS[k].label.en}</option>`).join('');
+  rSel.value=(currentRestaurant&&currentRestaurant.region&&REGIONS[currentRestaurant.region])?currentRestaurant.region:ACTIVE_REGIONS[0];
   onAddRestRegionChange();
   ['arName','arPhone'].forEach(i=>document.getElementById(i).value='');
   const st=document.getElementById('arStatus'); st.textContent=''; st.className='status-msg';
@@ -3072,6 +3073,7 @@ async function signOut(){
 
 /* ══════════ INIT ══════════ */
 document.getElementById('regionSelect').value=region;
+if(ACTIVE_REGIONS.length<2) document.getElementById('regionSelect').style.display='none';
 setLang(lang);
 // The in-app ← arrow (above) triggers this indirectly too, via window.history.back()
 // — routing both the phone/browser's own back button and the in-app arrow through
@@ -3218,7 +3220,7 @@ function adminTab(which){
 }
 function anChips(){
   const R=[['Today',1],['7 days',7],['30 days',30],['All time',null]];
-  const G=[['All regions',null],['South Fork','us'],['Costa Rica','cr'],['Stowe','vt']];
+  const G=[['All regions',null],['South Fork','us'],['Costa Rica','cr'],['Stowe','vt']].filter(g=>!g[1]||ACTIVE_REGIONS.includes(g[1]));
   document.getElementById('anRange').innerHTML=R.map(([l,v])=>`<button class="an-chip${anRange===v?' on':''}" onclick="anRange=${v};loadAnalytics()">${l}</button>`).join('');
   document.getElementById('anRegion').innerHTML=G.map(([l,v])=>`<button class="an-chip${anRegion===v?' on':''}" onclick="anRegion=${v===null?'null':`'${v}'`};loadAnalytics()">${l}</button>`).join('');
 }
