@@ -2358,14 +2358,14 @@ function switcherList(){
   // switches between every restaurant that shares that restaurant's owner email.
   if(adminMode){
     const e=currentRestaurant && currentRestaurant.email;
-    return e ? adminRestaurants.filter(r=>r.email===e).sort((a,b)=>(a.name||'').localeCompare(b.name||'')) : [];
+    return e ? adminRestaurants.filter(r=>r.email===e).sort((a,b)=>(a.name||'').localeCompare(b.name||'')) : (currentRestaurant?[currentRestaurant]:[]);
   }
   return ownerRestaurants;
 }
 function renderDashSwitcher(){
   const wrap=document.getElementById('dashSwitchWrap'); if(!wrap) return;
   const list = switcherList();
-  if(!currentRestaurant || list.length<2){ wrap.innerHTML=''; return; }
+  if(!currentRestaurant || !list.length){ wrap.innerHTML=''; return; }
   wrap.innerHTML=`<div class="rsw"><button type="button" class="rsw-btn" id="rswBtn" onclick="toggleDashSwitcher()"><span><small>${t('managing')}</small>${esc(currentRestaurant.name)}</span><span class="rsw-chev">▾</span></button><div class="rsw-menu" id="rswMenu">`+
     list.map(r=>{
       const ok=r.status==='approved'||adminMode, cur=r.id===currentRestaurant.id;
