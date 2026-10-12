@@ -2371,7 +2371,7 @@ function renderDashSwitcher(){
       const ok=r.status==='approved'||adminMode, cur=r.id===currentRestaurant.id;
       return `<div class="rsw-item${cur?' cur':''}${ok?'':' pend'}" ${ok&&!cur?`onclick="switchRestaurant('${r.id}')"`:''}><span>${esc(r.name)}<small>${esc(r.town||'')}</small></span>${cur?'<span>✓</span>':ok?'':`<span class="rsw-pill">${t('restPendingTag')}</span>`}</div>`;
     }).join('')+
-    (adminMode?'':`<div class="rsw-item rsw-add" onclick="openAddRestaurant()"><span>${t('pickAdd')}</span></div>`)+`</div></div>`;
+    `<div class="rsw-item rsw-add" onclick="${adminMode&&!currentRestaurant.email?'adminBackToPicker()':'openAddRestaurant()'}"><span>${t('pickAdd')}</span></div></div></div>`;
 }
 function toggleDashSwitcher(){
   const m=document.getElementById('rswMenu'), b=document.getElementById('rswBtn'); if(!m) return;
@@ -2404,13 +2404,16 @@ async function submitAddRestaurant(){
   const town=document.getElementById('arTown').value;
   const phone=document.getElementById('arPhone').value.trim();
   if(!name||!rRegion||!town){ st.textContent=t('fillAll'); st.className='status-msg err'; return; }
-  if(!sbReady()||!ownerEmail){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  // Admins add under the restaurant owner's email and it goes live immediately;
+  // owners add under their own login and it waits for approval.
+  const forEmail = adminMode ? (currentRestaurant&&currentRestaurant.email) : ownerEmail;
+  if(!sbReady()||!forEmail){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
-  const {data,error}=await sb.from('restaurants').insert({region:rRegion,name,town,phone:phone||null,email:ownerEmail,status:'pending'}).select('*');
+  const {data,error}=await sb.from('restaurants').insert({region:rRegion,name,town,phone:phone||null,email:forEmail,status:adminMode?'approved':'pending'}).select('*');
   if(error||!data||!data.length){ console.error(error); st.textContent=t('saveBlocked'); st.className='status-msg err'; return; }
-  ownerRestaurants.push(data[0]);
-  ownerRestaurants.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-  st.textContent=t('addRestDone'); st.className='status-msg';
+  if(adminMode){ adminRestaurants.push(data[0]); }
+  else { ownerRestaurants.push(data[0]); ownerRestaurants.sort((a,b)=>(a.name||'').localeCompare(b.name||'')); }
+  st.textContent=adminMode?'Added and approved.':t('addRestDone'); st.className='status-msg';
   setTimeout(()=>{
     if(currentRestaurant){ goScreen('screenDashboard'); loadDashboard(); }
     else { renderOwnerPicker(); goScreen('screenPicker'); }
