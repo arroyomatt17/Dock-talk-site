@@ -174,7 +174,8 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .rsw-menu{display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;background:#1b1b1b;border:1px solid var(--accent);border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.6);}
 .rsw-menu.show{display:block;}
 .rsw-item{padding:11px 14px;font-size:14px;font-weight:600;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;}
-.rsw-item:last-child{border-bottom:none;color:var(--accent);}
+.rsw-item:last-child{border-bottom:none;}
+.rsw-item.rsw-add{color:var(--accent);}
 .rsw-item.cur{background:rgba(198,255,61,.12);}
 .rsw-item.pend{opacity:.7;cursor:default;}
 .rsw-item small{display:block;color:var(--muted);font-weight:500;font-size:11.5px;margin-top:1px;}
@@ -2083,20 +2084,36 @@ async function loadAdminPicker(){
 function renderAdminList(){
   const q=(document.getElementById('adminSearch')?.value||'').toLowerCase();
   const list=document.getElementById('adminRestaurantList'); if(!list) return;
-  const rows=adminRestaurants.filter(r=>!q || r.name.toLowerCase().includes(q) || (r.town||'').toLowerCase().includes(q));
+  const rows=adminRestaurants.filter(r=>!q || r.name.toLowerCase().includes(q) || (r.town||'').toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q));
+  const perOwner={}; adminRestaurants.forEach(r=>{ if(r.email) perOwner[r.email]=(perOwner[r.email]||0)+1; });
   list.innerHTML = rows.length ? rows.map(r=>`
     <div class="posted-item">
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;">${esc(r.name)}</div>
+        <div style="font-weight:700;">${esc(r.name)}${r.status==='pending'?' <span class="rsw-pill" style="margin-left:6px;">PENDING</span>':''}</div>
         <div style="font-size:12.5px;color:var(--muted);">${esc(r.town||'')} · ${esc(r.status)} · ${r.claimed===false?'unclaimed':'claimed'}</div>
+        ${r.email?`<div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(r.email)}${perOwner[r.email]>1?` · <span style="color:var(--accent);font-weight:700;">${perOwner[r.email]} restaurants</span>`:''}</div>`:''}
         ${r.claimed===false && r.claim_code ? `<div style="font-size:12px;color:var(--sea);cursor:pointer;margin-top:4px;" onclick="copyClaimLink('${r.claim_code}')">Copy claim link</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+        ${r.status==='pending'?`<button class="btn btn-sea btn-sm" style="width:auto;" onclick="adminApproveRestaurant('${r.id}',this)">Approve</button>`:''}
         <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="adminSelectRestaurant('${r.id}')">Post for this</button>
         <button class="delete-btn" data-id="${r.id}" onclick="adminDeleteRestaurant('${r.id}', this)">Remove</button>
       </div>
     </div>
   `).join('') : '<div class="hint" style="padding:14px 0;">No restaurants match.</div>';
+}
+async function adminApproveRestaurant(id,btn){
+  if(!sbReady()) return;
+  if(btn){ btn.disabled=true; btn.textContent='…'; }
+  const {data,error}=await sb.from('restaurants').update({status:'approved'}).eq('id',id).select('id');
+  if(error||!data||!data.length){
+    console.error(error);
+    if(btn){ btn.disabled=false; btn.textContent='Approve'; }
+    const st=document.getElementById('adminListStatus'); if(st){ st.textContent=t('saveBlocked'); st.className='status-msg err'; }
+    return;
+  }
+  const r=adminRestaurants.find(x=>String(x.id)===String(id)); if(r) r.status='approved';
+  renderAdminList();
 }
 async function adminSelectRestaurant(id){
   const r=adminRestaurants.find(x=>String(x.id)===String(id)); if(!r) return;
@@ -2336,22 +2353,32 @@ function renderOwnerPicker(){
 function pickRestaurant(id){
   const r=ownerRestaurants.find(x=>x.id===id); if(r && r.status==='approved') enterRestaurant(r);
 }
+function switcherList(){
+  // Owners switch between their own restaurants; an admin viewing a restaurant
+  // switches between every restaurant that shares that restaurant's owner email.
+  if(adminMode){
+    const e=currentRestaurant && currentRestaurant.email;
+    return e ? adminRestaurants.filter(r=>r.email===e).sort((a,b)=>(a.name||'').localeCompare(b.name||'')) : [];
+  }
+  return ownerRestaurants;
+}
 function renderDashSwitcher(){
   const wrap=document.getElementById('dashSwitchWrap'); if(!wrap) return;
-  if(adminMode || ownerRestaurants.length<2 || !currentRestaurant){ wrap.innerHTML=''; return; }
+  const list = switcherList();
+  if(!currentRestaurant || list.length<2){ wrap.innerHTML=''; return; }
   wrap.innerHTML=`<div class="rsw"><button type="button" class="rsw-btn" id="rswBtn" onclick="toggleDashSwitcher()"><span><small>${t('managing')}</small>${esc(currentRestaurant.name)}</span><span class="rsw-chev">▾</span></button><div class="rsw-menu" id="rswMenu">`+
-    ownerRestaurants.map(r=>{
-      const ok=r.status==='approved', cur=r.id===currentRestaurant.id;
+    list.map(r=>{
+      const ok=r.status==='approved'||adminMode, cur=r.id===currentRestaurant.id;
       return `<div class="rsw-item${cur?' cur':''}${ok?'':' pend'}" ${ok&&!cur?`onclick="switchRestaurant('${r.id}')"`:''}><span>${esc(r.name)}<small>${esc(r.town||'')}</small></span>${cur?'<span>✓</span>':ok?'':`<span class="rsw-pill">${t('restPendingTag')}</span>`}</div>`;
     }).join('')+
-    `<div class="rsw-item" onclick="openAddRestaurant()"><span>${t('pickAdd')}</span></div></div></div>`;
+    (adminMode?'':`<div class="rsw-item rsw-add" onclick="openAddRestaurant()"><span>${t('pickAdd')}</span></div>`)+`</div></div>`;
 }
 function toggleDashSwitcher(){
   const m=document.getElementById('rswMenu'), b=document.getElementById('rswBtn'); if(!m) return;
   const open=!m.classList.contains('show'); m.classList.toggle('show',open); b.classList.toggle('open',open);
 }
 function switchRestaurant(id){
-  const r=ownerRestaurants.find(x=>x.id===id); if(!r || r.status!=='approved') return;
+  const r=switcherList().find(x=>String(x.id)===String(id)); if(!r || (r.status!=='approved' && !adminMode)) return;
   currentRestaurant=r;
   if(r.region && REGIONS[r.region]) setRegion(r.region);
   if(typeof cancelEditSpecial==='function') try{cancelEditSpecial();}catch(e){}
