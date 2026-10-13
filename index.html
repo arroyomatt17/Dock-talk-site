@@ -1555,7 +1555,7 @@ function dealMetaHTML(s){
 }
 function renderSingleDealCardHTML(s){
   const fav=favoritesSet.has(s.rid);
-  return `<div class="feed-card">
+  return `<div class="feed-card" data-rid="${s.rid}" data-did="${s.id}">
       <span class="fc-tag">${dealTagHTML(s)}</span>
       <div class="fc-row">
         <button class="fc-name-link" onclick="openDetail('${s.rid}')">${esc(s.restaurant)}</button>
@@ -1580,7 +1580,7 @@ function renderMultiDealCardHTML(rid, deals){
       <div class="fc-meta">${dealMetaHTML(d)}</div>
     </div>`).join('');
   const dots = deals.map((_,i)=>`<button class="mdeal-dot${i===0?' active':''}" onclick="mdealGoTo('${rid}',${i})" aria-label="Deal ${i+1}"></button>`).join('');
-  return `<div class="feed-card mdeal-card">
+  return `<div class="feed-card mdeal-card" data-rid="${rid}">
       <div class="fc-row" style="margin-bottom:9px;">
         <span class="fc-tag" id="mdTag-${rid}">${tags[0]}</span>
         <span class="mdeal-count-pill" id="mdCount-${rid}">1/${deals.length}</span>
@@ -1911,7 +1911,10 @@ function toggleIcon(k){
       return `<div class="detail-panel"><div class="dp-label">${t('hours')}</div><div id="hoursBox">${renderHoursPanel(info.hours_json)}</div></div>`;
     }
     const val=x==='hours'?info.hours:x==='location'?info.address:info.phone;
-    return `<div class="detail-panel"><div class="dp-label">${t(x)}</div><div class="dp-value">${esc(val||t('notListed'))}</div></div>`;
+    let shown=esc(val||t('notListed'));
+    if(val && x==='phone'){ const d=String(val).replace(/[^\d+]/g,''); if(d) shown=`<a href="tel:${d}" data-track="call_tap" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px;">${esc(val)}</a>`; }
+    if(val && x==='location'){ shown=`<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(val)}" target="_blank" rel="noopener" data-track="map_tap" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px;">${esc(val)}</a>`; }
+    return `<div class="detail-panel"><div class="dp-label">${t(x)}</div><div class="dp-value">${shown}</div></div>`;
   }).join('');
 }
 
@@ -2309,6 +2312,7 @@ async function handleSession(session){
   if(error){ console.error(error); return; }
   ownerRestaurants = ownedList || [];
   ownerEmail = email;
+  if(ownerRestaurants.length) trackEvent('auth_session',{meta:{role:'owner'}});
   if(ownerRestaurants.length){
     const approved = ownerRestaurants.filter(r=>r.status==='approved');
     if(!approved.length){ showStep('stepPending'); return; }
@@ -2327,6 +2331,7 @@ async function handleSession(session){
   }
   // No restaurant or admin row matches this email — treat them as a diner account.
   currentDiner={id:session.user.id, email, name:session.user.user_metadata?.name || ''};
+  trackEvent('auth_session',{meta:{role:'diner'}});
   await loadFavorites();
   refreshNavLogin();
   const active=document.querySelector('.screen.active')?.id;
@@ -2547,7 +2552,7 @@ function renderUpcomingCardHTML(u){
   const nameRow = u.town
     ? `<div class="fc-row"><button class="fc-name-link" onclick="openDetail('${u.rid}')">${esc(u.restaurant)}</button></div>`
     : '';
-  return `<div class="feed-card upcoming">
+  return `<div class="feed-card upcoming" data-rid="${u.rid}">
       <span class="fc-tag upcoming-tag">${upcomingTagHTML(u)}</span>
       ${nameRow}
       <div class="fc-text">${esc(u.text)}</div>
@@ -2572,7 +2577,7 @@ function renderUpcomingMultiDealCardHTML(rid, deals){
       <div class="upcoming-when"><span class="dot"></span>${d.whenHTML}</div>
     </div>`).join('');
   const dots = deals.map((_,i)=>`<button class="mdeal-dot${i===0?' active':''}" onclick="mdealUpcomingGoTo('${rid}',${i})" aria-label="Deal ${i+1}"></button>`).join('');
-  return `<div class="feed-card upcoming mdeal-card">
+  return `<div class="feed-card upcoming mdeal-card" data-rid="${rid}">
       <div class="fc-row" style="margin-bottom:9px;">
         <span class="fc-tag upcoming-tag" id="mduTag-${rid}">${tags[0]}</span>
         <span class="mdeal-count-pill" id="mduCount-${rid}">1/${deals.length}</span>
@@ -3184,7 +3189,7 @@ function trackScreenEnd(){
   }
   trk.start=document.hidden?null:Date.now();
 }
-function trackScreenStart(id){ trackScreenEnd(); trk.cur=id; trk.start=document.hidden?null:Date.now(); }
+function trackScreenStart(id){ if(trk.cur==='screenDiner' && trk.maxScroll>0.03){ trackEvent('scroll_depth',{screen:'Feed (Tonight)',meta:{pct:Math.round(Math.min(1,trk.maxScroll)*100)}}); } trk.maxScroll=0; trackScreenEnd(); trk.cur=id; trk.start=document.hidden?null:Date.now(); }
 (function(){
   const _go=goScreen;
   goScreen=function(id,push){ const r=_go.apply(this,arguments); trackScreenStart(id); return r; };
@@ -3197,7 +3202,7 @@ function trackScreenStart(id){ trackScreenEnd(); trk.cur=id; trk.start=document.
   document.addEventListener('click',e=>{
     const own=e.target.closest&&e.target.closest('.own-restaurant button'); if(own){ trackEvent('own_restaurant'); return; }
     const link=e.target.closest&&e.target.closest('.fc-name-link');
-    if(link){ const card=link.closest('.feed-card'); const tg=card&&card.querySelector('.fc-tag'); const tag=tg?tg.textContent.split('·')[0].trim().slice(0,40):''; if(tag) trackEvent('card_tap',{meta:{tag:tag}}); }
+    if(link){ const card=link.closest('.feed-card'); const tg=card&&card.querySelector('.fc-tag'); const tag=tg?tg.textContent.split('·')[0].trim().slice(0,40):''; if(tag) trackEvent('card_tap',{restaurant_id:card.dataset.rid||null,meta:{tag:tag,did:card.dataset.did||null,up:card.classList.contains('upcoming')?1:0}}); }
   },true);
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){ trackScreenEnd(); trk.start=null; trackFlush(); }
@@ -3206,64 +3211,190 @@ function trackScreenStart(id){ trackScreenEnd(); trk.cur=id; trk.start=document.
   window.addEventListener('pagehide',()=>{ trackScreenEnd(); trk.start=null; trackFlush(); });
   setInterval(()=>{ trackScreenEnd(); trackFlush(); },20000);
   const act=document.querySelector('.screen.active'); trk.cur=act?act.id:'screenIntro'; trk.start=document.hidden?null:Date.now();
-  trackEvent('session_start',{screen:TRACK_SCREEN_NAMES[trk.cur]});
+  trackEvent('session_start',{screen:TRACK_SCREEN_NAMES[trk.cur],meta:trackContext()});
 })();
 
-/* ══════════ ADMIN: Analytics tab ══════════ */
-let anRange=7, anRegion=null, anLoaded=false;
+/* ══════════ ANALYTICS: extra tracking (context, card views, calls/maps, signups, owner activity, errors) ══════════ */
+trk.maxScroll=0; trk.err=0;
+function trackContext(){
+  const q=new URLSearchParams(location.search); let src='direct';
+  let host=''; try{ host=document.referrer?new URL(document.referrer).hostname.replace(/^www\./,''):''; }catch(e){}
+  if(q.get('utm_source')) src=(q.get('utm_source')+(q.get('utm_medium')?' / '+q.get('utm_medium'):'')).slice(0,50);
+  else if(host && host!==location.hostname.replace(/^www\./,'')) src=host.slice(0,50);
+  const w=window.innerWidth||0; let ret=0;
+  try{ ret=localStorage.getItem('dt_seen')?1:0; localStorage.setItem('dt_seen','1'); }catch(e){}
+  let pwa=false; try{ pwa=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true; }catch(e){}
+  return {src, camp:(q.get('utm_campaign')||'').slice(0,40)||undefined, dev:w<600?'mobile':w<1024?'tablet':'desktop', w, pwa, lang,
+          tz:((Intl.DateTimeFormat().resolvedOptions().timeZone)||'').slice(0,40), ret};
+}
+(function(){
+  // ── card views (a card counts once per visit when ~60% of it is on screen) ──
+  const seen=new Set();
+  const io=('IntersectionObserver' in window)?new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      const el=e.target; io.unobserve(el);
+      const rid=el.dataset.rid; if(!rid) return;
+      const up=el.classList.contains('upcoming'); const key=rid+'|'+(el.dataset.did||'')+'|'+(up?'u':'');
+      if(seen.has(key)) return; seen.add(key);
+      const tg=el.querySelector('.fc-tag');
+      trackEvent('impression',{restaurant_id:rid,meta:{did:el.dataset.did||null,tag:tg?tg.textContent.split('·')[0].trim().slice(0,40):null,up:up?1:0}});
+    });
+  },{threshold:0.6}):null;
+  let scheduled=false;
+  function observeCards(){ scheduled=false; if(!io) return; document.querySelectorAll('.feed-card[data-rid]').forEach(c=>{ if(!c.dataset.obs){ c.dataset.obs='1'; io.observe(c); } }); }
+  new MutationObserver(()=>{ if(!scheduled){ scheduled=true; requestAnimationFrame(observeCards); } }).observe(document.body,{childList:true,subtree:true});
+
+  // ── scroll depth on the feed ──
+  window.addEventListener('scroll',()=>{
+    if(trk.cur!=='screenDiner') return;
+    const h=document.documentElement.scrollHeight-window.innerHeight; if(h<=0) return;
+    const f=(window.scrollY)/h; if(f>trk.maxScroll) trk.maxScroll=f;
+  },{passive:true});
+
+  // ── taps ──
+  document.addEventListener('click',e=>{
+    const a=e.target.closest&&e.target.closest('a[data-track]');
+    if(a){ trackEvent(a.dataset.track,{restaurant_id:detailR&&detailR.id}); return; }
+    const f=e.target.closest&&e.target.closest('.filter-btn');
+    if(f){ trackEvent('filter_tap',{meta:{l:(f.textContent||'').trim().slice(0,30),on:f.classList.contains('active')?0:1}}); }
+  },true);
+  const rs=document.getElementById('regionSelect'); if(rs) rs.addEventListener('change',()=>trackEvent('region_change',{meta:{r:rs.value}}));
+  const ls=document.getElementById('langSelect');   if(ls) ls.addEventListener('change',()=>trackEvent('lang_change',{meta:{l:ls.value}}));
+
+  const wrap=(name,fn)=>{ const orig=window[name]; if(typeof orig!=='function') return; window[name]=function(){ const r=orig.apply(this,arguments); try{ fn.apply(this,arguments); }catch(e){} return r; }; };
+  wrap('openLightbox',()=>trackEvent('photo_open',{restaurant_id:detailR&&detailR.id}));
+  ['mdealGo','mdealGoTo','mdealUpcomingGo','mdealUpcomingGoTo'].forEach(n=>wrap(n,rid=>trackEvent('deal_swipe',{restaurant_id:rid})));
+  wrap('renderFeedCardsInto',(elId,countId,list)=>{ if(!list||!list.length) trackEvent('feed_empty',{meta:{towns:[...selTowns].join(',').slice(0,80),fav:showFavoritesOnly?1:0}}); });
+  wrap('showStep',id=>{
+    const m={stepDinerSignup:['signup_start','diner'],stepSignup:['signup_start','restaurant'],stepDinerWelcome:['signup_done','diner'],stepRestaurantWelcome:['signup_done','restaurant'],stepForgotPassword:['forgot_password','']};
+    if(m[id]) trackEvent(m[id][0],{meta:{r:m[id][1]}});
+  });
+  wrap('showDashTab',tab=>trackEvent('dash_tab',{restaurant_id:currentRestaurant&&currentRestaurant.id,meta:{a:'view_'+tab}}));
+
+  // ── owner activity (only counted when the action succeeded; admin actions are never recorded) ──
+  const ownerDone=(a,stId)=>{ const st=document.getElementById(stId); if(st && st.textContent && !st.classList.contains('err')) trackEvent('owner_action',{restaurant_id:currentRestaurant&&currentRestaurant.id,meta:{a}}); };
+  [['postSpecial','post_special','postStatus'],['saveRecurring','save_recurring','recurringStatus'],['saveMenu','save_menu','menuStatus'],['saveProfile','save_profile','profileStatus']].forEach(([fn,a,stId])=>{
+    const orig=window[fn]; if(typeof orig!=='function') return;
+    window[fn]=async function(){ const r=await orig.apply(this,arguments); try{ ownerDone(a,stId); }catch(e){} return r; };
+  });
+
+  // ── app install + errors ──
+  window.addEventListener('beforeinstallprompt',()=>trackEvent('install_prompt'));
+  window.addEventListener('appinstalled',()=>trackEvent('pwa_install'));
+  window.addEventListener('error',e=>{ if(trk.err++<5) trackEvent('js_error',{meta:{m:String(e.message||'error').slice(0,120)}}); });
+  window.addEventListener('unhandledrejection',e=>{ if(trk.err++<5) trackEvent('js_error',{meta:{m:('promise: '+((e.reason&&e.reason.message)||e.reason||'')).slice(0,120)}}); });
+})();
+
+/* ══════════ ADMIN: Analytics tab (all restaurants + per-restaurant drill-down) ══════════ */
+let anRange=7, anRegion=null, anRest=null;
 function adminTab(which){
   document.getElementById('anTabPost').classList.toggle('on',which==='post');
   document.getElementById('anTabAn').classList.toggle('on',which==='an');
   document.getElementById('adminPostPane').style.display=which==='post'?'':'none';
   document.getElementById('adminAnalyticsPane').style.display=which==='an'?'':'none';
-  if(which==='an') loadAnalytics();
+  if(which==='an'){ anRest=null; loadAnalytics(); }
 }
 function anChips(){
   const R=[['Today',1],['7 days',7],['30 days',30],['All time',null]];
   const G=[['All regions',null],['South Fork','us'],['Costa Rica','cr'],['Stowe','vt']].filter(g=>!g[1]||ACTIVE_REGIONS.includes(g[1]));
-  document.getElementById('anRange').innerHTML=R.map(([l,v])=>`<button class="an-chip${anRange===v?' on':''}" onclick="anRange=${v};loadAnalytics()">${l}</button>`).join('');
+  document.getElementById('anRange').innerHTML=R.map(([l,v])=>`<button class="an-chip${anRange===v?' on':''}" onclick="anRange=${v};anReload()">${l}</button>`).join('');
+  document.getElementById('anRegion').style.display=anRest?'none':'';
   document.getElementById('anRegion').innerHTML=G.map(([l,v])=>`<button class="an-chip${anRegion===v?' on':''}" onclick="anRegion=${v===null?'null':`'${v}'`};loadAnalytics()">${l}</button>`).join('');
 }
+function anReload(){ anRest?loadAnalyticsRestaurant(anRest):loadAnalytics(); }
 function anFmtSecs(s){ s=Math.round(s||0); return s>=60?Math.floor(s/60)+'m '+String(s%60).padStart(2,'0')+'s':s+'s'; }
 function anDelta(cur,prev,hasPrev,unit,label){
-  if(!hasPrev) return '';
+  if(!hasPrev) return label||'';
   if(!prev) return cur?`<span class="an-up">▲ new</span> ${label}`:`${label}`;
   if(unit==='s'){ const d=cur-prev; return `<span class="${d>=0?'an-up':'an-down'}">${d>=0?'▲':'▼'} ${Math.abs(d)}s</span> ${label}`; }
   const p=Math.round((cur-prev)/prev*100); return `<span class="${p>=0?'an-up':'an-down'}">${p>=0?'▲':'▼'} ${Math.abs(p)}%</span> ${label}`;
 }
-function anRows(list,fmt){
+function anRows(list,fmt,onclickFn){
   if(!list.length) return '<div class="an-empty">No data yet for this range.</div>';
   const m=Math.max(...list.map(d=>d[1]),1);
-  return list.map(d=>`<div class="an-row"><span class="n">${esc(d[0])}</span><span class="v">${fmt?fmt(d):d[1].toLocaleString()}</span><div class="an-track"><div class="an-fill" style="width:${d[1]/m*100}%"></div></div></div>`).join('');
+  return list.map(d=>`<div class="an-row"${onclickFn?` style="cursor:pointer" onclick="${onclickFn(d)}"`:''}><span class="n">${esc(d[0])}</span><span class="v">${fmt?fmt(d):Number(d[1]).toLocaleString()}</span><div class="an-track"><div class="an-fill" style="width:${d[1]/m*100}%"></div></div></div>`).join('');
 }
+function anBars(vals,labelFn,h){
+  const mx=Math.max(...vals,1);
+  return `<div class="an-bars" style="${h?`height:${h}px`:''}">${vals.map((v,i)=>`<div class="an-bar" style="height:${v/mx*100}%" data-t="${esc(labelFn(i,v))}"></div>`).join('')}</div>`;
+}
+function anTile(l,v,d){ return `<div class="an-tile"><div class="an-tl">${l}</div><div class="an-tv">${v}</div><div class="an-td">${d||''}</div></div>`; }
+function anPct(n,d){ return d?Math.round(n/d*100)+'%':'–'; }
+function anHourLabel(h){ return (h%12||12)+(h<12?'a':'p'); }
+
 async function loadAnalytics(){
   anChips();
   const st=document.getElementById('anStatus'), body=document.getElementById('anBody');
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent='…'; st.className='status-msg';
   const {data:d,error}=await sb.rpc('analytics_summary',{p_days:anRange,p_region:anRegion});
-  if(error||!d){ console.error(error); st.textContent="Couldn't load analytics — have you run analytics.sql in Supabase yet?"; st.className='status-msg err'; return; }
+  if(error||!d){ console.error(error); st.textContent="Couldn't load analytics — have you run analytics.sql and analytics_v2.sql in Supabase?"; st.className='status-msg err'; return; }
   st.textContent='';
   const lbl=anRange===1?'vs yesterday':anRange?`vs previous ${anRange} days`:'';
-  const T=d.taps||{}; const n=k=>T[k]||0;
-  const dd=d.daily||[]; const mx=Math.max(...dd.map(x=>x.v),1);
+  const T=d.taps||{}, n=k=>T[k]||0, F=d.funnel||{}, SG=d.signups||{}, sg=k=>SG[k]||0;
+  const dd=d.daily||[];
   const perV=d.visitors?(d.opens/d.visitors).toFixed(1):'0.0';
   const retPct=d.visitors?Math.round(d.returning/d.visitors*100):0;
+  const impr=n('impression'), ctr=impr?Math.round(n('card_tap')/impr*100):0;
+  const hrs=d.hours||[], dows=d.dows||[], DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const nr=d.new_returning||{new:0,ret:0}, errs=d.errors||{n:0,top:[]};
+  const steps=[['Visited',F.visited||0],['Saw a deal card',F.saw||0],['Opened a restaurant',F.opened||0],['Checked menu / phone / location',F.contact||0],['Favorited',F.favorited||0]];
   body.innerHTML=`
   <div class="an-tiles">
-    <div class="an-tile"><div class="an-tl">Visitors</div><div class="an-tv">${d.visitors.toLocaleString()}</div><div class="an-td">${anDelta(d.visitors,d.prev_visitors,d.has_prev,'%',lbl)}</div></div>
-    <div class="an-tile"><div class="an-tl">Avg. time on site</div><div class="an-tv">${anFmtSecs(d.avg_session_s)}</div><div class="an-td">${anDelta(d.avg_session_s,d.prev_avg_session_s,d.has_prev,'s','per visit')||'per visit'}</div></div>
-    <div class="an-tile"><div class="an-tl">Restaurant opens</div><div class="an-tv">${d.opens.toLocaleString()}</div><div class="an-td">${perV} per visitor</div></div>
-    <div class="an-tile"><div class="an-tl">Returning visitors</div><div class="an-tv">${retPct}%</div><div class="an-td">visited on 2+ different days</div></div>
+    ${anTile('Visitors',d.visitors.toLocaleString(),anDelta(d.visitors,d.prev_visitors,d.has_prev,'%',lbl))}
+    ${anTile('Avg. time on site',anFmtSecs(d.avg_session_s),anDelta(d.avg_session_s,d.prev_avg_session_s,d.has_prev,'s','per visit')||'per visit')}
+    ${anTile('Restaurant opens',d.opens.toLocaleString(),perV+' per visitor')}
+    ${anTile('Returning visitors',retPct+'%','visited on 2+ different days')}
+    ${anTile('Deal cards seen',impr.toLocaleString(),ctr+'% tapped through')}
+    ${anTile('Calls &amp; map taps',(n('call_tap')+n('map_tap')).toLocaleString(),n('call_tap')+' calls · '+n('map_tap')+' maps')}
   </div>
   <div class="an-card"><div class="an-ct">Visitors per day</div><div class="an-cs">Hover a bar for the exact count</div>
-    <div class="an-bars">${dd.map(x=>`<div class="an-bar" style="height:${x.v/mx*100}%" data-t="${x.d.slice(5)} · ${x.v} visitor${x.v===1?'':'s'}"></div>`).join('')}</div>
+    ${anBars(dd.map(x=>x.v),(i,v)=>dd[i].d.slice(5)+' · '+v+' visitor'+(v===1?'':'s'))}
     <div class="an-axis"><span>${dd.length?dd[0].d.slice(5):''}</span><span>${dd.length?dd[dd.length-1].d.slice(5):''}</span></div></div>
+  <div class="an-card"><div class="an-ct">Visit funnel</div><div class="an-cs">Visits that got this far (share of all visits)</div>${anRows(steps,x=>x[1].toLocaleString()+' · '+anPct(x[1],F.visited||0))}</div>
   <div class="an-card"><div class="an-ct">Time spent per screen</div><div class="an-cs">Average seconds per visit</div>${anRows((d.screens||[]).map(x=>[x.screen,x.secs]),x=>anFmtSecs(x[1]))}</div>
-  <div class="an-card"><div class="an-ct">What people tap</div><div class="an-cs">Times tapped, all visitors</div>${anRows([['Opened a restaurant',n('restaurant_open')],['Hours',n('icon_hours')],['Menu',n('icon_menu')],['Location',n('icon_location')],['Phone',n('icon_phone')],['Favorited (♥)',n('favorite')],['"I own a restaurant"',n('own_restaurant')]])}</div>
-  <div class="an-card"><div class="an-ct">Top restaurants</div><div class="an-cs">Page opens · taps on hours, location, phone or menu</div>${anRows((d.top||[]).map(x=>[x.name+(x.town?' · '+x.town:''),x.opens,x.taps]),x=>`<b style="color:var(--ink)">${x[1]}</b> · ${x[2]}`)}</div>
-  <div class="an-card"><div class="an-ct">Deal cards tapped</div><div class="an-cs">Which deal tags get taps in the feed</div>${anRows((d.deals||[]).map(x=>[x.tag,x.n]))}</div>
+  <div class="an-card"><div class="an-ct">What people tap</div><div class="an-cs">Times tapped, all visitors</div>${anRows([['Opened a restaurant',n('restaurant_open')],['Hours',n('icon_hours')],['Menu',n('icon_menu')],['Location',n('icon_location')],['Phone',n('icon_phone')],['Called (tapped number)',n('call_tap')],['Opened map',n('map_tap')],['Favorited (♥)',n('favorite')],['Photo opened',n('photo_open')],['Swiped between deals',n('deal_swipe')],['Used a filter',n('filter_tap')],['"I own a restaurant"',n('own_restaurant')]])}</div>
+  <div class="an-card"><div class="an-ct">Top restaurants</div><div class="an-cs">Tap one for its full numbers · seen · opened · taps · calls</div>${anRows((d.top||[]).map(x=>[x.name+(x.town?' · '+x.town:''),x.opens,x.id,x.impr,x.taps,x.calls]),x=>`${x[3]} · <b style="color:var(--ink)">${x[1]}</b> · ${x[4]} · ${x[5]}`,x=>`loadAnalyticsRestaurant('${x[2]}')`)}</div>
+  <div class="an-card"><div class="an-ct">Deal tags</div><div class="an-cs">Taps · times seen</div>${anRows((d.deals||[]).map(x=>[x.tag,x.n,x.impr]),x=>x[1]+' taps · '+x[2]+' seen')}</div>
+  <div class="an-card"><div class="an-ct">Where visitors come from</div><div class="an-cs">Referrer or campaign link (add ?utm_source=name to links you share)</div>${anRows((d.sources||[]).map(x=>[x.src,x.n]))}</div>
+  <div class="an-card"><div class="an-ct">Devices</div><div class="an-cs">${nr.new} new · ${nr.ret} returning devices · ${d.pwa||0} using the installed app · ${n('pwa_install')} installs</div>${anRows((d.devices||[]).map(x=>[x.dev,x.n]))}</div>
+  <div class="an-card"><div class="an-ct">Busiest hours</div><div class="an-cs">Visits by hour of day (Eastern)</div>${anBars(hrs,(i,v)=>anHourLabel(i)+' · '+v+' visit'+(v===1?'':'s'),80)}<div class="an-axis"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>
+  <div class="an-card"><div class="an-ct">Busiest days</div><div class="an-cs">Visits by day of week</div>${anRows(dows.map((v,i)=>[DOW[i],v]))}</div>
+  <div class="an-card"><div class="an-ct">Signups &amp; logins</div><div class="an-cs">Diner and restaurant accounts</div>${anRows([['Diner signups started',sg('signup_start:diner')],['Diner signups finished',sg('signup_done:diner')],['Restaurant signups started',sg('signup_start:restaurant')],['Restaurant signups finished',sg('signup_done:restaurant')],['Diner sessions (logged in)',sg('auth_session:diner')],['Owner sessions (logged in)',sg('auth_session:owner')],['Forgot-password taps',n('forgot_password')]])}</div>
+  <div class="an-card"><div class="an-ct">Restaurant owner activity</div><div class="an-cs">Actions owners took (your admin actions aren't counted)</div>${anRows((d.owner||[]).map(x=>[({post_special:'Posted a special',save_recurring:'Saved a recurring deal',save_menu:'Saved the menu',save_profile:'Saved profile',view_post:'Viewed Post tab',view_recurring:'Viewed Recurring tab',view_menu:'Viewed Menu tab',view_profile:'Viewed Profile tab'})[x.a]||x.a,x.n]))}</div>
+  <div class="an-card"><div class="an-ct">Demand &amp; health</div><div class="an-cs">Things worth fixing</div>${anRows([['Empty feeds shown (no deals)',n('feed_empty')],['App errors',errs.n]])}${(errs.top||[]).map(e=>`<div class="an-empty">${esc(e.m)} · ${e.n}×</div>`).join('')}</div>
   <div style="font-size:12px;color:var(--muted);line-height:1.5;">Visitors are counted from a random anonymous ID on their phone — no names, emails or IPs. Your own admin visits are not counted.</div>`;
+}
+async function loadAnalyticsRestaurant(id){
+  anRest=id; anChips();
+  const st=document.getElementById('anStatus'), body=document.getElementById('anBody');
+  st.textContent='…'; st.className='status-msg';
+  const {data:d,error}=await sb.rpc('analytics_restaurant',{p_id:id,p_days:anRange});
+  if(error||!d){ console.error(error); st.textContent="Couldn't load this restaurant — have you run analytics_v2.sql?"; st.className='status-msg err'; return; }
+  st.textContent='';
+  const C=d.cur||{}, P=d.prev||{}, c=k=>C[k]||0, p=k=>P[k]||0, hp=d.has_prev;
+  const lbl=anRange===1?'vs yesterday':anRange?`vs previous ${anRange} days`:'';
+  const dd=d.daily||[], hrs=d.hours||[];
+  const impr=c('impression'), ctr=impr?Math.round(c('card_tap')/impr*100):0;
+  body.innerHTML=`
+  <div style="margin-bottom:10px;"><span style="color:var(--accent);cursor:pointer;font-weight:600;font-size:12.5px;" onclick="anRest=null;loadAnalytics()">← All restaurants</span></div>
+  <div class="page-title" style="font-size:22px;margin-bottom:2px;">${esc(d.name||'Restaurant')}</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">${esc(d.town||'')}</div>
+  <div class="an-tiles">
+    ${anTile('Times opened',c('restaurant_open').toLocaleString(),anDelta(c('restaurant_open'),p('restaurant_open'),hp,'%',lbl))}
+    ${anTile('Phone taps',(c('icon_phone')+c('call_tap')).toLocaleString(),c('call_tap')+' tapped the number')}
+    ${anTile('Menu views',c('icon_menu').toLocaleString(),anPct(c('icon_menu'),c('restaurant_open'))+' of opens')}
+    ${anTile('Favorites added',c('favorite').toLocaleString(),'')}
+    ${anTile('Card views',impr.toLocaleString(),ctr+'% tapped through')}
+    ${anTile('Unique visitors',(d.visitors||0).toLocaleString(),'who interacted')}
+  </div>
+  <div class="an-card"><div class="an-ct">Opens per day</div><div class="an-cs">Hover a bar for the exact count</div>
+    ${anBars(dd.map(x=>x.v),(i,v)=>dd[i].d.slice(5)+' · '+v+' open'+(v===1?'':'s'))}
+    <div class="an-axis"><span>${dd.length?dd[0].d.slice(5):''}</span><span>${dd.length?dd[dd.length-1].d.slice(5):''}</span></div></div>
+  <div class="an-card"><div class="an-ct">What people check</div><div class="an-cs">Taps after opening the page</div>${anRows([['Hours',c('icon_hours')],['Menu',c('icon_menu')],['Location',c('icon_location')],['Phone',c('icon_phone')],['Tapped to call',c('call_tap')],['Opened map',c('map_tap')],['Photos opened',c('photo_open')],['Swiped between deals',c('deal_swipe')]])}</div>
+  <div class="an-card"><div class="an-ct">Deals</div><div class="an-cs">Seen · tapped (single-deal cards)</div>${anRows((d.deals||[]).map(x=>[x.text.slice(0,60),x.taps,x.impr]),x=>x[1]+' taps · '+x[2]+' seen')}</div>
+  <div class="an-card"><div class="an-ct">When people open this page</div><div class="an-cs">By hour of day (Eastern)</div>${anBars(hrs,(i,v)=>anHourLabel(i)+' · '+v,80)}<div class="an-axis"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>`;
 }
 </script>
 </body>
