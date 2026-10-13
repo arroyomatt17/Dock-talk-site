@@ -144,6 +144,8 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 .mdeal-slide{display:none;}
 .mdeal-slide.active{display:block;animation:mdealFade .18s ease-out;}
 @keyframes mdealFade{from{opacity:0;transform:translateX(6px);}to{opacity:1;transform:translateX(0);}}
+.feed-card[data-rid],.feed-card[data-open]{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s;}
+.feed-card[data-rid]:active,.feed-card[data-open]:active{border-color:var(--accent);}
 .mdeal-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;margin-top:2px;border-top:1px solid var(--line-soft);}
 .mdeal-arrow{background:var(--sand-light);border:1px solid var(--line);border-radius:50%;width:30px;height:30px;
   display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);flex-shrink:0;
@@ -1716,7 +1718,7 @@ async function loadExplore(){
   }
   el.innerHTML=list.map(r=>{
     const fav=favoritesSet.has(r.id);
-    return `<div class="feed-card">
+    return `<div class="feed-card" data-open="${r.id}">
       <div class="fc-row">
         <button class="fc-name-link" onclick="openDetail('${r.id}')">${esc(r.name)}</button>
         <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${r.id}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
@@ -1766,7 +1768,7 @@ async function loadFavoritesScreen(){
   }
   const {data,error} = await sb.from('restaurants').select('id,name,town').in('id',[...favoritesSet]);
   if(error){ console.error(error); el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
-  el.innerHTML=(data||[]).map(r=>`<div class="feed-card">
+  el.innerHTML=(data||[]).map(r=>`<div class="feed-card" data-open="${r.id}">
       <div class="fc-row">
         <button class="fc-name-link" onclick="openDetail('${r.id}')">${esc(r.name)}</button>
         <button class="fav-btn active" onclick="toggleFavorite('${r.id}',event)" title="${t('favoriteRemove')}">♥</button>
@@ -3259,6 +3261,15 @@ function trackContext(){
     const f=e.target.closest&&e.target.closest('.filter-btn');
     if(f){ trackEvent('filter_tap',{meta:{l:(f.textContent||'').trim().slice(0,30),on:f.classList.contains('active')?0:1}}); }
   },true);
+  // ── the whole card opens the restaurant (buttons, links and the heart keep their own actions) ──
+  document.addEventListener('click',e=>{
+    const card=e.target.closest&&e.target.closest('.feed-card[data-rid],.feed-card[data-open]'); if(!card) return;
+    if(e.target.closest('button,a,input,select,textarea,label')) return;
+    try{ if(window.getSelection && String(window.getSelection()).length>0) return; }catch(err){}
+    const rid=card.dataset.rid||card.dataset.open; if(!rid) return;
+    if(card.dataset.rid){ const tg=card.querySelector('.fc-tag'); trackEvent('card_tap',{restaurant_id:rid,meta:{tag:tg?tg.textContent.split('·')[0].trim().slice(0,40):'',did:card.dataset.did||null,up:card.classList.contains('upcoming')?1:0}}); }
+    openDetail(rid);
+  });
   const rs=document.getElementById('regionSelect'); if(rs) rs.addEventListener('change',()=>trackEvent('region_change',{meta:{r:rs.value}}));
   const ls=document.getElementById('langSelect');   if(ls) ls.addEventListener('change',()=>trackEvent('lang_change',{meta:{l:ls.value}}));
 
