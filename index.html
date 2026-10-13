@@ -146,6 +146,9 @@ h1,h2,h3,h4{font-family:'Fraunces',serif;}
 @keyframes mdealFade{from{opacity:0;transform:translateX(6px);}to{opacity:1;transform:translateX(0);}}
 .feed-card[data-rid],.feed-card[data-open]{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s;}
 .feed-card[data-rid]:active,.feed-card[data-open]:active{border-color:var(--accent);}
+#screenDetail .feed-card{cursor:default;}
+#screenDetail .feed-card:active{border-color:var(--line);}
+#screenDetail .fc-name-link{pointer-events:none;cursor:default;}
 .mdeal-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;margin-top:2px;border-top:1px solid var(--line-soft);}
 .mdeal-arrow{background:var(--sand-light);border:1px solid var(--line);border-radius:50%;width:30px;height:30px;
   display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);flex-shrink:0;
@@ -3264,6 +3267,7 @@ function trackContext(){
   // ── the whole card opens the restaurant (buttons, links and the heart keep their own actions) ──
   document.addEventListener('click',e=>{
     const card=e.target.closest&&e.target.closest('.feed-card[data-rid],.feed-card[data-open]'); if(!card) return;
+    if(card.closest('#screenDetail')) return; // already on this restaurant's page — nothing to open
     if(e.target.closest('button,a,input,select,textarea,label')) return;
     try{ if(window.getSelection && String(window.getSelection()).length>0) return; }catch(err){}
     const rid=card.dataset.rid||card.dataset.open; if(!rid) return;
