@@ -859,7 +859,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <div class="field">
         <label data-i18n="scanMenuLabel"></label>
         <div class="photo-upload">
-          <input type="file" id="menuScanInput" accept="image/*" multiple onchange="handleMenuScan(event)" hidden>
+          <input type="file" id="menuScanInput" accept="image/*,application/pdf,.pdf" multiple onchange="handleMenuScan(event)" hidden>
           <button type="button" class="photo-btn" onclick="document.getElementById('menuScanInput').click()">
             <span class="photo-btn-icon">📷</span>
             <span data-i18n="scanMenu"></span>
@@ -2866,18 +2866,64 @@ function ensureTesseract(){
   });
   return tesseractLoadPromise;
 }
+let pdfjsLoadPromise=null;
+function ensurePdfJs(){
+  if(window.pdfjsLib) return Promise.resolve();
+  if(pdfjsLoadPromise) return pdfjsLoadPromise;
+  pdfjsLoadPromise=new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    s.onload=()=>{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'; resolve(); };
+    s.onerror=()=>{ pdfjsLoadPromise=null; reject(new Error('pdfjs load failed')); };
+    document.head.appendChild(s);
+  });
+  return pdfjsLoadPromise;
+}
+// PDF -> text. Real text layer when there is one (exact), otherwise render the page and OCR it. Max 10 pages.
+async function pdfToText(file,st){
+  await ensurePdfJs();
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  const pages=Math.min(pdf.numPages,10), out=[];
+  for(let p=1;p<=pages;p++){
+    st.textContent=t('scanningMenu')+' (PDF '+p+'/'+pages+')';
+    const page=await pdf.getPage(p);
+    const tc=await page.getTextContent();
+    const rows=[];
+    tc.items.forEach(it=>{
+      if(!it.str||!it.str.trim()) return;
+      const y=Math.round(it.transform[5]), x=it.transform[4];
+      let row=rows.find(r=>Math.abs(r.y-y)<=3);
+      if(!row){ row={y,parts:[]}; rows.push(row); }
+      row.parts.push({x,s:it.str});
+    });
+    rows.sort((a,b)=>b.y-a.y);
+    const text=rows.map(r=>r.parts.sort((a,b)=>a.x-b.x).map(q=>q.s).join(' ').replace(/\s+/g,' ').trim()).filter(Boolean).join('\n');
+    if(text.replace(/\s/g,'').length>=20){ out.push(text); continue; }
+    await ensureTesseract();
+    const vp=page.getViewport({scale:2});
+    const cv=document.createElement('canvas'); cv.width=vp.width; cv.height=vp.height;
+    await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+    const {data}=await Tesseract.recognize(cv,'eng');
+    out.push((data.text||'').trim());
+  }
+  return out.filter(Boolean).join('\n\n');
+}
 async function handleMenuScan(e){
   const files = Array.from(e.target.files||[]);
   if(!files.length) return;
   const st = document.getElementById('menuScanStatus');
   st.textContent = t('scanningMenu');
   try{
-    await ensureTesseract();
+    if(files.some(f=>!(f.type==='application/pdf'||/\.pdf$/i.test(f.name)))) await ensureTesseract();
     const chunks = [];
     for(let i=0;i<files.length;i++){
       st.textContent = t('scanningMenu')+' ('+(i+1)+'/'+files.length+')';
-      const {data} = await Tesseract.recognize(files[i], 'eng');
-      chunks.push((data.text||'').trim());
+      if(files[i].type==='application/pdf' || /\.pdf$/i.test(files[i].name)){
+        chunks.push(await pdfToText(files[i],st));
+      } else {
+        const {data} = await Tesseract.recognize(files[i], 'eng');
+        chunks.push((data.text||'').trim());
+      }
     }
     const ta = document.getElementById('menuText');
     const combined = chunks.filter(Boolean).join('\n\n');
