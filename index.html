@@ -820,7 +820,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <div class="field">
         <label data-i18n="addPhoto"></label>
         <div class="photo-upload" id="dpPhotoUpload">
-          <input type="file" id="dpPhoto" accept="image/*" multiple onchange="handleProfilePhoto(event)" hidden>
+          <input type="file" id="dpPhoto" accept="image/*,application/pdf,.pdf" multiple onchange="handleProfilePhoto(event)" hidden>
           <button type="button" class="photo-btn" onclick="document.getElementById('dpPhoto').click()">
             <span class="photo-btn-icon">📷</span>
             <span data-i18n="choosePhoto"></span>
@@ -895,7 +895,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <div class="field">
         <label data-i18n="addPhoto"></label>
         <div class="photo-upload" id="photoUpload">
-          <input type="file" id="pPhoto" accept="image/*" onchange="handlePhoto(event)" hidden>
+          <input type="file" id="pPhoto" accept="image/*,application/pdf,.pdf" onchange="handlePhoto(event)" hidden>
           <button type="button" class="photo-btn" onclick="document.getElementById('pPhoto').click()">
             <span class="photo-btn-icon">📷</span>
             <span id="photoBtnText"></span>
@@ -945,7 +945,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
       <div class="field">
         <label data-i18n="addPhoto"></label>
         <div class="photo-upload" id="rdPhotoUpload">
-          <input type="file" id="rdPhoto" accept="image/*" onchange="handleRdPhoto(event)" hidden>
+          <input type="file" id="rdPhoto" accept="image/*,application/pdf,.pdf" onchange="handleRdPhoto(event)" hidden>
           <button type="button" class="photo-btn" onclick="document.getElementById('rdPhoto').click()">
             <span class="photo-btn-icon">📷</span>
             <span id="rdPhotoBtnText"></span>
@@ -1991,9 +1991,10 @@ function toggleIcon(k){
 /* ══════════ PHOTO UPLOAD ══════════ */
 let pendingPhoto = null;       // data URL for local preview
 let pendingPhotoFile = null;   // raw File for upload
-function handlePhoto(e){
-  const file = e.target.files[0];
+async function handlePhoto(e){
+  let file = e.target.files[0];
   if(!file) return;
+  if(isPdfFile(file)){ try{ file=(await pdfToImageFiles(file,1))[0]; }catch(err){ console.error(err); return; } }
   pendingPhotoFile = file;
   const reader = new FileReader();
   reader.onload = ev => { pendingPhoto = ev.target.result; renderPhotoThumb(); updatePreview(); };
@@ -2015,9 +2016,10 @@ let pendingRdPhoto = null;       // data URL for local preview
 let pendingRdPhotoFile = null;   // raw File for upload
 let rdPhotoRemoved = false;      // true when editing and the existing photo was explicitly removed
 let existingRdPhotoUrl = null;   // the photo_url already saved on the deal being edited, if any
-function handleRdPhoto(e){
-  const file = e.target.files[0];
+async function handleRdPhoto(e){
+  let file = e.target.files[0];
   if(!file) return;
+  if(isPdfFile(file)){ try{ file=(await pdfToImageFiles(file,1))[0]; }catch(err){ console.error(err); return; } }
   pendingRdPhotoFile = file;
   rdPhotoRemoved = false;
   const reader = new FileReader();
@@ -2908,6 +2910,24 @@ async function pdfToText(file,st){
   }
   return out.filter(Boolean).join('\n\n');
 }
+const isPdfFile=f=>f&&(f.type==='application/pdf'||/\.pdf$/i.test(f.name||''));
+// PDF -> JPEG image File(s), one per page, so a PDF can go anywhere a photo can.
+async function pdfToImageFiles(file,maxPages){
+  await ensurePdfJs();
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  const n=Math.min(pdf.numPages,maxPages||1), out=[];
+  for(let p=1;p<=n;p++){
+    const page=await pdf.getPage(p);
+    const vp0=page.getViewport({scale:1}); const scale=Math.min(2,1600/Math.max(vp0.width,vp0.height));
+    const vp=page.getViewport({scale});
+    const cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+    const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height);
+    await page.render({canvasContext:cx,viewport:vp}).promise;
+    const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.88));
+    out.push(new File([blob],(file.name||'file').replace(/\.pdf$/i,'')+(n>1?'-p'+p:'')+'.jpg',{type:'image/jpeg'}));
+  }
+  return out;
+}
 async function handleMenuScan(e){
   const files = Array.from(e.target.files||[]);
   if(!files.length) return;
@@ -3074,14 +3094,19 @@ function loadProfileForm(){
   dpPhotos = (currentRestaurant.photos||[]).map(url=>({url, file:null, preview:url}));
   renderProfilePhotoGrid();
 }
-function handleProfilePhoto(e){
-  const files = Array.from(e.target.files||[]);
+async function handleProfilePhoto(e){
+  let files = Array.from(e.target.files||[]);
+  e.target.value='';
+  try{
+    const conv=[];
+    for(const f of files){ if(isPdfFile(f)) conv.push(...await pdfToImageFiles(f,5)); else conv.push(f); }
+    files=conv;
+  }catch(err){ console.error(err); return; }
   files.forEach(file=>{
     const reader = new FileReader();
     reader.onload = ev => { dpPhotos.push({url:null, file, preview:ev.target.result}); renderProfilePhotoGrid(); };
     reader.readAsDataURL(file);
   });
-  e.target.value='';
 }
 function renderProfilePhotoGrid(){
   const el = document.getElementById('dpPhotoGrid');
