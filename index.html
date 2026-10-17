@@ -2020,16 +2020,10 @@ function renderMenuPanel(menu){
   if(ms.length<=1) return `<div class="detail-panel"><div class="dp-label">${t('menu')}</div>`+menuCatsHTML(ms.length?ms[0].items:{})+`</div>`;
   if(menuTab===null || menuTab>=ms.length){ const i=ms.findIndex(menuServingNow); menuTab=i<0?0:i; }
   const tabs=ms.map((m,i)=>`<button class="filter-btn${i===menuTab?' active':''}" onclick="pickMenuTab(${i})">${esc(m.name||(t('menu')+' '+(i+1)))}${menuServingNow(m)?` <span class="mn-now">${t('servingNow')}</span>`:''}${menuTimeLabel(m)?`<small>${esc(menuTimeLabel(m))}</small>`:''}</button>`).join('');
-  const cur=ms[menuTab], cats=Object.keys(cur.items);
-  const chips=cats.length>=4?`<div class="mn-cats">${cats.map((c,ci)=>`<button class="filter-btn" onclick="menuJump(${ci})">${esc(c)}</button>`).join('')}</div>`:'';
-  return `<div class="detail-panel"><div class="dp-label">${t('menu')}</div><div class="mn-tabs">${tabs}</div>${chips}${menuCatsHTML(cur.items)}</div>`;
+  const cur=ms[menuTab];
+  return `<div class="detail-panel"><div class="dp-label">${t('menu')}</div><div class="mn-tabs">${tabs}</div>${menuCatsHTML(cur.items)}</div>`;
 }
 function pickMenuTab(i){ menuTab=i; renderDetailPanels(); }
-function menuJump(ci){
-  const el=document.getElementById('mc-'+ci); if(!el) return;
-  const nh=(document.querySelector('.nav')||{}).offsetHeight||0, ch=(document.querySelector('.mn-cats')||{}).offsetHeight||0;
-  window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-nh-ch-12,behavior:'smooth'});
-}
 function toggleIcon(k){
   activeIcons.has(k)?activeIcons.delete(k):activeIcons.add(k);
   document.getElementById('ic-'+k).classList.toggle('active',activeIcons.has(k));
