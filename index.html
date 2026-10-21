@@ -1,24 +1,11 @@
 <!DOCTYPE html>
 <!-- redeploy: Netlify credits restored -->
 <html lang="en">
-  <link rel="manifest" href="/manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Dock Talk">
-<link rel="apple-touch-icon" href="/images/icon-180.png">
-<meta name="theme-color" content="#0A2540">
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js');
-  });
-}
-</script>
 <head>
 <meta charset="UTF-8">
 <title>Dock Talk </title>
   <meta name="apple-mobile-web-app-title" content="Dock Talk">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -2081,6 +2068,7 @@ async function handlePhoto(e){
   if(!file) return;
   e.target.value='';
   if(isPdfFile(file)){ try{ file=(await pdfToImageFiles(file,1))[0]; }catch(err){ console.error(err); const st=document.getElementById('postStatus'); if(st){ st.textContent=t('pdfFailed'); st.className='status-msg err'; } return; } }
+  file = await normalizeImageFile(file);
   pendingPhotoFile = file;
   const reader = new FileReader();
   reader.onload = ev => { pendingPhoto = ev.target.result; renderPhotoThumb(); updatePreview(); };
@@ -2102,12 +2090,26 @@ let pendingRdPhoto = null;       // data URL for local preview
 let pendingRdPhotoFile = null;   // raw File for upload
 let rdPhotoRemoved = false;      // true when editing and the existing photo was explicitly removed
 let existingRdPhotoUrl = null;   // the photo_url already saved on the deal being edited, if any
+// Re-encode any picture (HEIC/WebP/huge phone shots) as a plain JPEG so uploads behave like a screenshot does.
+async function normalizeImageFile(file){
+  try{
+    if(!file || !/^image\//.test(file.type||'image/')) return file;
+    const bmp = await createImageBitmap(file);
+    const max=1800, sc=Math.min(1, max/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas'); c.width=Math.round(bmp.width*sc); c.height=Math.round(bmp.height*sc);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.88));
+    if(!blob) return file;
+    return new File([blob],'photo.jpg',{type:'image/jpeg'});
+  }catch(err){ console.warn('normalize failed',err); return file; }
+}
 async function handleRdPhoto(e){
   let file = e.target.files[0];
   if(!file) return;
   e.target.value='';
   if(isPdfFile(file)){ try{ file=(await pdfToImageFiles(file,1))[0]; }catch(err){ console.error(err); const st=document.getElementById('recurringStatus'); if(st){ st.textContent=t('pdfFailed'); st.className='status-msg err'; } return; } }
   { const st=document.getElementById('recurringStatus'); if(st && st.textContent===t('pdfFailed')) st.textContent=''; }
+  file = await normalizeImageFile(file);
   pendingRdPhotoFile = file;
   rdPhotoRemoved = false;
   const reader = new FileReader();
@@ -2854,10 +2856,11 @@ async function saveRecurring(){
   }
   // else: editing without touching the photo field — leave photo_url untouched
   // on update, and a brand-new deal with no photo simply omits the key (null column).
-  const {error} = editingRecurringId
-    ? await sb.from('recurring_deals').update(payload).eq('id', editingRecurringId)
-    : await sb.from('recurring_deals').insert({ restaurant_id: currentRestaurant.id, ...payload, enabled:true });
-  if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
+  const {data:savedRows, error} = editingRecurringId
+    ? await sb.from('recurring_deals').update(payload).eq('id', editingRecurringId).select('id')
+    : await sb.from('recurring_deals').insert({ restaurant_id: currentRestaurant.id, ...payload, enabled:true }).select('id');
+  if(error){ console.error(error); st.textContent=t('loadError')+' ('+(error.message||'error')+')'; st.className='status-msg err'; return; }
+  if(!savedRows || !savedRows.length){ st.textContent='Not saved: this account is not allowed to change that deal.'; st.className='status-msg err'; return; }
   const wasEditing = !!editingRecurringId;
   resetRecurringForm();
   st.textContent = wasEditing ? 'Saved.' : t('recurringSaved'); st.className='status-msg';
@@ -3295,7 +3298,7 @@ async function handleProfilePhoto(e){
   e.target.value='';
   try{
     const conv=[];
-    for(const f of files){ if(isPdfFile(f)) conv.push(...await pdfToImageFiles(f,5)); else conv.push(f); }
+    for(const f of files){ if(isPdfFile(f)) conv.push(...await pdfToImageFiles(f,5)); else conv.push(await normalizeImageFile(f)); }
     files=conv;
   }catch(err){ console.error(err); const st=document.getElementById('profileStatus'); if(st){ st.textContent=t('pdfFailed'); st.className='status-msg err'; } return; }
   files.forEach(file=>{
