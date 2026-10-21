@@ -1,5 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+  <link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dock Talk">
+<link rel="apple-touch-icon" href="/images/icon-180.png">
+<meta name="theme-color" content="#0A2540">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js');
+  });
+}
+</script>
 <head>
 <meta charset="UTF-8">
 <title>Privacy Policy — Dock Talk</title>
