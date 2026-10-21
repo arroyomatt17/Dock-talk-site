@@ -1,0 +1,89 @@
+// Dock Talk Service Worker - enables offline support and caching
+const CACHE_VERSION = 'dt-v1';
+const CACHE_STATIC = CACHE_VERSION + '-static';
+const CACHE_API = CACHE_VERSION + '-api';
+const CACHE_IMAGES = CACHE_VERSION + '-images';
+
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json'
+];
+
+// Install event - cache static assets
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_STATIC)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(name => name.startsWith('dt-') && name !== CACHE_STATIC && name !== CACHE_API && name !== CACHE_IMAGES)
+          .map(name => caches.delete(name))
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+// Fetch event - network first for HTML, cache first for images
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Images: cache first
+  if (event.request.destination === 'image') {
+    event.respondWith(
+      caches.open(CACHE_IMAGES).then(cache => {
+        return cache.match(event.request).then(response => {
+          if (response) return response;
+          return fetch(event.request).then(response => {
+            if (response && response.status === 200) {
+              cache.put(event.request, response.clone());
+            }
+            return response;
+          }).catch(() => {
+            // Return placeholder on offline
+            return new Response('', {status: 404});
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // HTML & API: network first
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        if (response && response.status === 200) {
+          const cacheToUse = event.request.url.includes('/api/') ? CACHE_API : CACHE_STATIC;
+          caches.open(cacheToUse).then(cache => {
+            cache.put(event.request, response.clone());
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Try cache on offline
+        return caches.match(event.request).then(response => {
+          if (response) return response;
+          // Fallback for offline HTML
+          if (event.request.destination === 'document') {
+            return caches.match('/index.html');
+          }
+          return new Response('Offline', {status: 503});
+        });
+      })
+  );
+});
