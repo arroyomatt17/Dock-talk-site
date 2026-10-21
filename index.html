@@ -428,6 +428,8 @@ body.is-offline .feed-card .fc-meta{opacity:.5;}
 .pv-items b{color:var(--accent);font-weight:700;white-space:nowrap;}
 .pv-meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin:8px 0 2px;}
 .pv-go{flex:none;margin-top:12px;}
+.pv-nav{flex:none;margin-top:8px;}
+.pv-nav[hidden]{display:none;}
 .fc-end{font-weight:800;color:var(--sunset);display:inline-flex;align-items:center;gap:6px;}
 .fc-end:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sunset);animation:fcpulse 1.2s infinite;}
 @keyframes fcpulse{50%{opacity:.25;}}
@@ -528,6 +530,11 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
   <div class="pv-grab"></div>
   <div class="pv-top"><div id="pvThumbWrap"></div><div style="min-width:0"><div class="pv-name" id="pvName"></div><div class="pv-sub" id="pvSub"></div></div><button type="button" class="pv-x" onclick="closePreview()" aria-label="Close">✕</button></div>
   <div class="pv-scroll"><div class="pv-title" id="pvTitle"></div><div class="pv-items" id="pvItems"></div><div class="pv-meta" id="pvMetaRow"></div></div>
+  <div class="mdeal-nav pv-nav" id="pvNav" hidden>
+    <button type="button" class="mdeal-arrow" onclick="pvStep(-1)" aria-label="Previous deal">‹</button>
+    <div class="mdeal-dots" id="pvDots"></div>
+    <button type="button" class="mdeal-arrow" onclick="pvStep(1)" aria-label="Next deal">›</button>
+  </div>
   <button type="button" class="btn btn-sea pv-go" id="pvGo" data-i18n="viewRestaurant"></button>
 </div>
 
@@ -3634,8 +3641,8 @@ function pvRows(text){
     return m ? `<div><span>${esc(m[1])}</span><b>${esc(m[2])}</b></div>` : `<div><span>${esc(l)}</span></div>`;
   }).join('');
 }
-function openPreview(d){
-  if(!d) return;
+let pvCtx=null;
+function pvFill(d){
   pvRid=d.rid;
   const img = d.photo || (d.rphotos&&d.rphotos[0]) || '';
   document.getElementById('pvThumbWrap').innerHTML = img ? `<img class="pv-thumb" src="${esc(img)}" alt="" role="button" tabindex="0" onclick="openLightbox(this.src)">` : '';
@@ -3647,6 +3654,29 @@ function openPreview(d){
   document.getElementById('pvTitle').style.display = hasTitle?'':'none';
   document.getElementById('pvItems').innerHTML = pvRows(d.text);
   document.getElementById('pvMetaRow').innerHTML = d.whenHTML ? `<div class="upcoming-when"><span class="dot"></span>${d.whenHTML}</div>` : dealMetaHTMLSoon(d);
+  const sc=document.querySelector('#pvSheet .pv-scroll'); if(sc) sc.scrollTop=0;
+}
+function pvDotsRender(){
+  const nav=document.getElementById('pvNav');
+  if(!pvCtx || pvCtx.deals.length<2){ nav.hidden=true; return; }
+  nav.hidden=false;
+  document.getElementById('pvDots').innerHTML = pvCtx.deals.map((_,i)=>`<button type="button" class="mdeal-dot${i===pvCtx.idx?' active':''}" onclick="pvGoTo(${i})" aria-label="Deal ${i+1}"></button>`).join('');
+}
+function pvGoTo(i){
+  if(!pvCtx) return;
+  pvCtx.idx=i; pvFill(pvCtx.deals[i]); pvDotsRender();
+  try{ if(pvCtx.sync) pvCtx.sync(i); }catch(e){}
+}
+function pvStep(dir){ if(!pvCtx) return; pvGoTo((pvCtx.idx+dir+pvCtx.deals.length)%pvCtx.deals.length); }
+(function(){ // swipe left/right on the preview steps through the restaurant's deals
+  let x0=null,y0=null;
+  document.addEventListener('touchstart',e=>{ const sh=document.getElementById('pvSheet'); if(sh&&sh.contains(e.target)&&e.touches[0]){ x0=e.touches[0].clientX; y0=e.touches[0].clientY; } else x0=null; },{passive:true});
+  document.addEventListener('touchend',e=>{ if(x0===null||!e.changedTouches[0]) return; const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null; if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5) pvStep(dx<0?1:-1); },{passive:true});
+})();
+function openPreview(d,ctx){
+  if(!d) return;
+  pvCtx = ctx && ctx.deals && ctx.deals.length>1 ? ctx : null;
+  pvFill(d); pvDotsRender();
   document.getElementById('pvGo').onclick=()=>{ const r=pvRid; closePreview(); openDetail(r); };
   const tb=document.getElementById('tabbar'); const bh = tb && tb.classList.contains('show') ? tb.offsetHeight : 0;
   document.getElementById('pvSheet').style.bottom=bh+'px';
@@ -3856,15 +3886,15 @@ function trackContext(){
     const rid=card.dataset.rid||card.dataset.open; if(!rid) return;
     if(card.dataset.rid){ const tg=card.querySelector('.fc-tag'); trackEvent('card_tap',{restaurant_id:rid,meta:{tag:tg?tg.textContent.split('·')[0].trim().slice(0,40):'',did:card.dataset.did||null,up:card.classList.contains('upcoming')?1:0}}); }
     if(card.dataset.rid){
-      let d=null;
+      let d=null, ctx=null;
       if(card.closest('#feed')){
-        if(card.classList.contains('mdeal-card')){ const st=mdealState[rid]; d=st&&st.deals[st.idx]; }
+        if(card.classList.contains('mdeal-card')){ const st=mdealState[rid]; d=st&&st.deals[st.idx]; if(st) ctx={deals:st.deals,idx:st.idx,sync:i=>mdealGoTo(rid,i)}; }
         else d=previewDeals[String(card.dataset.did)];
       } else if(card.closest('#feedUpcoming')){
-        if(card.classList.contains('mdeal-card')){ const tg=card.querySelector('[id^="mduTag-"]'); const st=tg&&mdealUpcomingState[tg.id.slice(7)]; d=st&&st.deals[st.idx]; }
+        if(card.classList.contains('mdeal-card')){ const tg=card.querySelector('[id^="mduTag-"]'); const ukey=tg?tg.id.slice(7):''; const st=ukey&&mdealUpcomingState[ukey]; d=st&&st.deals[st.idx]; if(st) ctx={deals:st.deals,idx:st.idx,sync:i=>mdealUpcomingGoTo(ukey,i)}; }
         else d=previewDeals[card.dataset.uid];
       }
-      if(d){ trackEvent('preview_open',{restaurant_id:rid}); openPreview(d); return; }
+      if(d){ trackEvent('preview_open',{restaurant_id:rid}); openPreview(d,ctx); return; }
     }
     openDetail(rid);
   });
