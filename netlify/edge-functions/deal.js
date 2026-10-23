@@ -16,7 +16,7 @@ export default async (request) => {
   if (!m) return new Response(html, { status: 200, headers });
 
   let title = "Dock Talk", desc = "Today's restaurant specials, close to you.";
-  let image = `${url.origin}/images/share-card.png`;
+  let image = `${url.origin}/images/${url.searchParams.get("t") === "d" ? "share-card.png" : "share-card-light.png"}`;
   try {
     const table = m[1] === "s" ? "specials" : "recurring_deals";
     const api = `${SUPABASE_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(m[2])}&select=title,text,photo_url,restaurants(name,photos,status)&limit=1`;
