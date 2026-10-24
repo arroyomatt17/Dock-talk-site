@@ -382,6 +382,7 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
 .section-label.upcoming span{color:var(--accent);}
 .feed-card.upcoming{opacity:0.52;}
 .feed-card.upcoming:hover{opacity:0.8;transition:opacity .15s;}
+
 .fc-tag.upcoming-tag{color:var(--muted);border-color:var(--line);}
 .upcoming-when{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:6px;}
 .dash-tabs .dash-tab-btn{padding:10px 13px;font-size:12.5px;}
@@ -582,13 +583,15 @@ html[data-theme="light"] .tr-fld.hi{box-shadow:0 0 0 2px rgba(217,58,43,.35);}
 html[data-theme="light"] .sh-sheet{background:var(--sand);border:1px solid var(--line);}
 html[data-theme="light"] .sh-cancel{border-color:var(--accent);color:var(--accent);}
 html[data-theme="light"] .up-lock .b,html[data-theme="light"] .sh-toast{background:var(--accent);color:#fff;}
-html[data-theme="light"] .feed-card.upcoming{opacity:.9;}
+
 
 html[data-theme="light"] .recurring-badge{font-family:inherit;font-size:13px;text-transform:none;letter-spacing:0;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:100px;padding:4px 12px;font-weight:600;}
 html[data-theme="light"] .intro-sub{color:var(--muted);}
 html[data-theme="light"] .sc{background:var(--sand);}
 html[data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator{filter:none;opacity:.6;}
 #favThemeCard,#favTourCard{margin-top:12px;}
+html[data-theme="light"] .feed-card.upcoming{opacity:0.52;}
+html[data-theme="light"] .feed-card.upcoming:hover{opacity:0.8;}
 .guest-card .btn,#favTourCard .btn{width:100%;}
 .th-seg{display:flex;border:1px solid var(--line);border-radius:100px;padding:3px;gap:3px;margin-top:10px}
 .th-seg button{flex:1;padding:9px 0;border:none;border-radius:100px;background:transparent;color:var(--ink);font:700 14px 'Space Grotesk',sans-serif;cursor:pointer}
@@ -3001,7 +3004,17 @@ function toggleRecurringDay(btn){ btn.classList.toggle('on'); }
 const DAY_ABBR=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 function daysSummary(days){
   if(!days || !days.length) return t('everyDay');
-  return [...days].sort((a,b)=>a-b).map(d=>DAY_ABBR[d]).join(', ');
+  const ds=[...new Set(days)].sort((a,b)=>a-b);
+  if(ds.length===7) return t('everyDay');
+  // group runs of 3+ consecutive days as "Mon–Fri"; shorter runs stay as a list
+  const out=[]; let i=0;
+  while(i<ds.length){
+    let j=i; while(j+1<ds.length && ds[j+1]===ds[j]+1) j++;
+    if(j-i>=2) out.push(DAY_ABBR[ds[i]]+'–'+DAY_ABBR[ds[j]]);
+    else for(let k=i;k<=j;k++) out.push(DAY_ABBR[ds[k]]);
+    i=j+1;
+  }
+  return out.join(', ');
 }
 // Start/end for a recurring deal on a given weekday (Mon=0). An "all day" deal follows the restaurant's own hours.
 function rdTimesForDay(rd,day){
@@ -3092,8 +3105,8 @@ function upcomingRecurringInfo(rd, cutoff){
   const [nh,nm] = nextT.start.split(':').map(Number);
   const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()+daysOut, nh, nm, 0, 0);
   if(cutoff && nextDate > cutoff) return null;
-  const range = `${daysSummary(rd.days)}, ${formatTime12(nextT.start)}–${formatTime12(nextT.end)}`;
-  const whenHTML = `${esc('Every '+range)} — ${t('upcomingNextIn').replace('{dur}', formatDurationUntil(nextDate-now))}`;
+  const dayLbl = daysOut===1 ? 'Tomorrow' : DAY_ABBR[(curDay+daysOut)%7];
+  const whenHTML = esc('Next: '+dayLbl+', '+formatTime12(nextT.start)+'–'+formatTime12(nextT.end));
   return { sortKey: nextDate-now, whenHTML };
 }
 // One upcoming feed-card's markup — visually dimmed, no favorite/fav-count
