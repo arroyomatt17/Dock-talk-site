@@ -1026,11 +1026,13 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
     </div>
     <div id="dashSwitchWrap"></div>
     <div class="dash-tabs">
+      <button type="button" class="dash-tab-btn" id="dashTabBtnStats" style="display:none" onclick="showDashTab('stats')">Stats</button>
       <button type="button" class="dash-tab-btn" id="dashTabBtnProfile" onclick="showDashTab('profile')" data-i18n="dashProfileTitle"></button>
       <button type="button" class="dash-tab-btn" id="dashTabBtnMenu" onclick="showDashTab('menu')" data-i18n="menu"></button>
       <button type="button" class="dash-tab-btn" id="dashTabBtnRecurring" onclick="showDashTab('recurring')" data-i18n="recurringTab"></button>
       <button type="button" class="dash-tab-btn post-tab active" id="dashTabBtnPost" onclick="showDashTab('post')" data-i18n="postToday"></button>
     </div>
+    <div id="dashTabStats" hidden><div id="restStats"></div></div>
     <div id="dashTabProfile" hidden>
     <div class="card">
       <div class="field">
@@ -1583,6 +1585,7 @@ let currentRestaurant=null, detailR=null, activeIcons=new Set(), navStack=['scre
 let mdealState={}; // { [restaurantId]: {deals:[...], tags:[...], idx:0} } — feed cards with >1 active deal
 let isAdmin=false, adminMode=false, adminRestaurants=[];
 let dinerPreviewActive=false;
+const REST_STATS_OPEN=false; // flip to true to show the Stats tab to restaurants
 // Guards against re-running the sign-in routing logic (see handleSession below) more
 // than once per browser session — set true the first time a session is established.
 let authRouted=false, routedUid=null;
@@ -2991,6 +2994,9 @@ async function loadDashboard(){
 function showDashTab(tab){
   try{ syncAllDayForms(); }catch(e){}
   try{ updateDeleteCards(); }catch(e){}
+  document.getElementById('dashTabStats').hidden = tab!=='stats';
+  document.getElementById('dashTabBtnStats').classList.toggle('active', tab==='stats');
+  if(tab==='stats') renderRestStats();
   document.getElementById('dashTabProfile').hidden = tab!=='profile';
   document.getElementById('dashTabMenu').hidden = tab!=='menu';
   document.getElementById('dashTabPost').hidden = tab!=='post';
@@ -3828,6 +3834,8 @@ async function delPost(id){
 let delKind='diner';
 function updateDeleteCards(){
   const hide = isAdmin || adminMode;
+  // Stats tab: admin-only for now. Flip REST_STATS_OPEN to true to show it to restaurants.
+  const stb=document.getElementById('dashTabBtnStats'); if(stb) stb.style.display=(hide||REST_STATS_OPEN)?'':'none';
   const a=document.getElementById('dashDeleteCard'), b=document.getElementById('favDeleteCard');
   if(a) a.style.display = hide?'none':'';
   if(b) b.style.display = (hide||!currentDiner)?'none':'';
@@ -4300,6 +4308,7 @@ function trackContext(){
 
 /* ══════════ ADMIN: Analytics tab (all restaurants + per-restaurant drill-down) ══════════ */
 let anRange=7, anRegion=null, anRest=null;
+
 function adminTab(which){
   document.getElementById('anTabPost').classList.toggle('on',which==='post');
   document.getElementById('anTabAn').classList.toggle('on',which==='an');
@@ -4340,43 +4349,49 @@ async function loadAnalytics(){
   const st=document.getElementById('anStatus'), body=document.getElementById('anBody');
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent='…'; st.className='status-msg';
-  const {data:d,error}=await sb.rpc('analytics_summary',{p_days:anRange,p_region:anRegion});
-  if(error||!d){ console.error(error); st.textContent="Couldn't load analytics — have you run analytics.sql and analytics_v2.sql in Supabase?"; st.className='status-msg err'; return; }
+  const {data:d,error}=await sb.rpc('analytics_admin',{p_days:anRange,p_region:anRegion});
+  if(error||!d){ console.error(error); st.textContent="Couldn't load analytics — have you run analytics_v3.sql in Supabase?"; st.className='status-msg err'; return; }
   st.textContent='';
   const lbl=anRange===1?'vs yesterday':anRange?`vs previous ${anRange} days`:'';
-  const T=d.taps||{}, n=k=>T[k]||0, F=d.funnel||{}, SG=d.signups||{}, sg=k=>SG[k]||0;
-  const dd=d.daily||[];
-  const perV=d.visitors?(d.opens/d.visitors).toFixed(1):'0.0';
+  const dd=d.daily||[], P=d.posting||{}, plist=P.list||[], A=d.accounts||{}, wk=d.weekly||[];
   const retPct=d.visitors?Math.round(d.returning/d.visitors*100):0;
-  const impr=n('impression'), ctr=impr?Math.round(n('card_tap')/impr*100):0;
-  const hrs=d.hours||[], dows=d.dows||[], DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const nr=d.new_returning||{new:0,ret:0}, errs=d.errors||{n:0,top:[]};
-  const steps=[['Visited',F.visited||0],['Saw a deal card',F.saw||0],['Opened a restaurant',F.opened||0],['Checked menu / phone / location',F.contact||0],['Favorited',F.favorited||0]];
+  const quiet=plist.filter(r=>!r.deals_7d);
+  const ago=x=>x.last_post_days===null||x.last_post_days===undefined?'never posted':x.last_post_days===0?'today':x.last_post_days+'d ago';
   body.innerHTML=`
   <div class="an-tiles">
-    ${anTile('Visitors',d.visitors.toLocaleString(),anDelta(d.visitors,d.prev_visitors,d.has_prev,'%',lbl))}
-    ${anTile('Avg. time on site',anFmtSecs(d.avg_session_s),anDelta(d.avg_session_s,d.prev_avg_session_s,d.has_prev,'s','per visit')||'per visit')}
-    ${anTile('Restaurant opens',d.opens.toLocaleString(),perV+' per visitor')}
-    ${anTile('Returning visitors',retPct+'%','visited on 2+ different days')}
-    ${anTile('Deal cards seen',impr.toLocaleString(),ctr+'% tapped through')}
-    ${anTile('Calls &amp; map taps',(n('call_tap')+n('map_tap')).toLocaleString(),n('call_tap')+' calls · '+n('map_tap')+' maps')}
+    ${anTile('Visitors',(d.visitors||0).toLocaleString(),anDelta(d.visitors,d.prev_visitors,d.has_prev,'%',lbl)+'<br>'+retPct+'% came back')}
+    ${anTile('Restaurants posting',(P.posted||0)+' of '+(P.approved||0),'posted in the last 7 days')}
   </div>
-  <div class="an-card"><div class="an-ct">Visitors per day</div><div class="an-cs">Hover a bar for the exact count</div>
+  <div class="an-card"><div class="an-ct">Not posting this week</div><div class="an-cs">${quiet.length?'Tap a number to call.':'Everyone approved has posted this week.'}</div>
+    ${quiet.map(r=>`<div class="an-row"><span class="n">${esc(r.name)}${r.town?' · '+esc(r.town):''}</span><span class="v">${ago(r)}${r.phone?` · <a href="tel:${esc(r.phone)}" style="color:var(--accent);font-weight:700;">${esc(r.phone)}</a>`:''}</span></div>`).join('')}</div>
+  <div class="an-card"><div class="an-ct">Visitors per day</div><div class="an-cs">Hover a bar for the count</div>
     ${anBars(dd.map(x=>x.v),(i,v)=>dd[i].d.slice(5)+' · '+v+' visitor'+(v===1?'':'s'))}
     <div class="an-axis"><span>${dd.length?dd[0].d.slice(5):''}</span><span>${dd.length?dd[dd.length-1].d.slice(5):''}</span></div></div>
-  <div class="an-card"><div class="an-ct">Visit funnel</div><div class="an-cs">Visits that got this far (share of all visits)</div>${anRows(steps,x=>x[1].toLocaleString()+' · '+anPct(x[1],F.visited||0))}</div>
-  <div class="an-card"><div class="an-ct">Time spent per screen</div><div class="an-cs">Average seconds per visit</div>${anRows((d.screens||[]).map(x=>[x.screen,x.secs]),x=>anFmtSecs(x[1]))}</div>
-  <div class="an-card"><div class="an-ct">What people tap</div><div class="an-cs">Times tapped, all visitors</div>${anRows([['Opened a restaurant',n('restaurant_open')],['Hours',n('icon_hours')],['Menu',n('icon_menu')],['Location',n('icon_location')],['Phone',n('icon_phone')],['Called (tapped number)',n('call_tap')],['Opened map',n('map_tap')],['Favorited (♥)',n('favorite')],['Photo opened',n('photo_open')],['Swiped between deals',n('deal_swipe')],['Used a filter',n('filter_tap')],['"I own a restaurant"',n('own_restaurant')]])}</div>
-  <div class="an-card"><div class="an-ct">Top restaurants</div><div class="an-cs">Tap one for its full numbers · seen · opened · taps · calls</div>${anRows((d.top||[]).map(x=>[x.name+(x.town?' · '+x.town:''),x.opens,x.id,x.impr,x.taps,x.calls]),x=>`${x[3]} · <b style="color:var(--ink)">${x[1]}</b> · ${x[4]} · ${x[5]}`,x=>`loadAnalyticsRestaurant('${x[2]}')`)}</div>
-  <div class="an-card"><div class="an-ct">Deal tags</div><div class="an-cs">Taps · times seen</div>${anRows((d.deals||[]).map(x=>[x.tag,x.n,x.impr]),x=>x[1]+' taps · '+x[2]+' seen')}</div>
-  <div class="an-card"><div class="an-ct">Where visitors come from</div><div class="an-cs">Referrer or campaign link (add ?utm_source=name to links you share)</div>${anRows((d.sources||[]).map(x=>[x.src,x.n]))}</div>
-  <div class="an-card"><div class="an-ct">Devices</div><div class="an-cs">${nr.new} new · ${nr.ret} returning devices · ${d.pwa||0} using the installed app · ${n('pwa_install')} installs</div>${anRows((d.devices||[]).map(x=>[x.dev,x.n]))}</div>
-  <div class="an-card"><div class="an-ct">Busiest hours</div><div class="an-cs">Visits by hour of day (Eastern)</div>${anBars(hrs,(i,v)=>anHourLabel(i)+' · '+v+' visit'+(v===1?'':'s'),80)}<div class="an-axis"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>
-  <div class="an-card"><div class="an-ct">Busiest days</div><div class="an-cs">Visits by day of week</div>${anRows(dows.map((v,i)=>[DOW[i],v]))}</div>
-  <div class="an-card"><div class="an-ct">Signups &amp; logins</div><div class="an-cs">Diner and restaurant accounts</div>${anRows([['Diner signups started',sg('signup_start:diner')],['Diner signups finished',sg('signup_done:diner')],['Restaurant signups started',sg('signup_start:restaurant')],['Restaurant signups finished',sg('signup_done:restaurant')],['Diner sessions (logged in)',sg('auth_session:diner')],['Owner sessions (logged in)',sg('auth_session:owner')],['Forgot-password taps',n('forgot_password')]])}</div>
-  <div class="an-card"><div class="an-ct">Restaurant owner activity</div><div class="an-cs">Actions owners took (your admin actions aren't counted)</div>${anRows((d.owner||[]).map(x=>[({post_special:'Posted a special',save_recurring:'Saved a recurring deal',save_menu:'Saved the menu',save_profile:'Saved profile',view_post:'Viewed Post tab',view_recurring:'Viewed Recurring tab',view_menu:'Viewed Menu tab',view_profile:'Viewed Profile tab'})[x.a]||x.a,x.n]))}</div>
-  <div class="an-card"><div class="an-ct">Demand &amp; health</div><div class="an-cs">Things worth fixing</div>${anRows([['Empty feeds shown (no deals)',n('feed_empty')],['App errors',errs.n]])}${(errs.top||[]).map(e=>`<div class="an-empty">${esc(e.m)} · ${e.n}×</div>`).join('')}</div>
-  <div style="font-size:12px;color:var(--muted);line-height:1.5;">Visitors are counted from a random anonymous ID on their phone — no names, emails or IPs. Your own admin visits are not counted.</div>`;
+  <div class="an-card"><div class="an-ct">New accounts per week</div><div class="an-cs">Diners and restaurants · ${A.diners||0} diners and ${A.restaurants||0} restaurants in total</div>
+    ${anBars(wk.slice().reverse().map(x=>x.diners+x.restaurants),(i,v)=>{const w=wk.slice().reverse()[i];return 'Week of '+w.w+' · '+w.diners+' diners, '+w.restaurants+' restaurants';},80)}
+    <div class="an-axis"><span>${wk.length?wk[wk.length-1].w:''}</span><span>${wk.length?wk[0].w:''}</span></div></div>
+  <div class="an-card"><div class="an-ct">Where diners are from</div><div class="an-cs">Town picked at sign-up</div>${anRows((d.towns||[]).map(x=>[x.town||'Not set',x.n]))}</div>
+  <div style="font-size:12px;color:var(--muted);line-height:1.5;">Visitors are counted from a random anonymous ID on their phone, with no names, emails or IPs. Your own admin visits are not counted.</div>`;
+}
+
+
+async function renderRestStats(){
+  const el=document.getElementById('restStats'); if(!el) return;
+  if(!currentRestaurant||!sbReady()) return;
+  el.innerHTML='<div class="an-empty">Loading…</div>';
+  const {data:d,error}=await sb.rpc('analytics_restaurant_stats',{p_id:currentRestaurant.id});
+  if(error||!d){ console.error(error); el.innerHTML='<div class="an-empty">Stats are not available yet.</div>'; return; }
+  const hrs=d.hours||[]; let pk=0,pv=-1; for(let h=0;h<23;h++){ const v=(hrs[h]||0)+(hrs[h+1]||0); if(v>pv){pv=v;pk=h;} }
+  el.innerHTML=`
+  <div class="an-cs" style="margin:2px 0 10px;">Last 7 days · compared with the 7 days before</div>
+  <div class="an-tiles">
+    ${anTile('People who looked at you',d.opens,anDelta(d.opens,d.prev_opens,true,'%','vs last week'))}
+    ${anTile('Calls &amp; directions',d.calls+d.maps,d.calls+' calls · '+d.maps+' directions')}
+    <div class="an-tile" style="grid-column:1/-1;"><div class="an-tl">People who saved you</div><div class="an-tv">${d.favs}</div><div class="an-td">+${d.new_favs} this week · they get you on their Profile</div></div>
+  </div>
+  <div class="an-card"><div class="an-ct">Best time to post</div><div class="an-cs">Most people look at you around <b style="color:var(--ink);">${anHourLabel(pk)}–${anHourLabel((pk+2)%24)}</b></div>
+    ${anBars(hrs,(i,v)=>anHourLabel(i)+' · '+v,80)}<div class="an-axis"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>
+  <div class="an-card"><div class="an-ct">Your best deal</div><div class="an-cs">Taps this week</div>${anRows((d.deals||[]).map(x=>[x.text,x.taps]),x=>x[1]+' taps')}</div>`;
 }
 async function loadAnalyticsRestaurant(id){
   anRest=id; anChips();
