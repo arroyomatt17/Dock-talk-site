@@ -598,6 +598,19 @@ html[data-theme="light"] .feed-card.upcoming:hover{opacity:0.8;}
 .th-seg button.on{background:var(--accent);color:#0A0A0A}
 html[data-theme="light"] .th-seg button.on{color:#fff}
 .th-h{font-weight:700;font-size:15px}.th-s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.slot-hint{background:var(--sea-light);border:1px solid var(--line-soft);border-radius:12px;padding:10px 12px;margin:2px 0 14px;font-size:12.5px}
+.slot-hint b{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);display:block;margin-bottom:6px}
+.slot-hint .pl{display:inline-block;border:1px solid var(--accent);color:var(--accent);border-radius:100px;padding:3px 11px;margin:0 6px 4px 0;font-weight:700;font-size:12px}
+.slot-hint .none{color:var(--muted)}
+.sp{position:relative}
+.sp-btn{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;font:inherit;font-size:15px;color:var(--ink);background:var(--sand);border:1px solid var(--line);border-radius:12px;padding:13px 14px;cursor:pointer}
+.sp-btn .sp-val.ph{color:var(--muted)}
+.sp-menu{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;background:var(--sand);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.18);overflow:hidden}
+.sp-opt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 14px;font:inherit;font-size:15px;color:var(--ink);background:none;border:none;border-bottom:1px solid var(--line-soft);cursor:pointer;text-align:left}
+.sp-opt:last-child{border-bottom:none}
+.sp-opt.on{font-weight:700;color:var(--accent)}
+.sp-opt .ck{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent}
+.sp-opt.on .ck{background:var(--accent);border-color:var(--accent);color:#fff}
 </style>
 </head>
 <body>
@@ -1105,9 +1118,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
     </div>
     <div id="dashTabPost">
     <div class="card">
-      <div class="field">
-        <label data-i18n="timeSlot"></label><select id="pSlot" onchange="updatePreview()"></select>
-      </div>
+      <div class="field"><label data-i18n="timeSlot"></label><div class="sp" id="sp_p"><button type="button" class="sp-btn" onclick="spToggle('p')"><span class="sp-val ph"></span><span class="sp-car">▾</span></button><div class="sp-menu" hidden></div></div></div>
       <label class="chk-row"><input type="checkbox" id="pAllDay" onchange="syncAllDayForms();updatePreview()"> <span id="pAllDayLbl"></span></label>
       <div id="pTimesWrap">
       <div class="row2">
@@ -1116,6 +1127,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       </div>
       <div class="hint" data-i18n="startTimeHint"></div>
       </div>
+      <div class="slot-hint" id="pSlotHint"></div>
       <div class="allday-note" id="pAllDayNote" hidden></div>
       <div class="field">
         <label data-i18n="headlineLabel"></label>
@@ -1166,6 +1178,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
         <textarea id="rdText"></textarea>
         <div class="hint" data-i18n="detailsHint"></div>
       </div>
+      <div class="field"><label data-i18n="timeSlot"></label><div class="sp" id="sp_rd"><button type="button" class="sp-btn" onclick="spToggle('rd')"><span class="sp-val ph"></span><span class="sp-car">▾</span></button><div class="sp-menu" hidden></div></div></div>
       <div class="field">
         <label data-i18n="recurringDaysLabel"></label>
         <div class="day-pills" id="rdDays">
@@ -1186,6 +1199,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       </div>
       <div class="hint" data-i18n="recurringNote"></div>
       </div>
+      <div class="slot-hint" id="rdSlotHint"></div>
       <div class="allday-note" id="rdAllDayNote" hidden></div>
       <div class="field">
         <label data-i18n="addPhoto"></label>
@@ -1326,7 +1340,7 @@ approved:"Approved ✓",signOut:"Sign out",postToday:"＋ Post",
 timeSlot:"Time slot",validUntil:"Valid until",theSpecial:"The special",
 specialHint:"Write it like you'd tell a regular.",howSeen:"How diners will see it",justNow:"Just now",liveNow:"Live now",
 postSpecial:"Post special",selectOpt:"Select",
-slots:["Lunch","Happy Hour","Dinner","Late Night"],
+slots:["Breakfast","Lunch","Happy Hour","Dinner"],
 posting:"Posting...",posted:"Posted — live on the diner feed.",writeFirst:"Write the special first.",
 selectSlot:"Select a time slot.",yourSpecials:"Your posted specials",remove:"Remove",
 demoEmpty:"That's it — fill in the form above and your special is live in about 10 seconds. No training, no setup.",
@@ -1365,7 +1379,7 @@ approved:"Aprobado ✓",signOut:"Cerrar sesión",postToday:"＋ Publicar",
 timeSlot:"Horario",validUntil:"Válido hasta",theSpecial:"El especial",
 specialHint:"Escribilo como se lo dirías a un cliente de siempre.",howSeen:"Así lo verán los comensales",justNow:"Ahora mismo",liveNow:"Activo ahora",
 postSpecial:"Publicar especial",selectOpt:"Seleccionar",
-slots:["Almuerzo","Happy Hour","Cena","Noche"],
+slots:["Desayuno","Almuerzo","Happy Hour","Cena"],
 posting:"Publicando...",posted:"Publicado — ya está en el feed.",writeFirst:"Escribí el especial primero.",
 selectSlot:"Seleccioná un horario.",yourSpecials:"Tus especiales publicados",remove:"Eliminar",
 demoEmpty:"Eso es todo — llená el formulario de arriba y tu especial está publicado en unos 10 segundos. Sin capacitación, sin configuración.",
@@ -1398,7 +1412,7 @@ approved:"Approuvé ✓",signOut:"Déconnexion",postToday:"＋ Publier",
 timeSlot:"Créneau",validUntil:"Valable jusqu'à",theSpecial:"L'offre",
 specialHint:"Écrivez-le comme à un habitué.",howSeen:"Ce que verront les clients",justNow:"À l'instant",liveNow:"En ce moment",
 postSpecial:"Publier",selectOpt:"Choisir",
-slots:["Déjeuner","Happy Hour","Dîner","Tard le soir"],
+slots:["Petit-déjeuner","Déjeuner","Happy Hour","Dîner"],
 posting:"Publication...",posted:"Publié — visible dans le fil.",writeFirst:"Écrivez d'abord l'offre.",
 selectSlot:"Choisissez un créneau.",yourSpecials:"Vos offres publiées",remove:"Supprimer",
 demoEmpty:"C'est tout — remplissez le formulaire ci-dessus et votre offre est en ligne en 10 secondes. Aucune formation, aucune configuration.",
@@ -1431,7 +1445,7 @@ approved:"已通过 ✓",signOut:"退出登录",postToday:"＋ 发布",
 timeSlot:"时段",validUntil:"有效至",theSpecial:"特色内容",
 specialHint:"就像跟老顾客说话那样写。",howSeen:"食客看到的样子",justNow:"刚刚",liveNow:"现在进行中",
 postSpecial:"发布",selectOpt:"请选择",
-slots:["午餐","欢乐时光","晚餐","深夜"],
+slots:["早餐","午餐","欢乐时光","晚餐"],
 posting:"发布中...",posted:"已发布 — 已在动态中显示。",writeFirst:"请先写特色内容。",
 selectSlot:"请选择时段。",yourSpecials:"你发布的特色",remove:"删除",
 demoEmpty:"就这么简单 — 填好上面的表单，大约10秒后你的特色菜就上线了。无需培训，无需设置。",
@@ -1464,7 +1478,7 @@ approved:"Freigegeben ✓",signOut:"Abmelden",postToday:"＋ Posten",
 timeSlot:"Zeitfenster",validUntil:"Gültig bis",theSpecial:"Das Angebot",
 specialHint:"Schreib es, wie du es einem Stammgast sagen würdest.",howSeen:"So sehen es die Gäste",justNow:"Gerade eben",liveNow:"Jetzt aktiv",
 postSpecial:"Angebot posten",selectOpt:"Auswählen",
-slots:["Mittag","Happy Hour","Abendessen","Spätabend"],
+slots:["Frühstück","Mittag","Happy Hour","Abendessen"],
 posting:"Wird gepostet...",posted:"Gepostet — jetzt im Feed.",writeFirst:"Schreib zuerst das Angebot.",
 selectSlot:"Wähle ein Zeitfenster.",yourSpecials:"Deine geposteten Angebote",remove:"Entfernen",
 demoEmpty:"Das war's — Formular oben ausfüllen und dein Angebot ist in etwa 10 Sekunden online. Keine Schulung, keine Einrichtung.",
@@ -1493,7 +1507,6 @@ function sbReady(){
 }
 
 /* ══════════ DATA ══════════ */
-const SLOT_KEYS = ["lunch","happy","dinner","late"];
 function slotLabel(i){ return t('slots')[i]; }
 
 /* ══════════ REGION DATA (towns + copy only — specials/restaurants come from Supabase) ══════════ */
@@ -1614,7 +1627,6 @@ function setLang(l){
   document.getElementById('gateTagline').innerHTML=gateIntent==='diner'?taglineHTML('forDiners'):taglineHTML('forRestaurants');
   if(document.getElementById('photoBtnText')) renderPhotoThumb();
   if(document.getElementById('rdPhotoBtnText')) renderRdPhotoThumb();
-  fillSelect('pSlot',t('slots'),t('selectOpt'));
   fillSelect('dsTown',TOWNS,t('selectTown'));
   fillRsRegion();
   fillSelect('rsTown',(REGIONS[document.getElementById('rsRegion').value]||REGIONS[region]).towns,t('selectTown'));
@@ -1661,7 +1673,7 @@ function staticSampleAsDeal(r){
 function renderIntroSampleCard(pool){
   const el=document.getElementById('sampleCards'); if(!el || !pool.length) return;
   const d=pool[introSampleIdx % pool.length];
-  const tag = d.isStatic ? `${slotLabel(d.slot)} · ${esc(d.town)}` : `${t('recurringTag')} · ${esc(d.town)}`;
+  const tag = d.isStatic ? `${esc(slotTagText({slot:d.slot}))} · ${esc(d.town)}` : `${t('recurringTag')} · ${esc(d.town)}`;
   const text = d.isStatic ? d.text : esc(d.text);
   el.innerHTML=`
     <div class="sc sc-active">
@@ -1870,6 +1882,44 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox(); 
 // A special "expires" at its own until_time on the same calendar day it was posted —
 // e.g. posted this morning with "until" set to 2:00 PM disappears once the clock
 // passes 2:00 PM today. Specials with no until_time never auto-hide.
+// ---- Time-of-day chips (Lunch / Happy Hour / Dinner / Late Night): sorted by when the deal actually runs ----
+const SLOT_KEYS=['breakfast','lunch','happy_hour','dinner'];      // chronological; position = index in t('slots')
+const SLOT_LEGACY=['lunch','happy_hour','dinner','dinner'];        // the old slot numbers 0-3 (old 3 = Late Night, now Dinner)
+const SLOT_LEGACY_NUM={breakfast:0,lunch:0,happy_hour:1,dinner:2}; // the old "slot" column stays filled so nothing else breaks
+function dtMin(x){ if(!x) return null; const p=String(x).split(':').map(Number); return isNaN(p[0])?null:p[0]*60+(p[1]||0); }
+function slotKeysOf(row){
+  if(row && Array.isArray(row.slots) && row.slots.length) return SLOT_KEYS.filter(k=>row.slots.includes(k));
+  if(row && row.slot!==null && row.slot!==undefined && SLOT_LEGACY[row.slot]) return [SLOT_LEGACY[row.slot]];
+  return null;   // a recurring deal nobody has tagged yet: shows under every chip so nothing disappears
+}
+function slotTagText(row){
+  const names=t('slots'); const ks=(row&&row.slotKeys)||slotKeysOf(row);
+  return ks&&ks.length?ks.map(k=>names[SLOT_KEYS.indexOf(k)]).join(' + '):names[3];
+}
+function matchSlots(d){
+  if(!selSlots.size) return true;
+  const ks=d.slotKeys; if(!ks) return true;
+  for(const i of selSlots) if(ks.includes(SLOT_KEYS[i])) return true;
+  return false;
+}
+// ---- Restaurant side: pick one or more tags (dropdown with check marks) ----
+const spSel={p:new Set(),rd:new Set()};
+function spKeys(k){ return [...spSel[k]].sort().map(i=>SLOT_KEYS[i]); }
+function spSet(k,keys){ spSel[k]=new Set((keys||[]).map(x=>SLOT_KEYS.indexOf(x)).filter(i=>i>=0)); spRender(k); }
+function spRender(k){
+  const root=document.getElementById('sp_'+k); if(!root) return; const names=t('slots');
+  const sel=[...spSel[k]].sort();
+  const v=root.querySelector('.sp-val'); v.textContent=sel.length?sel.map(i=>names[i]).join(', '):t('selectOpt'); v.classList.toggle('ph',!sel.length);
+  root.querySelector('.sp-menu').innerHTML=names.map((n,i)=>`<button type="button" class="sp-opt${spSel[k].has(i)?' on':''}" onclick="spPick('${k}',${i})"><span>${esc(n)}</span><span class="ck">✓</span></button>`).join('');
+  const hint=document.getElementById(k==='p'?'pSlotHint':'rdSlotHint');
+  if(hint) hint.innerHTML='<b>Shows up under</b>'+(sel.length?sel.map(i=>'<span class="pl">'+esc(names[i])+'</span>').join(''):'<span class="none">Pick at least one so diners can find this.</span>');
+  if(k==='p'){ try{ updatePreview(); }catch(e){} }
+}
+function spToggle(k){ const m=document.querySelector('#sp_'+k+' .sp-menu'); const wasHidden=m.hidden; document.querySelectorAll('.sp-menu').forEach(x=>x.hidden=true); m.hidden=!wasHidden; }
+function spPick(k,i){ spSel[k].has(i)?spSel[k].delete(i):spSel[k].add(i); spRender(k); }
+document.addEventListener('click',e=>{ if(!e.target.closest('.sp')) document.querySelectorAll('.sp-menu').forEach(x=>x.hidden=true); });
+function updateSlotHints(){ spRender('p'); spRender('rd'); }
+setTimeout(updateSlotHints,300);
 function isExpired(untilTime, createdAt){
   if(!untilTime) return false;
   const created = new Date(createdAt);
@@ -1880,7 +1930,7 @@ function isExpired(untilTime, createdAt){
 }
 
 function dealTagHTML(s){
-  return s.recurring ? `${t('recurringTag')} · ${esc(s.town)}` : `${slotLabel(s.slot)} · ${esc(s.town)}`;
+  return s.recurring ? `${t('recurringTag')} · ${esc(s.town)}` : `${esc(slotTagText(s))} · ${esc(s.town)}`;
 }
 function dealEndsAtMs(d){
   const hhmm=d.recurring?d.end_time:d.until_time; if(!hhmm) return Infinity;
@@ -2025,16 +2075,16 @@ async function loadFeed(){
   const notExpired=(data||[]).filter(s=>!isExpired(s.until_time,s.created_at));
   let list=notExpired.filter(s=>!upcomingSpecialInfo(s,feedCutoff)).map(s=>({
     id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
-    slot:s.slot, text:s.text, title:s.title||null, until:s.until, until_time:s.until_time, photo:s.photo_url, created_at:s.created_at,
+    slot:s.slot, slotKeys:slotKeysOf(s), text:s.text, title:s.title||null, until:s.until, until_time:s.until_time, photo:s.photo_url, created_at:s.created_at,
     rphotos:s.restaurants.photos||[], rhours:s.restaurants.hours_json||null
   }));
   let upcomingSpecials = notExpired.map(s=>{
     const info=upcomingSpecialInfo(s,feedCutoff); if(!info) return null;
     return { id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
-      slot:s.slot, text:s.text, title:s.title||null, photo:s.photo_url, rphotos:s.restaurants.photos||[], rhours:s.restaurants.hours_json||null, sortKey:info.sortKey, whenHTML:info.whenHTML };
+      slot:s.slot, slotKeys:slotKeysOf(s), text:s.text, title:s.title||null, photo:s.photo_url, rphotos:s.restaurants.photos||[], rhours:s.restaurants.hours_json||null, sortKey:info.sortKey, whenHTML:info.whenHTML };
   }).filter(Boolean);
   if(selTowns.size) list=list.filter(s=>selTowns.has(s.town));
-  if(selSlots.size) list=list.filter(s=>selSlots.has(s.slot));
+  if(selSlots.size) list=list.filter(matchSlots);
   if(showFavoritesOnly) list=list.filter(s=>favoritesSet.has(s.rid));
   let recurringList=[]; let upcomingRecurring=[];
   try{
@@ -2045,25 +2095,27 @@ async function loadFeed(){
     if(!rderr && rdata){
       rdata.forEach(x=>{ x._hours=x.restaurants&&x.restaurants.hours_json; });
       recurringList = rdata.filter(isRecurringActive).map(rd=>({
-        id:'rd-'+rd.id, rid:rd.restaurant_id, restaurant:rd.restaurants.name, town:rd.restaurants.town, slot:null,
+        id:'rd-'+rd.id, rid:rd.restaurant_id, restaurant:rd.restaurants.name, town:rd.restaurants.town, slot:null, slotKeys:slotKeysOf(rd),
         text:rd.text, until:formatTime12((rdTimesForDay(rd,(new Date().getDay()+6)%7)||{end:rd.end_time}).end), end_time:(rdTimesForDay(rd,(new Date().getDay()+6)%7)||{end:rd.end_time}).end, photo:rd.photo_url||null, created_at:null, recurring:true,
         title:rd.title||null, rphotos:rd.restaurants.photos||[], rhours:rd.restaurants.hours_json||null
       }));
       (rdata||[]).forEach(rd=>{
         const info=upcomingRecurringInfo(rd,feedCutoff); if(!info) return;
         upcomingRecurring.push({ id:'rd-'+rd.id, rid:rd.restaurant_id, restaurant:rd.restaurants.name, town:rd.restaurants.town,
-          text:rd.text, title:rd.title||null, photo:rd.photo_url||null, rphotos:rd.restaurants.photos||[], rhours:rd.restaurants.hours_json||null, recurring:true, sortKey:info.sortKey, whenHTML:info.whenHTML });
+          text:rd.text, title:rd.title||null, photo:rd.photo_url||null, rphotos:rd.restaurants.photos||[], rhours:rd.restaurants.hours_json||null, recurring:true, slotKeys:slotKeysOf(rd), sortKey:info.sortKey, whenHTML:info.whenHTML });
       });
     }
   }catch(e){ console.error(e); }
   if(selTowns.size) recurringList=recurringList.filter(s=>selTowns.has(s.town));
   if(showFavoritesOnly) recurringList=recurringList.filter(s=>favoritesSet.has(s.rid));
-  if(!selSlots.size) list=[...list, ...recurringList];
+  if(selSlots.size) recurringList=recurringList.filter(matchSlots);
+  list=[...list, ...recurringList];
   // Ending soonest first, so nobody misses a deal about to expire. No end time = last. Ties keep newest-first.
   list=list.map((d,i)=>({d,i,k:dealEndsAtMs(d)})).sort((a,b)=>a.k-b.k||a.i-b.i).map(x=>x.d);
   feedCache=list;
   renderFeedCardsInto('feed','feedCount',list);
   let upcomingAll=[...upcomingSpecials, ...upcomingRecurring];
+  if(selSlots.size) upcomingAll=upcomingAll.filter(matchSlots);
   if(selTowns.size) upcomingAll=upcomingAll.filter(s=>selTowns.has(s.town));
   if(showFavoritesOnly) upcomingAll=upcomingAll.filter(s=>favoritesSet.has(s.rid));
   renderUpcomingSectionInto('feedUpcoming', upcomingAll);
@@ -3006,7 +3058,7 @@ function showDashTab(tab){
   document.getElementById('dashTabBtnPost').classList.toggle('active', tab==='post');
   document.getElementById('dashTabBtnRecurring').classList.toggle('active', tab==='recurring');
 }
-function toggleRecurringDay(btn){ btn.classList.toggle('on'); }
+function toggleRecurringDay(btn){ btn.classList.toggle('on'); try{ updateSlotHints(); }catch(e){} }
 const DAY_ABBR=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 function daysSummary(days){
   if(!days || !days.length) return t('everyDay');
@@ -3096,7 +3148,7 @@ function upcomingRecurringInfo(rd, cutoff){
     const startsAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), sh, sm, 0, 0);
     if(cutoff && startsAt > cutoff) return null;
     const whenHTML = `<span>${t('upcomingToday').replace('{time}', esc(formatTime12(todayT.start)))}</span><span class="up-pill">${t('upcomingIn').replace('{dur}', formatDurationUntil(startsAt-now))}</span>`;
-    return { sortKey: startsAt-now, whenHTML };
+    return { sortKey: startsAt-now, whenHTML, win:[dtMin(todayT.start),dtMin(todayT.end)] };
   }
   // Otherwise, find the soonest future day (1-7 days out) it runs on.
   const sortedDays=[...rd.days].sort((a,b)=>a-b);
@@ -3113,13 +3165,13 @@ function upcomingRecurringInfo(rd, cutoff){
   if(cutoff && nextDate > cutoff) return null;
   const dayLbl = daysOut===1 ? 'Tomorrow' : DAY_ABBR[(curDay+daysOut)%7];
   const whenHTML = esc('Next: '+dayLbl+', '+formatTime12(nextT.start)+'–'+formatTime12(nextT.end));
-  return { sortKey: nextDate-now, whenHTML };
+  return { sortKey: nextDate-now, whenHTML, win:[dtMin(nextT.start),dtMin(nextT.end)] };
 }
 // One upcoming feed-card's markup — visually dimmed, no favorite/fav-count
 // chrome needed since these aren't live yet; tapping the name still opens
 // the restaurant's page.
 function upcomingTagHTML(u){
-  const label = u.recurring ? t('recurringTag') : slotLabel(u.slot);
+  const label = u.recurring ? t('recurringTag') : esc(slotTagText(u));
   return u.town ? `${label} · ${esc(u.town)}` : label;
 }
 function renderUpcomingCardHTML(u,hl){
@@ -3215,11 +3267,13 @@ async function saveRecurring(){
   const start_time=allDay?null:document.getElementById('rdStart').value;
   const end_time=allDay?null:document.getElementById('rdEnd').value;
   const days=[...document.querySelectorAll('#rdDays .day-pill.on')].map(b=>+b.dataset.day);
+  const picks=spKeys('rd');
   if(!text) return;
+  if(!picks.length){ st.textContent=t('selectSlot'); st.className='status-msg err'; return; }
   if(allDay && !(Array.isArray(currentRestaurant.hours_json)&&currentRestaurant.hours_json.length===7)){ st.textContent=t('noHoursYet'); st.className='status-msg err'; return; }
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
-  const payload = { text, days, start_time, end_time };
+  const payload = { text, days, start_time, end_time, slots:picks };
   // all_day is only sent when needed, so ordinary deals keep working even before the column exists
   if(rdTitleVal) payload.title=rdTitleVal; else if(editingRecurringId && (recurringDealsCache.find(x=>String(x.id)===String(editingRecurringId))||{}).title) payload.title=null;
   if(allDay) payload.all_day=true; else if(editingRecurringId && (recurringDealsCache.find(x=>String(x.id)===String(editingRecurringId))||{}).all_day) payload.all_day=false;
@@ -3231,9 +3285,11 @@ async function saveRecurring(){
   }
   // else: editing without touching the photo field — leave photo_url untouched
   // on update, and a brand-new deal with no photo simply omits the key (null column).
-  const {data:savedRows, error} = editingRecurringId
-    ? await sb.from('recurring_deals').update(payload).eq('id', editingRecurringId).select('id')
-    : await sb.from('recurring_deals').insert({ restaurant_id: currentRestaurant.id, ...payload, enabled:true }).select('id');
+  const saveRd=(pl)=>editingRecurringId
+    ? sb.from('recurring_deals').update(pl).eq('id', editingRecurringId).select('id')
+    : sb.from('recurring_deals').insert({ restaurant_id: currentRestaurant.id, ...pl, enabled:true }).select('id');
+  let {data:savedRows, error} = await saveRd(payload);
+  if(error && /slots/i.test(error.message||'')){ const pl2={...payload}; delete pl2.slots; ({data:savedRows, error} = await saveRd(pl2)); }  // before slots_migration.sql has been run
   if(error){ console.error(error); st.textContent=t('loadError')+' ('+(error.message||'error')+')'; st.className='status-msg err'; return; }
   if(!savedRows || !savedRows.length){ st.textContent='Not saved: this account is not allowed to change that deal.'; st.className='status-msg err'; return; }
   const wasEditing = !!editingRecurringId;
@@ -3250,6 +3306,7 @@ function resetRecurringForm(){
   document.getElementById('rdStart').value='';
   document.getElementById('rdEnd').value='';
   document.querySelectorAll('#rdDays .day-pill').forEach(b=>b.classList.remove('on'));
+  spSet('rd',[]);
   document.getElementById('rdSaveBtn').textContent=t('saveRecurring');
   document.getElementById('rdCancelBtn').style.display='none';
   pendingRdPhoto=null; pendingRdPhotoFile=null; rdPhotoRemoved=false; existingRdPhotoUrl=null;
@@ -3269,6 +3326,7 @@ function editRecurringDeal(id){
   document.getElementById('rdAllDay').checked=!!rd.all_day; syncAllDayForms();
   const activeDays=new Set(rd.days||[]);
   document.querySelectorAll('#rdDays .day-pill').forEach(b=>b.classList.toggle('on', activeDays.has(+b.dataset.day)));
+  spSet('rd', slotKeysOf(rd)||[]);
   document.getElementById('rdSaveBtn').textContent='Save changes';
   document.getElementById('rdCancelBtn').style.display='inline-block';
   document.getElementById('recurringStatus').textContent='';
@@ -3414,6 +3472,7 @@ function syncAllDayForms(){
   document.getElementById('rdTimesWrap').hidden=!!rOn;
   const rn=document.getElementById('rdAllDayNote'); rn.hidden=!rOn;
   if(rOn){ rn.innerHTML=`<b>${esc(t('allDayRecNote'))}</b><br>${esc(menuHoursSummary())}${link}`; }
+  try{ updateSlotHints(); }catch(e){}
 }
 function menuHoursSummary(){
   const r=currentRestaurant||{};
@@ -3719,13 +3778,12 @@ async function saveProfile(){
 }
 function updatePreview(){
   const txt=document.getElementById('pText').value;
-  const si=document.getElementById('pSlot').value;
   const pv=document.getElementById('pvText');
   const ttl=(document.getElementById('pTitle')||{value:''}).value.trim();
   pv.textContent=ttl||txt||t('previewPlaceholder');
   pv.style.fontStyle=(ttl||txt)?'normal':'italic';
   pv.style.color=(ttl||txt)?'var(--ink)':'var(--muted)';
-  document.getElementById('pvSlot').textContent=(si!==''?slotLabel(+si):slotLabel(2))+' · '+(currentRestaurant?.town||'');
+  document.getElementById('pvSlot').textContent=slotTagText({slots:spKeys('p')})+' · '+(currentRestaurant?.town||'');
   document.getElementById('pvPhoto').innerHTML = pendingPhoto
     ? `<img class="pc-photo" src="${pendingPhoto}" alt="">` : '';
   const allDayP=document.getElementById('pAllDay')&&document.getElementById('pAllDay').checked;
@@ -3738,7 +3796,7 @@ function updatePreview(){
 }
 async function postSpecial(){
   const txt=document.getElementById('pText').value.trim();
-  const si=document.getElementById('pSlot').value;
+  const picks=spKeys('p');
   const allDay=document.getElementById('pAllDay').checked;
   const startTime=allDay?'':document.getElementById('pStart').value;
   const untilTime=allDay?(allDayCloseTime()||''):document.getElementById('pUntil').value;
@@ -3746,18 +3804,20 @@ async function postSpecial(){
   const st=document.getElementById('postStatus');
   if(allDay && !untilTime){ st.textContent=t('noHoursYet'); st.className='status-msg err'; return; }
   if(!txt){st.textContent=t('writeFirst');st.className='status-msg err';return;}
-  if(si===''){st.textContent=t('selectSlot');st.className='status-msg err';return;}
+  if(!picks.length){st.textContent=t('selectSlot');st.className='status-msg err';return;}
   if(!sbReady()){st.textContent=t('loadError');st.className='status-msg err';return;}
   st.textContent=t('posting'); st.className='status-msg';
   let photoUrl=null;
   if(pendingPhotoFile){ photoUrl=await uploadPendingPhoto(); if(!photoUrl){ st.textContent=t('photoFailed'); st.className='status-msg err'; return; } }
-  const payload = { slot:+si, text:txt, until, until_time: untilTime||null, start_time: startTime||null };
+  const payload = { slot:SLOT_LEGACY_NUM[picks[0]], slots:picks, text:txt, until, until_time: untilTime||null, start_time: startTime||null };
   // title is only sent when used, so posting keeps working even before the column exists
   { const ttl=document.getElementById('pTitle').value.trim(); if(ttl) payload.title=ttl; else if(editingSpecialId && ((specialsCache.find(x=>String(x.id)===String(editingSpecialId))||{}).title)) payload.title=null; }
   if(pendingPhotoFile) payload.photo_url = photoUrl;
-  const {error} = editingSpecialId
-    ? await sb.from('specials').update(payload).eq('id', editingSpecialId)
-    : await sb.from('specials').insert({ restaurant_id: currentRestaurant.id, photo_url:photoUrl, ...payload });
+  const saveSp=(pl)=>editingSpecialId
+    ? sb.from('specials').update(pl).eq('id', editingSpecialId)
+    : sb.from('specials').insert({ restaurant_id: currentRestaurant.id, photo_url:photoUrl, ...pl });
+  let {error} = await saveSp(payload);
+  if(error && /slots/i.test(error.message||'')){ const pl2={...payload}; delete pl2.slots; ({error} = await saveSp(pl2)); }  // before slots_migration.sql has been run
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
   const wasEditing=!!editingSpecialId;
   resetSpecialForm();
@@ -3769,7 +3829,7 @@ function resetSpecialForm(){
   editingSpecialId=null;
   { const c=document.getElementById('pAllDay'); if(c){ c.checked=false; syncAllDayForms(); } }
   document.getElementById('pTitle').value='';
-  document.getElementById('pText').value='';document.getElementById('pSlot').value='';document.getElementById('pStart').value='';document.getElementById('pUntil').value='';
+  document.getElementById('pText').value='';spSet('p',[]);document.getElementById('pStart').value='';document.getElementById('pUntil').value='';
   clearPhoto();
   updatePreview();
   document.getElementById('postBtn').textContent=t('postSpecial');
@@ -3784,9 +3844,10 @@ function editSpecial(id){
   editingSpecialId=id;
   document.getElementById('pTitle').value=p.title||'';
   document.getElementById('pText').value=p.text||'';
-  document.getElementById('pSlot').value=(p.slot??'');
+  spSet('p', slotKeysOf(p)||[]);
   document.getElementById('pStart').value=p.start_time||'';
   document.getElementById('pUntil').value=p.until_time||'';
+  try{ updateSlotHints(); }catch(e){}
   pendingPhoto=p.photo_url||null; pendingPhotoFile=null;
   renderPhotoThumb();
   updatePreview();
@@ -3807,7 +3868,7 @@ async function loadPosted(){
     return;
   }
   el.innerHTML=`<div class="eyebrow" style="margin-top:24px;margin-bottom:12px;">${t('yourSpecials')}</div>`+
-    mine.map(p=>`<div class="posted-item"><div><div class="pi-slot">${slotLabel(p.slot)} · ${ago(p.created_at)}</div>
+    mine.map(p=>`<div class="posted-item"><div><div class="pi-slot">${esc(slotTagText(p))} · ${ago(p.created_at)}</div>
     <div class="pi-text">${p.title?`<b>${esc(p.title)}</b><br>`:''}${esc(p.text)}</div></div>
     <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
     <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="editSpecial('${p.id}')">Edit</button>
@@ -4191,7 +4252,7 @@ async function openDealLink(kind,id){
     goScreen('screenDiner');
     let d;
     if(kind==='s'){
-      d={ id:row.id, rid:row.restaurant_id, restaurant:R.name, town:R.town, slot:row.slot, text:row.text, title:row.title||null, until:row.until, until_time:row.until_time, photo:row.photo_url, created_at:row.created_at, rphotos:R.photos||[], rhours:R.hours_json||null };
+      d={ id:row.id, rid:row.restaurant_id, restaurant:R.name, town:R.town, slot:row.slot, slotKeys:slotKeysOf(row), text:row.text, title:row.title||null, until:row.until, until_time:row.until_time, photo:row.photo_url, created_at:row.created_at, rphotos:R.photos||[], rhours:R.hours_json||null };
       if(isExpired(row.until_time,row.created_at)) d.whenHTML=esc(t('shareEnded'));
     } else {
       row._hours=R.hours_json;
