@@ -1917,7 +1917,7 @@ function spRender(k){
 }
 function spToggle(k){ const m=document.querySelector('#sp_'+k+' .sp-menu'); const wasHidden=m.hidden; document.querySelectorAll('.sp-menu').forEach(x=>x.hidden=true); m.hidden=!wasHidden; }
 function spPick(k,i){ spSel[k].has(i)?spSel[k].delete(i):spSel[k].add(i); spRender(k); }
-document.addEventListener('click',e=>{ if(!e.target.closest('.sp')) document.querySelectorAll('.sp-menu').forEach(x=>x.hidden=true); });
+document.addEventListener('click',e=>{ if(!e.target.isConnected) return;  /* an option was just re-drawn: that's still a click inside */ if(!e.target.closest('.sp')) document.querySelectorAll('.sp-menu').forEach(x=>x.hidden=true); });
 function updateSlotHints(){ spRender('p'); spRender('rd'); }
 setTimeout(updateSlotHints,300);
 function isExpired(untilTime, createdAt){
