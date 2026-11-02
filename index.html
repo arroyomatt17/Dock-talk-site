@@ -392,6 +392,14 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
 .chk-row input{width:auto;margin:0;accent-color:var(--accent);}
 .allday-note{background:var(--sand-light);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
 .allday-note b{color:var(--ink);}.allday-note a{color:var(--accent);font-weight:700;}
+.tsw{display:flex;gap:4px;margin-top:6px;}
+.tsw button{font-family:inherit;font-size:11.5px;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:100px;padding:3px 11px;cursor:pointer;}
+.tsw button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.tauto{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:46px;border:1px dashed var(--accent);border-radius:12px;padding:0 12px;font-size:14px;font-weight:600;color:var(--accent);background:transparent;}
+.tauto[hidden]{display:none;}
+.tauto small{font-size:11.5px;font-weight:500;color:var(--muted);text-align:right;}
+.tm-hint{font-size:12px;color:var(--muted);margin:2px 0 8px;line-height:1.45;}
+.tm-hint b{color:var(--ink);}
 .rd-chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 10px;}
 .rd-chip{display:inline-flex;align-items:center;gap:7px;max-width:100%;font-family:inherit;font-size:13px;font-weight:600;color:var(--accent);background:transparent;border:1px solid var(--accent);border-radius:100px;padding:6px 9px 6px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .rd-chip:active{background:var(--sea-light);}
@@ -1213,6 +1221,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
         <div class="field"><label data-i18n="recurringStartLabel"></label><input id="rdStart" type="time"></div>
         <div class="field"><label data-i18n="recurringEndLabel"></label><input id="rdEnd" type="time"></div>
       </div>
+      <div class="tm-hint" id="rdTmHint" style="display:none;"></div>
       <div class="hint" data-i18n="recurringNote"></div>
       </div>
       <div class="slot-hint" id="rdSlotHint"></div>
@@ -1343,7 +1352,7 @@ refresh:"Refresh",allTowns:"All towns",allTimes:"All times",
 specialsCount:"specials tonight",specialCount:"special tonight",
 emptyTitle:"Nothing here yet",emptySub:"Try a different filter, or check back later.",emptyTitleLate:"Even the chefs are asleep",emptySubLate:"No specials posted at this hour — check back after the sun's up.",
 hours:"Hours",location:"Location",phone:"Phone",menu:"Menu",
-notListed:"Not listed",hKitchen:"Kitchen",hKitchenCloses:"Kitchen closes",hKitchenClosed:"Kitchen closed",hBarOpen:"Bar open",hBarUntil:"Bar until",hOpen:"Open",hClosed:"Closed",hClosingSoon:"Closing soon",hCloses:"Closes",hOpens:"Opens",hReopens:"Reopens",hTomorrow:"tomorrow",hSeeAll:"See all hours",hHideAll:"Hide hours",
+notListed:"Not listed",hKitchen:"Kitchen",hKitchenCloses:"Kitchen closes",hKitchenClosed:"Kitchen closed",hBarOpen:"Bar open",hBarUntil:"Bar until",hOpen:"Open",hClosed:"Closed",hClosingSoon:"Closing soon",hCloses:"Closes",hOpens:"Opens",hReopens:"Reopens",tmTime:"Time",tmOpen:"Open",tmClose:"Close",tmToday:"{t} today",tmEach:"Follows each day",tmNoHours:"Set your hours first",tmEndsAt:"Ends at close",tmStartsAt:"Starts at open",hTomorrow:"tomorrow",hSeeAll:"See all hours",hHideAll:"Hide hours",
 dinerJoin:"Get the first invite",dinerSub:"We'll tell you when restaurants near you post something good. No spam, no ads.",dinerTownHint:"We'll start with specials in your town.",dinerCta:"Join the list",restaurantInstead:"Run a restaurant?",restaurantSignIn:"Sign in as a restaurant",backToDiner:"← Back to diner sign-up",dinerDoneTitle:"You're on the list",dinerDoneBody:"We'll email you when {town} restaurants start posting.",enterEmail:"Enter a valid email.",selectTown:"Select your town.",addPhoto:"Photo (optional)",choosePhoto:"Add a photo",changePhoto:"Change photo",photoHint:"A quick phone shot works better than a stock image.",forDiners:"For *diners*",forRestaurants:"For *restaurants*",welcomeBack:"Welcome back",loginSub:"Enter your email and we'll send you a magic link.",
 sendCode:"Send magic link",newRestaurant:"New restaurant? ",signUp:"Learn more",
 claimSpot:"Mind if we talk about you?",claimSub:"Create your own login below — once we verify your restaurant you can start posting.",emailUsCta:"Email us to get set up",restaurantLoginCta:"Log in",restaurantSignUpCta:"Sign up",yourPhone:"Phone",restaurantPhone:"Restaurant phone",regionVT:"Stowe, VT",restaurantSignupCta:"Create restaurant account",restaurantWelcomeTitle:"Account created",restaurantWelcomeBody:"Log in anytime to check your status. Once we verify your restaurant, you'll be able to post specials right away.",restaurantWelcomeCta:"Go to log in",
@@ -1382,7 +1391,7 @@ refresh:"Actualizar",allTowns:"Todos los pueblos",allTimes:"Todos los horarios",
 specialsCount:"especiales hoy",specialCount:"especial hoy",
 emptyTitle:"Todavía no hay nada",emptySub:"Probá otro filtro, o volvé más tarde.",emptyTitleLate:"Hasta los cocineros están durmiendo",emptySubLate:"No hay ofertas publicadas a esta hora — volvé cuando salga el sol.",
 hours:"Horario",location:"Ubicación",phone:"Teléfono",menu:"Menú",
-notListed:"No indicado",hKitchen:"Cocina",hKitchenCloses:"Cocina cierra",hKitchenClosed:"Cocina cerrada",hBarOpen:"Bar abierto",hBarUntil:"Bar hasta",hOpen:"Abierto",hClosed:"Cerrado",hClosingSoon:"Cierra pronto",hCloses:"Cierra",hOpens:"Abre",hReopens:"Reabre",hTomorrow:"mañana",hSeeAll:"Ver todos los horarios",hHideAll:"Ocultar horarios",
+notListed:"No indicado",hKitchen:"Cocina",hKitchenCloses:"Cocina cierra",hKitchenClosed:"Cocina cerrada",hBarOpen:"Bar abierto",hBarUntil:"Bar hasta",hOpen:"Abierto",hClosed:"Cerrado",hClosingSoon:"Cierra pronto",hCloses:"Cierra",hOpens:"Abre",hReopens:"Reabre",tmTime:"Hora",tmOpen:"Apertura",tmClose:"Cierre",tmToday:"{t} hoy",tmEach:"Sigue cada día",tmNoHours:"Primero configura tus horarios",tmEndsAt:"Termina al cierre",tmStartsAt:"Empieza a la apertura",hTomorrow:"mañana",hSeeAll:"Ver todos los horarios",hHideAll:"Ocultar horarios",
 dinerJoin:"Recibí la primera invitación",dinerSub:"Te avisamos cuando los restaurantes cerca tuyo publiquen algo bueno. Sin spam, sin anuncios.",dinerTownHint:"Empezamos con los especiales de tu pueblo.",dinerCta:"Unirme a la lista",restaurantInstead:"¿Tenés un restaurante?",restaurantSignIn:"Ingresar como restaurante",backToDiner:"← Volver al registro de comensales",dinerDoneTitle:"Ya estás en la lista",dinerDoneBody:"Te escribimos cuando los restaurantes de {town} empiecen a publicar.",enterEmail:"Ingresá un correo válido.",selectTown:"Seleccioná tu pueblo.",addPhoto:"Foto (opcional)",choosePhoto:"Agregar foto",changePhoto:"Cambiar foto",photoHint:"Una foto rápida del celular funciona mejor que una imagen de stock.",forDiners:"Para *comensales*",forRestaurants:"Para *restaurantes*",welcomeBack:"Bienvenido de nuevo",loginSub:"Ingresá tu correo y te enviamos un enlace mágico.",
 sendCode:"Enviar enlace mágico",newRestaurant:"¿Restaurante nuevo? ",signUp:"Más información",
 claimSpot:"¿Querés Dock Talk en tu restaurante?",claimSub:"Incorporamos restaurantes personalmente — escribinos y te configuramos un acceso en minutos.",emailUsCta:"Escribinos para arrancar",
@@ -1415,7 +1424,7 @@ refresh:"Actualiser",allTowns:"Toutes les villes",allTimes:"Tous les horaires",
 specialsCount:"offres ce soir",specialCount:"offre ce soir",
 emptyTitle:"Rien pour l'instant",emptySub:"Essayez un autre filtre, ou revenez plus tard.",emptyTitleLate:"Même les chefs dorment",emptySubLate:"Aucune offre publiée à cette heure — revenez au lever du soleil.",
 hours:"Horaires",location:"Adresse",phone:"Téléphone",menu:"Menu",
-notListed:"Non indiqué",hKitchen:"Cuisine",hKitchenCloses:"Cuisine ferme à",hKitchenClosed:"Cuisine fermée",hBarOpen:"Bar ouvert",hBarUntil:"Bar jusqu'à",hOpen:"Ouvert",hClosed:"Fermé",hClosingSoon:"Ferme bientôt",hCloses:"Ferme à",hOpens:"Ouvre",hReopens:"Rouvre",hTomorrow:"demain",hSeeAll:"Voir tous les horaires",hHideAll:"Masquer les horaires",
+notListed:"Non indiqué",hKitchen:"Cuisine",hKitchenCloses:"Cuisine ferme à",hKitchenClosed:"Cuisine fermée",hBarOpen:"Bar ouvert",hBarUntil:"Bar jusqu'à",hOpen:"Ouvert",hClosed:"Fermé",hClosingSoon:"Ferme bientôt",hCloses:"Ferme à",hOpens:"Ouvre",hReopens:"Rouvre",tmTime:"Heure",tmOpen:"Ouverture",tmClose:"Fermeture",tmToday:"{t} aujourd'hui",tmEach:"Suit chaque jour",tmNoHours:"Définissez d'abord vos horaires",tmEndsAt:"Finit à la fermeture",tmStartsAt:"Commence à l'ouverture",hTomorrow:"demain",hSeeAll:"Voir tous les horaires",hHideAll:"Masquer les horaires",
 dinerJoin:"Recevez la première invitation",dinerSub:"Nous vous prévenons quand les restaurants près de chez vous publient quelque chose de bien. Pas de spam, pas de pub.",dinerTownHint:"Nous commencerons par les offres de votre ville.",dinerCta:"Rejoindre la liste",restaurantInstead:"Vous gérez un restaurant ?",restaurantSignIn:"Se connecter en tant que restaurant",backToDiner:"← Retour à l'inscription client",dinerDoneTitle:"Vous êtes sur la liste",dinerDoneBody:"Nous vous écrirons quand les restaurants de {town} commenceront à publier.",enterEmail:"Entrez une adresse e-mail valide.",selectTown:"Sélectionnez votre ville.",addPhoto:"Photo (facultatif)",choosePhoto:"Ajouter une photo",changePhoto:"Changer la photo",photoHint:"Une photo prise au téléphone marche mieux qu'une image de stock.",forDiners:"Pour les *clients*",forRestaurants:"Pour les *restaurants*",welcomeBack:"Bon retour",loginSub:"Entrez votre e-mail, nous vous enverrons un lien magique.",
 sendCode:"Envoyer le lien magique",newRestaurant:"Nouveau restaurant ? ",signUp:"En savoir plus",
 claimSpot:"Envie de Dock Talk dans votre restaurant ?",claimSub:"Nous accompagnons chaque restaurant personnellement — contactez-nous, accès prêt en quelques minutes.",emailUsCta:"Écrivez-nous pour démarrer",
@@ -1448,7 +1457,7 @@ refresh:"刷新",allTowns:"全部城镇",allTimes:"全部时段",
 specialsCount:"个今晚特色",specialCount:"个今晚特色",
 emptyTitle:"暂时还没有",emptySub:"换个筛选条件，或稍后再来看看。",emptyTitleLate:"厨师们都睡着了",emptySubLate:"这个时间还没有特价发布 — 太阳出来后再来看看吧。",
 hours:"营业时间",location:"地址",phone:"电话",menu:"菜单",
-notListed:"未提供",hKitchen:"厨房",hKitchenCloses:"厨房打烊",hKitchenClosed:"厨房已打烊",hBarOpen:"酒吧营业中",hBarUntil:"酒吧营业至",hOpen:"营业中",hClosed:"已打烊",hClosingSoon:"即将打烊",hCloses:"打烊时间",hOpens:"开门时间",hReopens:"重新营业",hTomorrow:"明天",hSeeAll:"查看全部营业时间",hHideAll:"收起营业时间",
+notListed:"未提供",hKitchen:"厨房",hKitchenCloses:"厨房打烊",hKitchenClosed:"厨房已打烊",hBarOpen:"酒吧营业中",hBarUntil:"酒吧营业至",hOpen:"营业中",hClosed:"已打烊",hClosingSoon:"即将打烊",hCloses:"打烊时间",hOpens:"开门时间",hReopens:"重新营业",tmTime:"时间",tmOpen:"开门",tmClose:"打烊",tmToday:"今天 {t}",tmEach:"按每天营业时间",tmNoHours:"请先设置营业时间",tmEndsAt:"打烊时结束",tmStartsAt:"开门时开始",hTomorrow:"明天",hSeeAll:"查看全部营业时间",hHideAll:"收起营业时间",
 dinerJoin:"抢先获得邀请",dinerSub:"附近餐厅发布好消息时我们会通知你。没有垃圾信息，没有广告。",dinerTownHint:"我们会从你所在城镇的特色菜开始。",dinerCta:"加入名单",restaurantInstead:"经营餐厅？",restaurantSignIn:"以餐厅身份登录",backToDiner:"← 返回食客注册",dinerDoneTitle:"你已加入名单",dinerDoneBody:"{town}的餐厅开始发布时，我们会给你发邮件。",enterEmail:"请输入有效的邮箱。",selectTown:"请选择你的城镇。",addPhoto:"照片（可选）",choosePhoto:"添加照片",changePhoto:"更换照片",photoHint:"随手用手机拍的照片比图库图片效果更好。",forDiners:"*食客*专用",forRestaurants:"*餐厅*专用",welcomeBack:"欢迎回来",loginSub:"输入邮箱，我们会发送登录链接。",
 sendCode:"发送登录链接",newRestaurant:"新餐厅？",signUp:"了解更多",
 claimSpot:"想让你的餐厅加入 Dock Talk？",claimSub:"我们会亲自为每家餐厅开通 — 联系我们，几分钟内为你设置好登录。",emailUsCta:"发邮件联系我们开通",
@@ -1481,7 +1490,7 @@ refresh:"Aktualisieren",allTowns:"Alle Orte",allTimes:"Alle Zeiten",
 specialsCount:"Angebote heute",specialCount:"Angebot heute",
 emptyTitle:"Noch nichts da",emptySub:"Anderen Filter probieren oder später wiederkommen.",emptyTitleLate:"Sogar die Köche schlafen schon",emptySubLate:"Um diese Uhrzeit gibt es keine Angebote — schau nach Sonnenaufgang wieder vorbei.",
 hours:"Öffnungszeiten",location:"Adresse",phone:"Telefon",menu:"Speisekarte",
-notListed:"Nicht angegeben",hKitchen:"Küche",hKitchenCloses:"Küche schließt",hKitchenClosed:"Küche geschlossen",hBarOpen:"Bar geöffnet",hBarUntil:"Bar bis",hOpen:"Geöffnet",hClosed:"Geschlossen",hClosingSoon:"Schließt bald",hCloses:"Schließt",hOpens:"Öffnet",hReopens:"Öffnet wieder",hTomorrow:"morgen",hSeeAll:"Alle Öffnungszeiten",hHideAll:"Öffnungszeiten ausblenden",
+notListed:"Nicht angegeben",hKitchen:"Küche",hKitchenCloses:"Küche schließt",hKitchenClosed:"Küche geschlossen",hBarOpen:"Bar geöffnet",hBarUntil:"Bar bis",hOpen:"Geöffnet",hClosed:"Geschlossen",hClosingSoon:"Schließt bald",hCloses:"Schließt",hOpens:"Öffnet",hReopens:"Öffnet wieder",tmTime:"Zeit",tmOpen:"Öffnung",tmClose:"Schließung",tmToday:"{t} heute",tmEach:"Folgt jedem Tag",tmNoHours:"Zuerst Öffnungszeiten festlegen",tmEndsAt:"Endet bei Schließung",tmStartsAt:"Beginnt bei Öffnung",hTomorrow:"morgen",hSeeAll:"Alle Öffnungszeiten",hHideAll:"Öffnungszeiten ausblenden",
 dinerJoin:"Sichere dir die erste Einladung",dinerSub:"Wir sagen dir Bescheid, wenn Restaurants in deiner Nähe etwas Gutes posten. Kein Spam, keine Werbung.",dinerTownHint:"Wir starten mit den Angeboten in deinem Ort.",dinerCta:"Zur Liste hinzufügen",restaurantInstead:"Betreibst du ein Restaurant?",restaurantSignIn:"Als Restaurant anmelden",backToDiner:"← Zurück zur Gäste-Anmeldung",dinerDoneTitle:"Du bist auf der Liste",dinerDoneBody:"Wir melden uns, sobald Restaurants in {town} anfangen zu posten.",enterEmail:"Bitte gültige E-Mail eingeben.",selectTown:"Bitte Ort auswählen.",addPhoto:"Foto (optional)",choosePhoto:"Foto hinzufügen",changePhoto:"Foto ändern",photoHint:"Ein schnelles Handyfoto wirkt besser als ein Stockbild.",forDiners:"Für *Gäste*",forRestaurants:"Für *Restaurants*",welcomeBack:"Willkommen zurück",loginSub:"E-Mail eingeben, wir senden einen Magic Link.",
 sendCode:"Magic Link senden",newRestaurant:"Neues Restaurant? ",signUp:"Mehr erfahren",
 claimSpot:"Dock Talk für dein Restaurant?",claimSub:"Wir richten jedes Restaurant persönlich ein — melde dich, und du hast in wenigen Minuten einen Zugang.",emailUsCta:"Schreib uns, um loszulegen",
@@ -2375,6 +2384,61 @@ function hDayName(i){
   try{return new Intl.DateTimeFormat(lang,{weekday:'short'}).format(new Date(2024,0,1+i));}catch(e){return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i];}
 }
 function hLast(d){return (d&&d.open2&&d.close2)?d.close2:(d?d.close:null);}
+function tmResolve(kind,day){
+  const h=currentRestaurant&&currentRestaurant.hours_json; if(!Array.isArray(h)||h.length!==7) return null;
+  const d=h[day==null?(new Date().getDay()+6)%7:day]; if(!d||d.closed||!d.open||!d.close) return null;
+  return kind==='open'?d.open:hLast(d);
+}
+function tmAuto(id){ const el=document.getElementById(id); return !!(el&&el.dataset.auto==='1'); }
+function tmKind(id){ return /Start$/.test(id)?'open':'close'; }
+function tmSet(id,auto){ const el=document.getElementById(id); if(!el) return; el.dataset.auto=auto?'1':''; tmPaint(id); }
+function tmPaint(id){
+  const el=document.getElementById(id); if(!el||!el.parentElement) return;
+  const wrap=el.parentElement, auto=tmAuto(id), kind=tmKind(id), post=id.charAt(0)==='p';
+  el.style.display=auto?'none':'';
+  const chip=wrap.querySelector('.tauto'), sw=wrap.querySelector('.tsw'); if(!chip||!sw) return;
+  chip.hidden=!auto;
+  if(auto){
+    const v=post?tmResolve(kind):null;
+    const lab=post?(v?t('tmToday').replace('{t}',formatTime12(v)):t('tmNoHours')):t('tmEach');
+    chip.innerHTML=`<span>${esc(t(kind==='open'?'tmOpen':'tmClose'))}</span><small>${esc(lab)}</small>`;
+    if(post) el.value=v||'';
+  }
+  const b=sw.querySelectorAll('button'); if(b.length===2){ b[0].textContent=t('tmTime'); b[1].textContent=t(kind==='open'?'tmOpen':'tmClose'); b[0].classList.toggle('on',!auto); b[1].classList.toggle('on',auto); }
+}
+function tmDaysSummary(kind){
+  const days=[...document.querySelectorAll('#rdDays .day-pill.on')].map(b=>+b.dataset.day).sort((a,b)=>a-b);
+  const segs=[]; let i=0;
+  while(i<days.length){
+    const v=tmResolve(kind,days[i]); let j=i;
+    while(j+1<days.length && days[j+1]===days[j]+1 && tmResolve(kind,days[j+1])===v) j++;
+    const lab=i===j?HOURS_DAY_LABELS[days[i]]:`${HOURS_DAY_LABELS[days[i]]}–${HOURS_DAY_LABELS[days[j]]}`;
+    segs.push(`${lab} ${v?formatTime12(v):t('hClosed')}`); i=j+1;
+  }
+  return segs.join(' · ');
+}
+function tmRefresh(){
+  ['pStart','pUntil','rdStart','rdEnd'].forEach(tmPaint);
+  const h=document.getElementById('rdTmHint'); if(!h) return;
+  const parts=[];
+  if(tmAuto('rdStart')) parts.push(`<b>${esc(t('tmStartsAt'))}:</b> ${esc(tmDaysSummary('open'))}`);
+  if(tmAuto('rdEnd')) parts.push(`<b>${esc(t('tmEndsAt'))}:</b> ${esc(tmDaysSummary('close'))}`);
+  h.innerHTML=parts.join('<br>'); h.style.display=parts.length?'':'none';
+}
+function tmInit(){
+  [['pStart'],['pUntil'],['rdStart'],['rdEnd']].forEach(([id])=>{
+    const el=document.getElementById(id); if(!el||!el.parentElement||el.parentElement.querySelector('.tsw')) return;
+    const kind=tmKind(id), post=id.charAt(0)==='p';
+    const chip=document.createElement('div'); chip.className='tauto'; chip.hidden=true; el.parentElement.appendChild(chip);
+    const sw=document.createElement('div'); sw.className='tsw';
+    sw.innerHTML='<button type="button"></button><button type="button"></button>';
+    sw.children[0].onclick=()=>{ tmSet(id,false); tmRefresh(); try{updatePreview();}catch(e){} };
+    sw.children[1].onclick=()=>{ tmSet(id,true); tmRefresh(); try{updatePreview();}catch(e){} };
+    el.parentElement.appendChild(sw); tmPaint(id);
+  });
+}
+document.addEventListener('DOMContentLoaded',tmInit);
+document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#rdDays')) setTimeout(tmRefresh,0); });
 function hSplit(d){return !!(d&&!d.closed&&d.open&&d.close&&d.open2&&d.close2);}
 function hoursStatus(days,day,m){
   const ok=d=>d&&!d.closed&&d.open&&d.close;
@@ -2442,15 +2506,20 @@ function menuTodayHours(){
   const d=h[(new Date().getDay()+6)%7];
   return d||null;
 }
+function menuTimes(m){
+  const d=menuTodayHours(); const ok=d&&!d.closed&&d.open&&d.close;
+  return {start:m.startOpen?(ok?d.open:''):(m.start||''), end:m.endClose?(ok?hLast(d):''):(m.end||'')};
+}
 function menuServingNow(m){
   if(m.allDay){
     const h=detailR&&detailR.info&&detailR.info.hours_json; if(!Array.isArray(h)||h.length!==7) return false;
     const n=new Date(); const st=hoursStatus(h,(n.getDay()+6)%7,n.getHours()*60+n.getMinutes());
     return !!st&&(st.c==='open'||st.c==='soon');
   }
-  if(!m.start && !m.end) return false;
+  const mt=menuTimes(m);
+  if(!mt.start && !mt.end) return false;
   const n=new Date(), cur=n.getHours()*60+n.getMinutes();
-  const st=m.start?hmMin(m.start):0, en=m.end?hmMin(m.end):1440;
+  const st=mt.start?hmMin(mt.start):0, en=mt.end?hmMin(mt.end):1440;
   return st<=en ? (cur>=st && cur<en) : (cur>=st || cur<en);
 }
 function menuTimeLabel(m){
@@ -2459,9 +2528,10 @@ function menuTimeLabel(m){
     if(d.closed) return t('hClosed');
     return d.open&&d.close ? t('mTodayHrs').replace('{t}',hFmt(d.open)+' – '+hFmt(d.close)+(hSplit(d)?' · '+hFmt(d.open2)+' – '+hFmt(d.close2):'')) : '';
   }
-  if(m.start&&m.end) return hFmt(m.start)+' – '+hFmt(m.end);
-  if(m.start) return t('mFrom').replace('{t}',hFmt(m.start));
-  if(m.end) return t('mUntil').replace('{t}',hFmt(m.end));
+  const mt=menuTimes(m);
+  if(mt.start&&mt.end) return hFmt(mt.start)+' – '+hFmt(mt.end);
+  if(mt.start) return t('mFrom').replace('{t}',hFmt(mt.start));
+  if(mt.end) return t('mUntil').replace('{t}',hFmt(mt.end));
   return '';
 }
 function menuCatsHTML(items){
@@ -2474,7 +2544,7 @@ function renderMenuPanel(menu){
   if(menuTab===null || menuTab>=ms.length){ const i=ms.findIndex(menuServingNow); menuTab=i<0?0:i; }
   const tabs=ms.map((m,i)=>`<button class="mn-utab${i===menuTab?' on':''}" onclick="pickMenuTab(${i})">${esc(m.name||(t('menu')+' '+(i+1)))}${menuServingNow(m)?`<span class="mn-d" role="img" aria-label="${esc(t('servingNow'))}" title="${esc(t('servingNow'))}"></span>`:''}</button>`).join('');
   const cur=ms[menuTab];
-  const explicit=(!cur.allDay&&(cur.start||cur.end))?menuTimeLabel(cur):'';
+  const cmt=menuTimes(cur); const explicit=(!cur.allDay&&(cmt.start||cmt.end))?menuTimeLabel(cur):'';
   const line=explicit?`<div class="mn-uline">${menuServingNow(cur)?`<b>${esc(t('servingNow'))}</b> · `:''}${esc(explicit)}</div>`:'';
   return `<div class="detail-panel"><div class="dp-label">${t('menu')}</div><div class="mn-utabs">${tabs}</div>${line}${menuCatsHTML(cur.items)}</div>`;
 }
@@ -3112,15 +3182,16 @@ function daysSummary(days){
 }
 // Start/end for a recurring deal on a given weekday (Mon=0). An "all day" deal follows the restaurant's own hours.
 function rdTimesForDay(rd,day){
-  if(rd.all_day){
-    const h=Array.isArray(rd._hours)&&rd._hours.length===7?rd._hours[day]:null;
-    return (h&&!h.closed&&h.open&&h.close)?{start:h.open,end:hLast(h)}:null;
-  }
-  return (rd.start_time&&rd.end_time)?{start:rd.start_time,end:rd.end_time}:null;
+  const hh=Array.isArray(rd._hours)&&rd._hours.length===7?rd._hours[day]:null;
+  const hv=(hh&&!hh.closed&&hh.open&&hh.close)?hh:null;
+  if(rd.all_day) return hv?{start:hv.open,end:hLast(hv)}:null;
+  const start=rd.start_open?(hv&&hv.open):rd.start_time;
+  const end=rd.end_close?(hv&&hLast(hv)):rd.end_time;
+  return (start&&end)?{start,end}:null;
 }
 function isRecurringActive(rd){
   if(!rd || rd.enabled===false || !rd.text) return false;
-  if(rd.all_day){
+  if(rd.all_day||rd.start_open||rd.end_close){
     const n0=new Date(); const d0=(n0.getDay()+6)%7;
     if(rd.days&&rd.days.length&&!rd.days.includes(d0)) return false;
     const tm=rdTimesForDay(rd,d0); if(!tm) return false;
@@ -3175,7 +3246,7 @@ function upcomingRecurringInfo(rd, cutoff){
   // No days/times set at all means it's always-on (isRecurringActive would
   // already have returned true above), so nothing upcoming to compute here.
   if(!rd.days || !rd.days.length) return null;
-  if(!rd.all_day && (!rd.start_time || !rd.end_time)) return null;
+  if(!rd.all_day && (!(rd.start_open||rd.start_time) || !(rd.end_close||rd.end_time))) return null;
   const todayT = rdTimesForDay(rd,curDay);
   const [sh,sm] = (todayT?todayT.start:'23:59').split(':').map(Number);
   const startMin = sh*60+sm;
@@ -3300,18 +3371,22 @@ async function saveRecurring(){
   const text=document.getElementById('rdText').value.trim();
   const rdTitleVal=document.getElementById('rdTitle').value.trim();
   const allDay=document.getElementById('rdAllDay').checked;
-  const start_time=allDay?null:document.getElementById('rdStart').value;
-  const end_time=allDay?null:document.getElementById('rdEnd').value;
+  const startOpen=!allDay&&tmAuto('rdStart'), endClose=!allDay&&tmAuto('rdEnd');
+  const start_time=(allDay||startOpen)?null:document.getElementById('rdStart').value;
+  const end_time=(allDay||endClose)?null:document.getElementById('rdEnd').value;
   const days=[...document.querySelectorAll('#rdDays .day-pill.on')].map(b=>+b.dataset.day);
   const picks=spKeys('rd');
   if(!text) return;
   if(!picks.length){ st.textContent=t('selectSlot'); st.className='status-msg err'; return; }
-  if(allDay && !(Array.isArray(currentRestaurant.hours_json)&&currentRestaurant.hours_json.length===7)){ st.textContent=t('noHoursYet'); st.className='status-msg err'; return; }
+  if((allDay||startOpen||endClose) && !(Array.isArray(currentRestaurant.hours_json)&&currentRestaurant.hours_json.length===7)){ st.textContent=t('noHoursYet'); st.className='status-msg err'; return; }
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
   const payload = { text, days, start_time, end_time, slots:picks };
   // all_day is only sent when needed, so ordinary deals keep working even before the column exists
   if(rdTitleVal) payload.title=rdTitleVal; else if(editingRecurringId && (recurringDealsCache.find(x=>String(x.id)===String(editingRecurringId))||{}).title) payload.title=null;
+  { const old=editingRecurringId?(recurringDealsCache.find(x=>String(x.id)===String(editingRecurringId))||{}):{};
+    if(startOpen) payload.start_open=true; else if(old.start_open) payload.start_open=false;
+    if(endClose) payload.end_close=true; else if(old.end_close) payload.end_close=false; }
   if(allDay) payload.all_day=true; else if(editingRecurringId && (recurringDealsCache.find(x=>String(x.id)===String(editingRecurringId))||{}).all_day) payload.all_day=false;
   if(pendingRdPhotoFile){
     payload.photo_url = await uploadPendingRdPhoto();
@@ -3341,6 +3416,7 @@ function resetRecurringForm(){
   document.getElementById('rdText').value='';
   document.getElementById('rdStart').value='';
   document.getElementById('rdEnd').value='';
+  tmSet('rdStart',false); tmSet('rdEnd',false); tmRefresh();
   document.querySelectorAll('#rdDays .day-pill').forEach(b=>b.classList.remove('on'));
   spSet('rd',[]);
   document.getElementById('rdSaveBtn').textContent=t('saveRecurring');
@@ -3359,9 +3435,11 @@ function editRecurringDeal(id){
   document.getElementById('rdText').value=rd.text||'';
   document.getElementById('rdStart').value=rd.start_time||'';
   document.getElementById('rdEnd').value=rd.end_time||'';
+  tmSet('rdStart',!!rd.start_open); tmSet('rdEnd',!!rd.end_close);
   document.getElementById('rdAllDay').checked=!!rd.all_day; syncAllDayForms();
   const activeDays=new Set(rd.days||[]);
   document.querySelectorAll('#rdDays .day-pill').forEach(b=>b.classList.toggle('on', activeDays.has(+b.dataset.day)));
+  tmRefresh();
   spSet('rd', slotKeysOf(rd)||[]);
   document.getElementById('rdSaveBtn').textContent='Save changes';
   document.getElementById('rdCancelBtn').style.display='inline-block';
@@ -3386,7 +3464,7 @@ async function loadRecurringList(){
     return;
   }
   el.innerHTML=`<div class="eyebrow" style="margin-top:24px;margin-bottom:12px;">${t('recurringListTitle')}</div>`+
-    mine.map(rd=>`<div class="posted-item"><div><div class="pi-slot">${esc(daysSummary(rd.days))}${rd.all_day?' · '+esc(t('allDayShort')):(rd.start_time&&rd.end_time?' · '+esc(formatTime12(rd.start_time))+'–'+esc(formatTime12(rd.end_time)):'')}</div>
+    mine.map(rd=>`<div class="posted-item"><div><div class="pi-slot">${esc(daysSummary(rd.days))}${rd.all_day?' · '+esc(t('allDayShort')):((rd.start_time||rd.start_open)&&(rd.end_time||rd.end_close)?' · '+esc(rd.start_open?t('tmOpen'):formatTime12(rd.start_time))+'–'+esc(rd.end_close?t('tmClose'):formatTime12(rd.end_time)):'')}</div>
     <div class="pi-text">${rd.title?`<b>${esc(rd.title)}</b><br>`:''}${esc(rd.text)}</div></div>
     <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
     <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="editRecurringDeal('${rd.id}')">Edit</button>
@@ -3456,15 +3534,23 @@ function parseMenuText(text){
 // A restaurant's menu is either the old shape {category:[items]} (one menu) or an array of
 // {name,start,end,items:{category:[items]}} (several menus, e.g. Breakfast + All Day).
 function normalizeMenus(menu){
-  if(Array.isArray(menu)) return menu.map(m=>({name:m.name||'',start:m.start||'',end:m.end||'',allDay:!!m.allDay,items:m.items||{}}));
+  if(Array.isArray(menu)) return menu.map(m=>({name:m.name||'',start:m.start||'',end:m.end||'',startOpen:!!m.startOpen,endClose:!!m.endClose,allDay:!!m.allDay,items:m.items||{}}));
   if(menu && typeof menu==='object' && Object.keys(menu).length) return [{name:'',start:'',end:'',allDay:false,items:menu}];
   return [];
 }
 let menuBlocks=[], menuScanTarget=0;
 function loadMenuForm(){
   const ms=normalizeMenus(currentRestaurant.menu);
-  menuBlocks=(ms.length?ms:[{name:'',start:'',end:'',allDay:false,items:{}}]).map(m=>({name:m.name,start:m.start,end:m.end,allDay:m.allDay,text:menuToText(m.items)}));
+  menuBlocks=(ms.length?ms:[{name:'',start:'',end:'',allDay:false,items:{}}]).map(m=>({name:m.name,start:m.start,end:m.end,startOpen:!!m.startOpen,endClose:!!m.endClose,allDay:m.allDay,text:menuToText(m.items)}));
   renderMenuBlocks();
+}
+function menuTimeField(i,which){
+  const b=menuBlocks[i], auto=which==='start'?b.startOpen:b.endClose, kind=which==='start'?'open':'close';
+  const key=which==='start'?'startOpen':'endClose', val=which==='start'?b.start:b.end;
+  const v=auto?tmResolve(kind):null;
+  const inner=auto?`<div class="tauto"><span>${esc(t(kind==='open'?'tmOpen':'tmClose'))}</span><small>${esc(v?t('tmToday').replace('{t}',formatTime12(v)):t('tmNoHours'))}</small></div>`
+    :`<input type="time" value="${val||''}" onchange="menuBlocks[${i}].${which}=this.value" style="width:100%;min-width:0;">`;
+  return `<div style="flex:1;min-width:0;">${inner}<div class="tsw"><button type="button" class="${auto?'':'on'}" onclick="menuBlocks[${i}].${key}=false;renderMenuBlocks()">${esc(t('tmTime'))}</button><button type="button" class="${auto?'on':''}" onclick="menuBlocks[${i}].${key}=true;renderMenuBlocks()">${esc(t(kind==='open'?'tmOpen':'tmClose'))}</button></div></div>`;
 }
 function renderMenuBlocks(){
   const el=document.getElementById('menuBlocks'); if(!el) return;
@@ -3476,10 +3562,9 @@ function renderMenuBlocks(){
         <input type="checkbox" ${b.allDay?'checked':''} onchange="menuBlocks[${i}].allDay=this.checked;renderMenuBlocks()"> ${esc(t('allDayCheck'))}
       </label>
       ${b.allDay?`<div style="background:var(--sand-light);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:8px;"><b style="color:var(--ink);">${esc(t('allDayNote'))}</b><br>${esc(menuHoursSummary())}<br><a href="#" style="color:var(--accent);font-weight:700;" onclick="showDashTab('profile');return false;">${esc(t('editHours'))}</a></div>`:`
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-        <input type="time" value="${b.start||''}" onchange="menuBlocks[${i}].start=this.value" style="flex:1;width:auto;min-width:0;">
-        <span style="color:var(--muted);">–</span>
-        <input type="time" value="${b.end||''}" onchange="menuBlocks[${i}].end=this.value" style="flex:1;width:auto;min-width:0;">
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">
+        ${menuTimeField(i,'start')}
+        ${menuTimeField(i,'end')}
       </div>`}
       <textarea style="min-height:${menuBlocks.length>1?160:220}px;" oninput="menuBlocks[${i}].text=this.value">${esc(b.text)}</textarea>
       <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
@@ -3496,6 +3581,7 @@ function todayHoursOf(r){
 }
 function allDayCloseTime(){ const d=todayHoursOf(currentRestaurant); return d?hLast(d):null; }
 function syncAllDayForms(){
+  try{ tmRefresh(); }catch(e){}
   const r=currentRestaurant||{};
   const pOn=document.getElementById('pAllDay')&&document.getElementById('pAllDay').checked;
   const rOn=document.getElementById('rdAllDay')&&document.getElementById('rdAllDay').checked;
@@ -3626,9 +3712,9 @@ async function handleMenuScan(e){
   e.target.value = '';
 }
 async function saveMenu(){
-  const menus = menuBlocks.map(b=>({name:(b.name||'').trim(),start:b.allDay?'':(b.start||''),end:b.allDay?'':(b.end||''),allDay:!!b.allDay,items:parseMenuText(b.text)})).filter(m=>Object.keys(m.items).length);
+  const menus = menuBlocks.map(b=>{ const so=!b.allDay&&!!b.startOpen, ec=!b.allDay&&!!b.endClose; const m={name:(b.name||'').trim(),start:(b.allDay||so)?'':(b.start||''),end:(b.allDay||ec)?'':(b.end||''),allDay:!!b.allDay,items:parseMenuText(b.text)}; if(so) m.startOpen=true; if(ec) m.endClose=true; return m; }).filter(m=>Object.keys(m.items).length);
   // One plain menu keeps the original shape, so nothing changes for restaurants that don't use this.
-  const menu = !menus.length ? {} : (menus.length===1 && !menus[0].name && !menus[0].start && !menus[0].end && !menus[0].allDay) ? menus[0].items : menus;
+  const menu = !menus.length ? {} : (menus.length===1 && !menus[0].name && !menus[0].start && !menus[0].end && !menus[0].allDay && !menus[0].startOpen && !menus[0].endClose) ? menus[0].items : menus;
   const st = document.getElementById('menuStatus');
   if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
   st.textContent=t('checking'); st.className='status-msg';
@@ -3852,6 +3938,7 @@ function updatePreview(){
     `<span>${esc(startLabel)}</span>${until?`<span>${esc(until)}</span>`:''}`;
 }
 async function postSpecial(){
+  try{ tmRefresh(); }catch(e){}
   const txt=document.getElementById('pText').value.trim();
   const picks=spKeys('p');
   const allDay=document.getElementById('pAllDay').checked;
@@ -3886,7 +3973,7 @@ function resetSpecialForm(){
   editingSpecialId=null;
   { const c=document.getElementById('pAllDay'); if(c){ c.checked=false; syncAllDayForms(); } }
   document.getElementById('pTitle').value='';
-  document.getElementById('pText').value='';spSet('p',[]);document.getElementById('pStart').value='';document.getElementById('pUntil').value='';
+  document.getElementById('pText').value='';spSet('p',[]);document.getElementById('pStart').value='';document.getElementById('pUntil').value='';tmSet('pStart',false);tmSet('pUntil',false);
   clearPhoto();
   updatePreview();
   document.getElementById('postBtn').textContent=t('postSpecial');
@@ -3902,6 +3989,7 @@ function editSpecial(id){
   document.getElementById('pTitle').value=p.title||'';
   document.getElementById('pText').value=p.text||'';
   spSet('p', slotKeysOf(p)||[]);
+  tmSet('pStart',false); tmSet('pUntil',false);
   document.getElementById('pStart').value=p.start_time||'';
   document.getElementById('pUntil').value=p.until_time||'';
   try{ updateSlotHints(); }catch(e){}
