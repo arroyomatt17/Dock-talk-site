@@ -392,6 +392,28 @@ h1,h2,h3,h4,.wordmark,.page-title,.intro-headline,.r-wordmark,.ef-title,.pc-name
 .chk-row input{width:auto;margin:0;accent-color:var(--accent);}
 .allday-note{background:var(--sand-light);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
 .allday-note b{color:var(--ink);}.allday-note a{color:var(--accent);font-weight:700;}
+.cf-bar{display:flex;align-items:center;gap:10px;border-radius:14px;padding:11px 14px;margin:12px 0 4px;font-size:13.5px;line-height:1.35;}
+.cf-bar .cf-t{flex:1;min-width:0;}.cf-bar b{display:block;font-size:14px;}
+.cf-bar.good{background:rgba(47,125,79,.10);border:1px solid rgba(47,125,79,.35);color:#2f7d4f;}
+.cf-bar.soon{background:rgba(201,138,0,.12);border:1px solid rgba(201,138,0,.45);color:#B07A00;}
+.cf-bar.late{background:rgba(214,59,43,.10);border:1px solid var(--accent);color:var(--accent);}
+.cf-btn{font-family:inherit;font-size:13px;font-weight:700;border-radius:100px;padding:8px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;flex:none;}
+.cf-btn.ghost{background:transparent;color:var(--accent);}
+.cf-btn:disabled{opacity:.5;cursor:default;}
+.cf-chip{font-size:11px;font-weight:700;border-radius:100px;padding:3px 9px;white-space:nowrap;display:inline-block;}
+.cf-chip.g{background:rgba(47,125,79,.14);color:#2f7d4f;}.cf-chip.a{background:rgba(201,138,0,.16);color:#B07A00;}.cf-chip.r{background:rgba(214,59,43,.14);color:var(--accent);}
+.cf-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line-soft);font-size:14px;}
+.cf-row:first-child{border-top:none;}.cf-row small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px;}
+.cf-tick{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--accent);background:transparent;color:#fff;font-size:14px;line-height:1;cursor:pointer;flex:none;padding:0;display:flex;align-items:center;justify-content:center;}
+.cf-tick.on{background:var(--accent);}
+.cf-how{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px;}
+.cf-how button{font-family:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:100px;padding:5px 12px;cursor:pointer;}
+.cf-how button.on{background:var(--accent);color:#fff;}
+.cf-tgl{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line-soft);font-size:14px;}
+.cf-tgl:first-of-type{border-top:none;}.cf-tgl small{display:block;color:var(--muted);font-size:12px;margin-top:2px;}
+.cf-sw{width:42px;height:24px;border-radius:12px;background:var(--line);position:relative;flex:none;border:none;cursor:pointer;padding:0;}
+.cf-sw:after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s;}
+.cf-sw.on{background:var(--accent);}.cf-sw.on:after{left:21px;}
 .tsw{display:flex;gap:4px;margin-top:6px;}
 .tsw button{font-family:inherit;font-size:11.5px;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:100px;padding:3px 11px;cursor:pointer;}
 .tsw button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
@@ -711,6 +733,17 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
     <button type="button" class="mdeal-arrow" onclick="pvStep(1)" aria-label="Next deal">›</button>
   </div>
   <div class="pv-actions"><button type="button" class="btn pv-share" id="pvShare" onclick="shareDeal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span data-i18n="shareBtn"></span></button><button type="button" class="btn btn-sea pv-go" id="pvGo" data-i18n="viewRestaurant"></button></div>
+</div>
+
+<div class="pv-scrim" id="cfScrim" onclick="closeConfirmSheet()"></div>
+<div class="pv" id="cfSheet" role="dialog" aria-modal="true">
+  <div class="pv-grab"></div>
+  <div class="pv-scroll" id="cfBody" style="margin-top:2px;"></div>
+</div>
+<div class="pv-scrim" id="pushScrim" onclick="pushAskNo()"></div>
+<div class="pv" id="pushSheet" role="dialog" aria-modal="true">
+  <div class="pv-grab"></div>
+  <div id="pushBody"></div>
 </div>
 
 <!-- INTRO -->
@@ -1062,6 +1095,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       </div>
     </div>
     <div id="dashSwitchWrap"></div>
+    <div id="confirmCard"></div>
     <div class="dash-tabs">
       <button type="button" class="dash-tab-btn" id="dashTabBtnStats" style="display:none" onclick="showDashTab('stats')">Stats</button>
       <button type="button" class="dash-tab-btn" id="dashTabBtnProfile" onclick="showDashTab('profile')" data-i18n="dashProfileTitle"></button>
@@ -1123,6 +1157,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       <div class="status-msg" id="changePasswordStatus"></div>
     </div>
     <div class="card" id="dashTourCard"><button type="button" class="btn btn-ghost" onclick="openTour('rest')" data-i18n="tourHow"></button></div>
+    <div class="card" id="dashPushCard" style="display:none;"></div>
     <div class="card del-card" id="dashDeleteCard">
       <h2 data-i18n="delTitle"></h2>
       <p data-i18n="delRestBody"></p>
@@ -1268,6 +1303,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       </div>
       <div class="status-msg" id="adminListStatus"></div>
     </div>
+    <div id="adminCfBar" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px;"></div>
     <div class="posted-list" id="adminRestaurantList"></div>
     <div class="card" style="margin-top:16px;">
       <div class="page-title" style="font-size:16px;margin-bottom:10px;">+ Add a new restaurant</div>
@@ -1331,6 +1367,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
     </div>
     <div id="favoritesList"></div>
     <div class="card" id="favThemeCard"><div class="th-h" data-i18n="themeTitle"></div><div class="th-s" data-i18n="themeSub"></div><div class="th-seg"><button type="button" id="thLight" onclick="setTheme('light')" data-i18n="themeLight"></button><button type="button" id="thDark" onclick="setTheme('dark')" data-i18n="themeDark"></button></div></div>
+    <div class="card" id="favPushCard" style="display:none;"></div>
     <div class="card" id="favTourCard"><button type="button" class="btn btn-ghost" onclick="openTour(true)" data-i18n="tourHow"></button></div>
     <div class="card del-card" id="favDeleteCard">
       <h2 data-i18n="delTitle"></h2>
@@ -1352,7 +1389,7 @@ refresh:"Refresh",allTowns:"All towns",allTimes:"All times",
 specialsCount:"specials tonight",specialCount:"special tonight",
 emptyTitle:"Nothing here yet",emptySub:"Try a different filter, or check back later.",emptyTitleLate:"Even the chefs are asleep",emptySubLate:"No specials posted at this hour — check back after the sun's up.",
 hours:"Hours",location:"Location",phone:"Phone",menu:"Menu",
-notListed:"Not listed",hKitchen:"Kitchen",hKitchenCloses:"Kitchen closes",hKitchenClosed:"Kitchen closed",hBarOpen:"Bar open",hBarUntil:"Bar until",hOpen:"Open",hClosed:"Closed",hClosingSoon:"Closing soon",hCloses:"Closes",hOpens:"Opens",hReopens:"Reopens",tmTime:"Time",tmOpen:"Open",tmClose:"Close",tmToday:"{t} today",tmEach:"Follows each day",tmNoHours:"Set your hours first",tmEndsAt:"Ends at close",tmStartsAt:"Starts at open",hTomorrow:"tomorrow",hSeeAll:"See all hours",hHideAll:"Hide hours",
+notListed:"Not listed",hKitchen:"Kitchen",hKitchenCloses:"Kitchen closes",hKitchenClosed:"Kitchen closed",hBarOpen:"Bar open",hBarUntil:"Bar until",hOpen:"Open",hClosed:"Closed",hClosingSoon:"Closing soon",hCloses:"Closes",hOpens:"Opens",hReopens:"Reopens",pushAsk:"Get notified when {name} posts?",pushAskS:"We'll ping you when they post a deal or a recurring deal goes live. Quiet hours 10 PM to 9 AM.",pushOn:"Turn on alerts",pushNot:"Not now",pushGot:"Got it",pushFavs:"Favorites alerts",pushFavsS:"When a favorite posts or a recurring deal goes live",pushQuiet:"Quiet hours",pushQuietS:"No alerts 10 PM to 9 AM. Held and sent at 9 AM.",pushIos:"Add to Home Screen for alerts",pushIosS:"On iPhone, tap Share, then Add to Home Screen. Then you can turn alerts on.",pushRem:"Posting reminders",pushRemS:"If you haven't updated or confirmed a deal in 7 days",pushDenied:"Alerts are blocked in your browser settings.",pushTitle:"Notifications",cfLive:"Live",cfConfirm:"Confirm",cfStill:"Still active",cfPaused:"Paused",cfResume:"Resume",cfOff:"Off",cfAllGood:"All deals confirmed",cfNext:"Next check-in in {n} days",cfSoonT:"Still running these?",cfSoonS:"Confirm by {day} to keep them live",cfLateT:"{n} deals paused",cfLateT1:"1 deal paused",cfLateS:"Diners can't see them until you confirm",cfLateBtn:"Confirm & resume",cfSheetT:"Confirm what's live",cfSheetS:"Untick anything that's ended. Unticked deals are turned off.",cfMenuHrs:"Menu & hours",cfMenuHrsS:"Still correct",cfAllOk:"Yes, all of this is current",cfAdminT:"Confirming as admin",cfAdminS:"Confirm on their behalf",cfFor:"Confirm for {name}",cfHow:"How did they confirm?",cfText:"Text",cfCall:"Call",cfPerson:"In person",cfEmail:"Email",cfNote:"Note (optional)",cfByAdmin:"Confirmed by Dock Talk on {date}, by {via}",cfBulkBtn:"Confirm {n} restaurants",cfBulkS:"Confirms every live recurring deal for these restaurants.",cfEdit:"Edit",cfDoneMsg:"Confirmed.",cfByAdmin0:"Confirmed by Dock Talk on {date}",cfTurnOn:"Turn on",pushThis:"this restaurant",tmTime:"Time",tmOpen:"Open",tmClose:"Close",tmToday:"{t} today",tmEach:"Follows each day",tmNoHours:"Set your hours first",tmEndsAt:"Ends at close",tmStartsAt:"Starts at open",hTomorrow:"tomorrow",hSeeAll:"See all hours",hHideAll:"Hide hours",
 dinerJoin:"Get the first invite",dinerSub:"We'll tell you when restaurants near you post something good. No spam, no ads.",dinerTownHint:"We'll start with specials in your town.",dinerCta:"Join the list",restaurantInstead:"Run a restaurant?",restaurantSignIn:"Sign in as a restaurant",backToDiner:"← Back to diner sign-up",dinerDoneTitle:"You're on the list",dinerDoneBody:"We'll email you when {town} restaurants start posting.",enterEmail:"Enter a valid email.",selectTown:"Select your town.",addPhoto:"Photo (optional)",choosePhoto:"Add a photo",changePhoto:"Change photo",photoHint:"A quick phone shot works better than a stock image.",forDiners:"For *diners*",forRestaurants:"For *restaurants*",welcomeBack:"Welcome back",loginSub:"Enter your email and we'll send you a magic link.",
 sendCode:"Send magic link",newRestaurant:"New restaurant? ",signUp:"Learn more",
 claimSpot:"Mind if we talk about you?",claimSub:"Create your own login below — once we verify your restaurant you can start posting.",emailUsCta:"Email us to get set up",restaurantLoginCta:"Log in",restaurantSignUpCta:"Sign up",yourPhone:"Phone",restaurantPhone:"Restaurant phone",regionVT:"Stowe, VT",restaurantSignupCta:"Create restaurant account",restaurantWelcomeTitle:"Account created",restaurantWelcomeBody:"Log in anytime to check your status. Once we verify your restaurant, you'll be able to post specials right away.",restaurantWelcomeCta:"Go to log in",
@@ -1391,7 +1428,7 @@ refresh:"Actualizar",allTowns:"Todos los pueblos",allTimes:"Todos los horarios",
 specialsCount:"especiales hoy",specialCount:"especial hoy",
 emptyTitle:"Todavía no hay nada",emptySub:"Probá otro filtro, o volvé más tarde.",emptyTitleLate:"Hasta los cocineros están durmiendo",emptySubLate:"No hay ofertas publicadas a esta hora — volvé cuando salga el sol.",
 hours:"Horario",location:"Ubicación",phone:"Teléfono",menu:"Menú",
-notListed:"No indicado",hKitchen:"Cocina",hKitchenCloses:"Cocina cierra",hKitchenClosed:"Cocina cerrada",hBarOpen:"Bar abierto",hBarUntil:"Bar hasta",hOpen:"Abierto",hClosed:"Cerrado",hClosingSoon:"Cierra pronto",hCloses:"Cierra",hOpens:"Abre",hReopens:"Reabre",tmTime:"Hora",tmOpen:"Apertura",tmClose:"Cierre",tmToday:"{t} hoy",tmEach:"Sigue cada día",tmNoHours:"Primero configura tus horarios",tmEndsAt:"Termina al cierre",tmStartsAt:"Empieza a la apertura",hTomorrow:"mañana",hSeeAll:"Ver todos los horarios",hHideAll:"Ocultar horarios",
+notListed:"No indicado",hKitchen:"Cocina",hKitchenCloses:"Cocina cierra",hKitchenClosed:"Cocina cerrada",hBarOpen:"Bar abierto",hBarUntil:"Bar hasta",hOpen:"Abierto",hClosed:"Cerrado",hClosingSoon:"Cierra pronto",hCloses:"Cierra",hOpens:"Abre",hReopens:"Reabre",pushAsk:"¿Avisarte cuando {name} publique?",pushAskS:"Te avisamos cuando publique una oferta o una oferta recurrente empiece. Horas de silencio: 10 PM a 9 AM.",pushOn:"Activar avisos",pushNot:"Ahora no",pushGot:"Entendido",pushFavs:"Avisos de favoritos",pushFavsS:"Cuando un favorito publica o una oferta recurrente empieza",pushQuiet:"Horas de silencio",pushQuietS:"Sin avisos de 10 PM a 9 AM. Se envían a las 9 AM.",pushIos:"Agregá a la pantalla de inicio",pushIosS:"En iPhone, tocá Compartir y luego Agregar a pantalla de inicio. Después podés activar los avisos.",pushRem:"Recordatorios",pushRemS:"Si no actualizaste ni confirmaste una oferta en 7 días",pushDenied:"Los avisos están bloqueados en tu navegador.",pushTitle:"Notificaciones",tmTime:"Hora",tmOpen:"Apertura",tmClose:"Cierre",tmToday:"{t} hoy",tmEach:"Sigue cada día",tmNoHours:"Primero configura tus horarios",tmEndsAt:"Termina al cierre",tmStartsAt:"Empieza a la apertura",hTomorrow:"mañana",hSeeAll:"Ver todos los horarios",hHideAll:"Ocultar horarios",
 dinerJoin:"Recibí la primera invitación",dinerSub:"Te avisamos cuando los restaurantes cerca tuyo publiquen algo bueno. Sin spam, sin anuncios.",dinerTownHint:"Empezamos con los especiales de tu pueblo.",dinerCta:"Unirme a la lista",restaurantInstead:"¿Tenés un restaurante?",restaurantSignIn:"Ingresar como restaurante",backToDiner:"← Volver al registro de comensales",dinerDoneTitle:"Ya estás en la lista",dinerDoneBody:"Te escribimos cuando los restaurantes de {town} empiecen a publicar.",enterEmail:"Ingresá un correo válido.",selectTown:"Seleccioná tu pueblo.",addPhoto:"Foto (opcional)",choosePhoto:"Agregar foto",changePhoto:"Cambiar foto",photoHint:"Una foto rápida del celular funciona mejor que una imagen de stock.",forDiners:"Para *comensales*",forRestaurants:"Para *restaurantes*",welcomeBack:"Bienvenido de nuevo",loginSub:"Ingresá tu correo y te enviamos un enlace mágico.",
 sendCode:"Enviar enlace mágico",newRestaurant:"¿Restaurante nuevo? ",signUp:"Más información",
 claimSpot:"¿Querés Dock Talk en tu restaurante?",claimSub:"Incorporamos restaurantes personalmente — escribinos y te configuramos un acceso en minutos.",emailUsCta:"Escribinos para arrancar",
@@ -1424,7 +1461,7 @@ refresh:"Actualiser",allTowns:"Toutes les villes",allTimes:"Tous les horaires",
 specialsCount:"offres ce soir",specialCount:"offre ce soir",
 emptyTitle:"Rien pour l'instant",emptySub:"Essayez un autre filtre, ou revenez plus tard.",emptyTitleLate:"Même les chefs dorment",emptySubLate:"Aucune offre publiée à cette heure — revenez au lever du soleil.",
 hours:"Horaires",location:"Adresse",phone:"Téléphone",menu:"Menu",
-notListed:"Non indiqué",hKitchen:"Cuisine",hKitchenCloses:"Cuisine ferme à",hKitchenClosed:"Cuisine fermée",hBarOpen:"Bar ouvert",hBarUntil:"Bar jusqu'à",hOpen:"Ouvert",hClosed:"Fermé",hClosingSoon:"Ferme bientôt",hCloses:"Ferme à",hOpens:"Ouvre",hReopens:"Rouvre",tmTime:"Heure",tmOpen:"Ouverture",tmClose:"Fermeture",tmToday:"{t} aujourd'hui",tmEach:"Suit chaque jour",tmNoHours:"Définissez d'abord vos horaires",tmEndsAt:"Finit à la fermeture",tmStartsAt:"Commence à l'ouverture",hTomorrow:"demain",hSeeAll:"Voir tous les horaires",hHideAll:"Masquer les horaires",
+notListed:"Non indiqué",hKitchen:"Cuisine",hKitchenCloses:"Cuisine ferme à",hKitchenClosed:"Cuisine fermée",hBarOpen:"Bar ouvert",hBarUntil:"Bar jusqu'à",hOpen:"Ouvert",hClosed:"Fermé",hClosingSoon:"Ferme bientôt",hCloses:"Ferme à",hOpens:"Ouvre",hReopens:"Rouvre",pushAsk:"Être averti quand {name} publie ?",pushAskS:"Nous vous prévenons quand une offre est publiée ou qu'une offre récurrente commence. Silence de 22 h à 9 h.",pushOn:"Activer les alertes",pushNot:"Pas maintenant",pushGot:"Compris",pushFavs:"Alertes favoris",pushFavsS:"Quand un favori publie ou qu'une offre récurrente commence",pushQuiet:"Heures calmes",pushQuietS:"Pas d'alertes de 22 h à 9 h. Envoyées à 9 h.",pushIos:"Ajoutez à l'écran d'accueil",pushIosS:"Sur iPhone, touchez Partager puis Sur l'écran d'accueil. Vous pourrez ensuite activer les alertes.",pushRem:"Rappels de publication",pushRemS:"Si vous n'avez pas mis à jour ou confirmé une offre en 7 jours",pushDenied:"Les alertes sont bloquées dans votre navigateur.",pushTitle:"Notifications",tmTime:"Heure",tmOpen:"Ouverture",tmClose:"Fermeture",tmToday:"{t} aujourd'hui",tmEach:"Suit chaque jour",tmNoHours:"Définissez d'abord vos horaires",tmEndsAt:"Finit à la fermeture",tmStartsAt:"Commence à l'ouverture",hTomorrow:"demain",hSeeAll:"Voir tous les horaires",hHideAll:"Masquer les horaires",
 dinerJoin:"Recevez la première invitation",dinerSub:"Nous vous prévenons quand les restaurants près de chez vous publient quelque chose de bien. Pas de spam, pas de pub.",dinerTownHint:"Nous commencerons par les offres de votre ville.",dinerCta:"Rejoindre la liste",restaurantInstead:"Vous gérez un restaurant ?",restaurantSignIn:"Se connecter en tant que restaurant",backToDiner:"← Retour à l'inscription client",dinerDoneTitle:"Vous êtes sur la liste",dinerDoneBody:"Nous vous écrirons quand les restaurants de {town} commenceront à publier.",enterEmail:"Entrez une adresse e-mail valide.",selectTown:"Sélectionnez votre ville.",addPhoto:"Photo (facultatif)",choosePhoto:"Ajouter une photo",changePhoto:"Changer la photo",photoHint:"Une photo prise au téléphone marche mieux qu'une image de stock.",forDiners:"Pour les *clients*",forRestaurants:"Pour les *restaurants*",welcomeBack:"Bon retour",loginSub:"Entrez votre e-mail, nous vous enverrons un lien magique.",
 sendCode:"Envoyer le lien magique",newRestaurant:"Nouveau restaurant ? ",signUp:"En savoir plus",
 claimSpot:"Envie de Dock Talk dans votre restaurant ?",claimSub:"Nous accompagnons chaque restaurant personnellement — contactez-nous, accès prêt en quelques minutes.",emailUsCta:"Écrivez-nous pour démarrer",
@@ -1457,7 +1494,7 @@ refresh:"刷新",allTowns:"全部城镇",allTimes:"全部时段",
 specialsCount:"个今晚特色",specialCount:"个今晚特色",
 emptyTitle:"暂时还没有",emptySub:"换个筛选条件，或稍后再来看看。",emptyTitleLate:"厨师们都睡着了",emptySubLate:"这个时间还没有特价发布 — 太阳出来后再来看看吧。",
 hours:"营业时间",location:"地址",phone:"电话",menu:"菜单",
-notListed:"未提供",hKitchen:"厨房",hKitchenCloses:"厨房打烊",hKitchenClosed:"厨房已打烊",hBarOpen:"酒吧营业中",hBarUntil:"酒吧营业至",hOpen:"营业中",hClosed:"已打烊",hClosingSoon:"即将打烊",hCloses:"打烊时间",hOpens:"开门时间",hReopens:"重新营业",tmTime:"时间",tmOpen:"开门",tmClose:"打烊",tmToday:"今天 {t}",tmEach:"按每天营业时间",tmNoHours:"请先设置营业时间",tmEndsAt:"打烊时结束",tmStartsAt:"开门时开始",hTomorrow:"明天",hSeeAll:"查看全部营业时间",hHideAll:"收起营业时间",
+notListed:"未提供",hKitchen:"厨房",hKitchenCloses:"厨房打烊",hKitchenClosed:"厨房已打烊",hBarOpen:"酒吧营业中",hBarUntil:"酒吧营业至",hOpen:"营业中",hClosed:"已打烊",hClosingSoon:"即将打烊",hCloses:"打烊时间",hOpens:"开门时间",hReopens:"重新营业",pushAsk:"{name} 发布时通知你？",pushAskS:"他们发布优惠或循环优惠开始时我们会提醒你。免打扰时间：晚上10点到早上9点。",pushOn:"开启提醒",pushNot:"暂不",pushGot:"知道了",pushFavs:"收藏提醒",pushFavsS:"收藏的餐厅发布或循环优惠开始时",pushQuiet:"免打扰时间",pushQuietS:"晚上10点到早上9点不提醒，早上9点统一发送。",pushIos:"添加到主屏幕以接收提醒",pushIosS:"在 iPhone 上，点分享，再点添加到主屏幕，然后即可开启提醒。",pushRem:"发布提醒",pushRemS:"如果7天内没有更新或确认优惠",pushDenied:"浏览器已屏蔽提醒。",pushTitle:"通知",tmTime:"时间",tmOpen:"开门",tmClose:"打烊",tmToday:"今天 {t}",tmEach:"按每天营业时间",tmNoHours:"请先设置营业时间",tmEndsAt:"打烊时结束",tmStartsAt:"开门时开始",hTomorrow:"明天",hSeeAll:"查看全部营业时间",hHideAll:"收起营业时间",
 dinerJoin:"抢先获得邀请",dinerSub:"附近餐厅发布好消息时我们会通知你。没有垃圾信息，没有广告。",dinerTownHint:"我们会从你所在城镇的特色菜开始。",dinerCta:"加入名单",restaurantInstead:"经营餐厅？",restaurantSignIn:"以餐厅身份登录",backToDiner:"← 返回食客注册",dinerDoneTitle:"你已加入名单",dinerDoneBody:"{town}的餐厅开始发布时，我们会给你发邮件。",enterEmail:"请输入有效的邮箱。",selectTown:"请选择你的城镇。",addPhoto:"照片（可选）",choosePhoto:"添加照片",changePhoto:"更换照片",photoHint:"随手用手机拍的照片比图库图片效果更好。",forDiners:"*食客*专用",forRestaurants:"*餐厅*专用",welcomeBack:"欢迎回来",loginSub:"输入邮箱，我们会发送登录链接。",
 sendCode:"发送登录链接",newRestaurant:"新餐厅？",signUp:"了解更多",
 claimSpot:"想让你的餐厅加入 Dock Talk？",claimSub:"我们会亲自为每家餐厅开通 — 联系我们，几分钟内为你设置好登录。",emailUsCta:"发邮件联系我们开通",
@@ -1490,7 +1527,7 @@ refresh:"Aktualisieren",allTowns:"Alle Orte",allTimes:"Alle Zeiten",
 specialsCount:"Angebote heute",specialCount:"Angebot heute",
 emptyTitle:"Noch nichts da",emptySub:"Anderen Filter probieren oder später wiederkommen.",emptyTitleLate:"Sogar die Köche schlafen schon",emptySubLate:"Um diese Uhrzeit gibt es keine Angebote — schau nach Sonnenaufgang wieder vorbei.",
 hours:"Öffnungszeiten",location:"Adresse",phone:"Telefon",menu:"Speisekarte",
-notListed:"Nicht angegeben",hKitchen:"Küche",hKitchenCloses:"Küche schließt",hKitchenClosed:"Küche geschlossen",hBarOpen:"Bar geöffnet",hBarUntil:"Bar bis",hOpen:"Geöffnet",hClosed:"Geschlossen",hClosingSoon:"Schließt bald",hCloses:"Schließt",hOpens:"Öffnet",hReopens:"Öffnet wieder",tmTime:"Zeit",tmOpen:"Öffnung",tmClose:"Schließung",tmToday:"{t} heute",tmEach:"Folgt jedem Tag",tmNoHours:"Zuerst Öffnungszeiten festlegen",tmEndsAt:"Endet bei Schließung",tmStartsAt:"Beginnt bei Öffnung",hTomorrow:"morgen",hSeeAll:"Alle Öffnungszeiten",hHideAll:"Öffnungszeiten ausblenden",
+notListed:"Nicht angegeben",hKitchen:"Küche",hKitchenCloses:"Küche schließt",hKitchenClosed:"Küche geschlossen",hBarOpen:"Bar geöffnet",hBarUntil:"Bar bis",hOpen:"Geöffnet",hClosed:"Geschlossen",hClosingSoon:"Schließt bald",hCloses:"Schließt",hOpens:"Öffnet",hReopens:"Öffnet wieder",pushAsk:"Benachrichtigen, wenn {name} etwas postet?",pushAskS:"Wir melden uns, wenn ein Angebot gepostet wird oder ein wiederkehrendes Angebot startet. Ruhezeit 22 bis 9 Uhr.",pushOn:"Hinweise aktivieren",pushNot:"Nicht jetzt",pushGot:"Verstanden",pushFavs:"Favoriten-Hinweise",pushFavsS:"Wenn ein Favorit postet oder ein wiederkehrendes Angebot startet",pushQuiet:"Ruhezeit",pushQuietS:"Keine Hinweise von 22 bis 9 Uhr. Versand um 9 Uhr.",pushIos:"Zum Home-Bildschirm hinzufügen",pushIosS:"Auf dem iPhone auf Teilen tippen, dann Zum Home-Bildschirm. Danach lassen sich Hinweise aktivieren.",pushRem:"Post-Erinnerungen",pushRemS:"Wenn du 7 Tage lang kein Angebot aktualisiert oder bestätigt hast",pushDenied:"Hinweise sind in deinem Browser blockiert.",pushTitle:"Benachrichtigungen",tmTime:"Zeit",tmOpen:"Öffnung",tmClose:"Schließung",tmToday:"{t} heute",tmEach:"Folgt jedem Tag",tmNoHours:"Zuerst Öffnungszeiten festlegen",tmEndsAt:"Endet bei Schließung",tmStartsAt:"Beginnt bei Öffnung",hTomorrow:"morgen",hSeeAll:"Alle Öffnungszeiten",hHideAll:"Öffnungszeiten ausblenden",
 dinerJoin:"Sichere dir die erste Einladung",dinerSub:"Wir sagen dir Bescheid, wenn Restaurants in deiner Nähe etwas Gutes posten. Kein Spam, keine Werbung.",dinerTownHint:"Wir starten mit den Angeboten in deinem Ort.",dinerCta:"Zur Liste hinzufügen",restaurantInstead:"Betreibst du ein Restaurant?",restaurantSignIn:"Als Restaurant anmelden",backToDiner:"← Zurück zur Gäste-Anmeldung",dinerDoneTitle:"Du bist auf der Liste",dinerDoneBody:"Wir melden uns, sobald Restaurants in {town} anfangen zu posten.",enterEmail:"Bitte gültige E-Mail eingeben.",selectTown:"Bitte Ort auswählen.",addPhoto:"Foto (optional)",choosePhoto:"Foto hinzufügen",changePhoto:"Foto ändern",photoHint:"Ein schnelles Handyfoto wirkt besser als ein Stockbild.",forDiners:"Für *Gäste*",forRestaurants:"Für *Restaurants*",welcomeBack:"Willkommen zurück",loginSub:"E-Mail eingeben, wir senden einen Magic Link.",
 sendCode:"Magic Link senden",newRestaurant:"Neues Restaurant? ",signUp:"Mehr erfahren",
 claimSpot:"Dock Talk für dein Restaurant?",claimSub:"Wir richten jedes Restaurant persönlich ein — melde dich, und du hast in wenigen Minuten einen Zugang.",emailUsCta:"Schreib uns, um loszulegen",
@@ -2228,6 +2265,7 @@ async function toggleFavorite(rid,evt){
   } else {
     favoritesSet.add(rid);
     await sb.from('diner_favorites').insert({diner_id:currentDiner.id, restaurant_id:rid});
+    try{ maybeAskPush(rid); }catch(e){}
   }
   if(document.getElementById('screenDiner').classList.contains('active')) loadFeed();
   if(document.getElementById('screenDetail').classList.contains('active')) updateFavBtn();
@@ -2243,6 +2281,7 @@ function updateFavBtn(){
   btn.classList.toggle('active',fav);
 }
 async function loadFavoritesScreen(){
+  try{ renderPushCards(); }catch(e){}
   const ttl=document.getElementById('favTitle'), so=document.getElementById('favSignOut'), em=document.getElementById('favEmail'), list0=document.getElementById('favoritesList');
   if(!currentDiner && (isAdmin || adminMode || currentRestaurant || (ownerRestaurants&&ownerRestaurants.length))){
     // Signed-in admin / restaurant owner: no diner profile, so show who is signed in + a way back
@@ -2757,6 +2796,7 @@ async function loadAdminPicker(){
     rSel.innerHTML=ACTIVE_REGIONS.map(k=>`<option value="${k}">${REGIONS[k].flag} ${REGIONS[k].label.en}</option>`).join('');
     onAdminNewRegionChange();
   }
+  await loadAdminDeals();
   renderAdminList();
 }
 function renderAdminList(){
@@ -2769,11 +2809,13 @@ function renderAdminList(){
   const rk=r=>(r.region==='us'||!r.region?0:1)*1000+townRank(r.town,r.region);
   const best={}; rows.forEach(r=>{ const k=ownKey(r); best[k]=Math.min(best[k]??9999,rk(r)); });
   rows.sort((a,b)=>best[ownKey(a)]-best[ownKey(b)] || ownKey(a).localeCompare(ownKey(b)) || rk(a)-rk(b) || (a.name||'').localeCompare(b.name||''));
+  if(adminSortStale){ const sk=r=>{ const i=adminCfInfo(r); return i?i.w:-1; }; rows.sort((a,b)=>sk(b)-sk(a)); }
   let lastOwn=null, lastTown=null;
+  try{ renderAdminCfBar(); }catch(e){}
   list.innerHTML = rows.length ? rows.map(r=>{
     const k=ownKey(r), first=k!==lastOwn, grp=perOwner[r.email]>1&&r.email;
     let pre='';
-    if(first){
+    if(first && !adminSortStale){
       const tw=r.town||'';
       if(tw!==lastTown){ pre+=`<div class="x-town">${esc(tw)}</div>`; lastTown=tw; }
     }
@@ -2781,13 +2823,15 @@ function renderAdminList(){
     return pre+`
     <div class="posted-item"${grp?' style="border-left:3px solid var(--accent);padding-left:10px;"':''}>
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;">${esc(r.name)}${r.status==='pending'?' <span class="rsw-pill" style="margin-left:6px;">PENDING</span>':''}</div>
+        <div style="font-weight:700;">${r.status==='approved'&&adminCfInfo(r)?`<input type="checkbox" ${adminCfSel.has(r.id)?'checked':''} onchange="adminCfToggle('${r.id}',this.checked)" style="width:auto;margin:0 8px 0 0;vertical-align:-2px;">`:''}${esc(r.name)}${r.status==='pending'?' <span class="rsw-pill" style="margin-left:6px;">PENDING</span>':''}</div>
         <div style="font-size:12.5px;color:var(--muted);">${esc(r.town||'')} · ${esc(r.status)} · ${r.claimed===false?'unclaimed':'claimed'}</div>
         ${r.email?`<div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(r.email)}${perOwner[r.email]>1?` · <span style="color:var(--accent);font-weight:700;">${perOwner[r.email]} restaurants</span>`:''}</div>`:''}
+        ${r.status==='approved'?adminCfChip(r):''}
         ${r.claimed===false && r.claim_code ? `<div style="font-size:12px;color:var(--sea);cursor:pointer;margin-top:4px;" onclick="copyClaimLink('${r.claim_code}')">Copy claim link</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
         ${r.status==='pending'?`<button class="btn btn-sea btn-sm" style="width:auto;" onclick="adminApproveRestaurant('${r.id}',this)">Approve</button>`:''}
+        ${r.status==='approved'&&adminCfInfo(r)?`<button type="button" class="cf-btn" onclick="adminConfirmRestaurant('${r.id}')">${esc(t('cfConfirm'))}</button>`:''}
         <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="adminSelectRestaurant('${r.id}')">Post for this</button>
         <button class="delete-btn" data-id="${r.id}" onclick="adminDeleteRestaurant('${r.id}', this)">Remove</button>
       </div>
@@ -3148,6 +3192,8 @@ async function loadDashboard(){
   updatePreview(); await loadPosted(); loadProfileForm(); loadMenuForm(); await loadRecurringList();
   renderRdPhotoThumb();
   showDashTab('post');
+  try{ renderConfirmCard(); renderPushCards(); }catch(e){}
+  try{ if(new URLSearchParams(location.search).get('confirm')){ history.replaceState(null,'','/'); openConfirmSheet(); } }catch(e){}
 }
 function showDashTab(tab){
   try{ syncAllDayForms(); }catch(e){}
@@ -3191,6 +3237,7 @@ function rdTimesForDay(rd,day){
 }
 function isRecurringActive(rd){
   if(!rd || rd.enabled===false || !rd.text) return false;
+  if(rdPaused(rd)) return false;
   if(rd.all_day||rd.start_open||rd.end_close){
     const n0=new Date(); const d0=(n0.getDay()+6)%7;
     if(rd.days&&rd.days.length&&!rd.days.includes(d0)) return false;
@@ -3239,6 +3286,7 @@ function upcomingSpecialInfo(s, cutoff){
 // hasn't started yet, or its next occurrence is on a future day of the week.
 function upcomingRecurringInfo(rd, cutoff){
   if(!rd || rd.enabled===false || !rd.text) return null;
+  if(rdPaused(rd)) return null;
   if(isRecurringActive(rd)) return null;
   const now = new Date();
   const curDay = (now.getDay()+6)%7;
@@ -3399,12 +3447,21 @@ async function saveRecurring(){
   const saveRd=(pl)=>editingRecurringId
     ? sb.from('recurring_deals').update(pl).eq('id', editingRecurringId).select('id')
     : sb.from('recurring_deals').insert({ restaurant_id: currentRestaurant.id, ...pl, enabled:true }).select('id');
-  let {data:savedRows, error} = await saveRd(payload);
-  if(error && /slots/i.test(error.message||'')){ const pl2={...payload}; delete pl2.slots; ({data:savedRows, error} = await saveRd(pl2)); }  // before slots_migration.sql has been run
+  const plc={...payload, confirmed_at:new Date().toISOString(), confirmed_by:cfAsAdmin()?'admin':'owner'};
+  let {data:savedRows, error} = await saveRd(plc);
+  for(let i=0;i<4&&error;i++){  // columns added by later SQL files may not exist yet: drop what the database doesn't know and retry
+    const m=error.message||''; let ch=false;
+    if(/slots/i.test(m)&&plc.slots!==undefined){ delete plc.slots; ch=true; }
+    if(/confirmed_at|confirmed_by/i.test(m)&&(plc.confirmed_at!==undefined||plc.confirmed_by!==undefined)){ delete plc.confirmed_at; delete plc.confirmed_by; ch=true; }
+    if(/start_open|end_close/i.test(m)&&(plc.start_open!==undefined||plc.end_close!==undefined)){ delete plc.start_open; delete plc.end_close; ch=true; }
+    if(!ch) break;
+    ({data:savedRows, error} = await saveRd(plc));
+  }
   if(error){ console.error(error); st.textContent=t('loadError')+' ('+(error.message||'error')+')'; st.className='status-msg err'; return; }
   if(!savedRows || !savedRows.length){ st.textContent='Not saved: this account is not allowed to change that deal.'; st.className='status-msg err'; return; }
   const wasEditing = !!editingRecurringId;
   resetRecurringForm();
+  touchActivity();
   st.textContent = wasEditing ? 'Saved.' : t('recurringSaved'); st.className='status-msg';
   await loadRecurringList();
   setTimeout(()=>{st.textContent='';},3000);
@@ -3458,6 +3515,7 @@ async function loadRecurringList(){
   if(error){ console.error(error); el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('loadError')}</p>`; return; }
   recurringDealsCache = data||[];
   recurringDealsCache.forEach(x=>{ x._hours=currentRestaurant&&currentRestaurant.hours_json; });
+  try{ renderConfirmCard(); }catch(e){}
   const mine=recurringDealsCache;
   if(!mine.length){
     el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-top:16px;">${t('noRecurringDeals')}</p>`;
@@ -3467,6 +3525,7 @@ async function loadRecurringList(){
     mine.map(rd=>`<div class="posted-item"><div><div class="pi-slot">${esc(daysSummary(rd.days))}${rd.all_day?' · '+esc(t('allDayShort')):((rd.start_time||rd.start_open)&&(rd.end_time||rd.end_close)?' · '+esc(rd.start_open?t('tmOpen'):formatTime12(rd.start_time))+'–'+esc(rd.end_close?t('tmClose'):formatTime12(rd.end_time)):'')}</div>
     <div class="pi-text">${rd.title?`<b>${esc(rd.title)}</b><br>`:''}${esc(rd.text)}</div></div>
     <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+    ${cfRowBtn(rd)}
     <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="editRecurringDeal('${rd.id}')">Edit</button>
     <button class="delete-btn" onclick="delRecurringDeal('${rd.id}')">${t('remove')}</button>
     </div></div>`).join('');
@@ -3722,6 +3781,7 @@ async function saveMenu(){
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
   if(!upd || !upd.length){ st.textContent=t('saveBlocked'); st.className='status-msg err'; return; }
   currentRestaurant.menu = menu;
+  touchActivity();
   loadMenuForm();
   st.textContent=t('menuSaved'); st.className='status-msg';
   setTimeout(()=>{st.textContent='';},3000);
@@ -3913,6 +3973,7 @@ async function saveProfile(){
   const {data:upd,error} = await sb.from('restaurants').update({hours, hours_json: hoursDays, phone, address, photos: finalPhotos}).eq('id', currentRestaurant.id).select('id');
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
   if(!upd || !upd.length){ st.textContent=t('saveBlocked'); st.className='status-msg err'; return; }
+  touchActivity();
   currentRestaurant.hours=hours; currentRestaurant.hours_json=hoursDays; currentRestaurant.phone=phone; currentRestaurant.address=address; currentRestaurant.photos=finalPhotos;
   dpPhotos = finalPhotos.map(url=>({url, file:null, preview:url}));
   renderProfilePhotoGrid();
@@ -3964,6 +4025,7 @@ async function postSpecial(){
   if(error && /slots/i.test(error.message||'')){ const pl2={...payload}; delete pl2.slots; ({error} = await saveSp(pl2)); }  // before slots_migration.sql has been run
   if(error){ console.error(error); st.textContent=t('loadError'); st.className='status-msg err'; return; }
   const wasEditing=!!editingSpecialId;
+  touchActivity();
   resetSpecialForm();
   st.textContent=wasEditing?'Saved.':t('posted');st.className='status-msg';
   await loadPosted();
@@ -4036,6 +4098,238 @@ async function delPost(id){
   if(String(editingSpecialId)===String(id)) resetSpecialForm();
   await loadPosted();
 }
+/* ══════════ CONFIRM DEALS + PUSH ALERTS ══════════ */
+var CONFIRM_DUE_DAYS=5, CONFIRM_PAUSE_DAYS=10;
+const PUSH_PUBLIC_KEY='BN-KESvGYN3N3Yv39-HuhsGjcJqJAWNKPtqa8vzmE5BBhaFhlpVmyWsCX2wFXPdZXgaaNirKM-sKfmUZhSewqKo';
+function daysSince(iso){ if(!iso) return null; const x=new Date(iso).getTime(); return isNaN(x)?null:(Date.now()-x)/86400000; }
+function rdPaused(rd){ const d=daysSince(rd&&rd.confirmed_at); return d!==null && d>=CONFIRM_PAUSE_DAYS; }
+function rdState(rd){ if(rd.enabled===false) return 'off'; const d=daysSince(rd.confirmed_at); if(d===null||d<CONFIRM_DUE_DAYS) return 'fresh'; return d>=CONFIRM_PAUSE_DAYS?'paused':'due'; }
+function cfAsAdmin(){ return !!(isAdmin||adminMode); }
+function cfViaLabel(v){ return ({text:t('cfText'),call:t('cfCall'),person:t('cfPerson'),email:t('cfEmail')}[v]||'').toLowerCase(); }
+function cfByAdminText(iso,via){
+  const date=new Date(iso).toLocaleDateString(lang,{month:'short',day:'numeric'}), vl=cfViaLabel(via);
+  return vl?t('cfByAdmin').replace('{date}',date).replace('{via}',vl):t('cfByAdmin0').replace('{date}',date);
+}
+function rdLabel(rd){ return (rd.title&&rd.title.trim())||String(rd.text||'').trim().split('\n')[0]||''; }
+function rdWhen(rd){
+  return daysSummary(rd.days)+(rd.all_day?' · '+t('allDayShort'):((rd.start_time||rd.start_open)&&(rd.end_time||rd.end_close)?' · '+(rd.start_open?t('tmOpen'):formatTime12(rd.start_time))+'–'+(rd.end_close?t('tmClose'):formatTime12(rd.end_time)):''));
+}
+function renderConfirmCard(){
+  const el=document.getElementById('confirmCard'); if(!el) return;
+  const rds=(recurringDealsCache||[]).filter(r=>r.enabled!==false);
+  if(!currentRestaurant || !rds.length || !rds.some(r=>'confirmed_at' in r)){ el.innerHTML=''; return; }
+  const admin=cfAsAdmin();
+  const age=r=>daysSince(r.confirmed_at)||0;
+  const maxAge=Math.max(...rds.map(age)), paused=rds.filter(rdPaused).length;
+  let cls,title,sub,btn='';
+  if(paused){ cls='late'; title=paused===1?t('cfLateT1'):t('cfLateT').replace('{n}',paused); sub=t('cfLateS'); btn=t('cfLateBtn'); }
+  else if(maxAge>=CONFIRM_DUE_DAYS){
+    const oldest=rds.reduce((a,b)=>age(a)>=age(b)?a:b);
+    const dl=new Date(new Date(oldest.confirmed_at).getTime()+CONFIRM_PAUSE_DAYS*86400000);
+    cls='soon'; title=admin?t('cfAdminT'):t('cfSoonT');
+    sub=admin?t('cfAdminS'):t('cfSoonS').replace('{day}',dl.toLocaleDateString(lang,{weekday:'long'})); btn=t('cfConfirm');
+  } else {
+    cls='good'; title=t('cfAllGood');
+    const left=Math.max(1,Math.ceil(CONFIRM_DUE_DAYS-maxAge));
+    sub=(currentRestaurant.confirmed_by==='admin' && currentRestaurant.confirmed_at && daysSince(currentRestaurant.confirmed_at)<CONFIRM_DUE_DAYS)
+      ? cfByAdminText(currentRestaurant.confirmed_at,currentRestaurant.confirm_via)
+      : t('cfNext').replace('{n}',left);
+  }
+  el.innerHTML=`<div class="cf-bar ${cls}"><span class="cf-t"><b>${esc(title)}</b>${esc(sub)}</span>${btn?`<button type="button" class="cf-btn" onclick="openConfirmSheet()">${esc(btn)}</button>`:'<span style="font-size:18px;">✓</span>'}</div>`;
+}
+/* ---- confirm sheet ---- */
+var cf=null;
+function openConfirmSheet(){
+  if(!currentRestaurant) return;
+  cfOpen({rid:currentRestaurant.id,name:currentRestaurant.name,admin:cfAsAdmin(),deals:(recurringDealsCache||[]).filter(r=>r.enabled!==false),fromDash:true});
+}
+async function adminConfirmRestaurant(id){
+  const r=(adminRestaurants||[]).find(x=>String(x.id)===String(id)); if(!r||!sbReady()) return;
+  const {data}=await sb.from('recurring_deals').select('*').eq('restaurant_id',id);
+  cfOpen({rid:id,name:r.name,admin:true,deals:(data||[]).filter(x=>x.enabled!==false)});
+}
+function adminConfirmSelected(){
+  const ids=[...adminCfSel]; if(!ids.length) return;
+  cfOpen({admin:true,bulk:ids.map(id=>{ const r=adminRestaurants.find(x=>String(x.id)===String(id)); return {id,name:r?r.name:id}; })});
+}
+function cfOpen(o){
+  cf=Object.assign({ticks:{},via:'text',busy:false},o);
+  (o.deals||[]).forEach(d=>{ cf.ticks[d.id]=true; });
+  cfRender();
+  document.getElementById('cfSheet').classList.add('on'); document.getElementById('cfScrim').classList.add('on');
+}
+function closeConfirmSheet(){ document.getElementById('cfSheet').classList.remove('on'); document.getElementById('cfScrim').classList.remove('on'); cf=null; }
+function cfTick(id){ if(!cf) return; cf.ticks[id]=!cf.ticks[id]; cfRender(); }
+function cfVia(v){ if(!cf) return; const n=document.getElementById('cfNote'); cf.note=n?n.value:''; cf.via=v; cfRender(); }
+function cfEdit(id,tab){ closeConfirmSheet(); showDashTab(tab||'recurring'); if(id) editRecurringDeal(id); }
+function cfRender(){
+  if(!cf) return;
+  const b=document.getElementById('cfBody'); const admin=cf.admin;
+  let h='';
+  if(cf.bulk){
+    h+=`<div class="pv-title" style="font-size:18px;">${esc(t('cfBulkBtn').replace('{n}',cf.bulk.length))}</div><div class="hint" style="margin:2px 0 8px;">${esc(t('cfBulkS'))}</div>`;
+    h+=cf.bulk.map(r=>`<div class="cf-row"><div>${esc(r.name)}</div></div>`).join('');
+  } else {
+    h+=`<div class="pv-title" style="font-size:18px;">${esc(admin?t('cfFor').replace('{name}',cf.name||''):t('cfSheetT'))}</div><div class="hint" style="margin:2px 0 8px;">${esc(t('cfSheetS'))}</div>`;
+    h+=cf.deals.map(d=>`<div class="cf-row"><div style="display:flex;align-items:center;gap:10px;min-width:0;"><button type="button" class="cf-tick${cf.ticks[d.id]?' on':''}" onclick="cfTick('${d.id}')" aria-label="toggle">${cf.ticks[d.id]?'✓':''}</button><div style="min-width:0;">${esc(rdLabel(d))}<small>${esc(rdWhen(d))}</small></div></div>${cf.fromDash?`<button type="button" class="cf-btn ghost" onclick="cfEdit('${d.id}')">${esc(t('cfEdit'))}</button>`:''}</div>`).join('');
+    h+=`<div class="cf-row"><div style="display:flex;align-items:center;gap:10px;"><span class="cf-tick on" style="cursor:default;">✓</span><div>${esc(t('cfMenuHrs'))}<small>${esc(t('cfMenuHrsS'))}</small></div></div>${cf.fromDash?`<button type="button" class="cf-btn ghost" onclick="cfEdit(null,'profile')">${esc(t('cfEdit'))}</button>`:''}</div>`;
+  }
+  if(admin){
+    h+=`<div class="eyebrow" style="font-size:10.5px;margin:10px 0 2px;">${esc(t('cfHow'))}</div><div class="cf-how">${['text','call','person','email'].map(v=>`<button type="button" class="${cf.via===v?'on':''}" onclick="cfVia('${v}')">${esc(({text:t('cfText'),call:t('cfCall'),person:t('cfPerson'),email:t('cfEmail')})[v])}</button>`).join('')}</div><input type="text" id="cfNote" placeholder="${esc(t('cfNote'))}" value="${esc(cf.note||'')}" style="width:100%;margin-bottom:10px;">`;
+  }
+  h+=`<button type="button" class="btn btn-sea" style="margin-top:6px;" id="cfGo" onclick="cfDo()" ${cf.busy?'disabled':''}>${esc(cf.bulk?t('cfBulkBtn').replace('{n}',cf.bulk.length):(admin?t('cfFor').replace('{name}',cf.name||''):t('cfAllOk')))}</button><div class="status-msg" id="cfStatus"></div>`;
+  b.innerHTML=h;
+}
+async function cfDo(){
+  if(!cf||cf.busy||!sbReady()) return;
+  const st=document.getElementById('cfStatus'); cf.busy=true; document.getElementById('cfGo').disabled=true;
+  const now=new Date().toISOString(), by=cf.admin?'admin':'owner';
+  const via=cf.admin?cf.via:null, noteEl=document.getElementById('cfNote'), note=cf.admin&&noteEl?(noteEl.value.trim()||null):null;
+  const rids=cf.bulk?cf.bulk.map(x=>x.id):[cf.rid];
+  let err=null;
+  if(cf.bulk){
+    const r=await sb.from('recurring_deals').update({confirmed_at:now,confirmed_by:by}).in('restaurant_id',rids).or('enabled.is.null,enabled.eq.true').select('id'); err=r.error;
+  } else {
+    const keep=cf.deals.filter(d=>cf.ticks[d.id]).map(d=>d.id), drop=cf.deals.filter(d=>!cf.ticks[d.id]).map(d=>d.id);
+    if(keep.length){ const r=await sb.from('recurring_deals').update({confirmed_at:now,confirmed_by:by}).in('id',keep).select('id'); err=err||r.error; }
+    if(drop.length){ const r=await sb.from('recurring_deals').update({enabled:false}).in('id',drop).select('id'); err=err||r.error; }
+  }
+  const r2=await sb.from('restaurants').update({confirmed_at:now,confirmed_by:by,confirm_via:via,confirm_note:note}).in('id',rids).select('id'); err=err||r2.error;
+  if(err){ console.error(err); cf.busy=false; st.textContent=t('loadError')+' ('+(err.message||'error')+')'; st.className='status-msg err'; document.getElementById('cfGo').disabled=false; return; }
+  const fromDash=cf.fromDash, wasBulk=!!cf.bulk;
+  if(currentRestaurant && rids.includes(currentRestaurant.id)){ Object.assign(currentRestaurant,{confirmed_at:now,confirmed_by:by,confirm_via:via,confirm_note:note}); }
+  closeConfirmSheet();
+  if(fromDash||currentRestaurant){ try{ await loadRecurringList(); }catch(e){} }
+  if(!fromDash){ adminCfSel=new Set(); try{ await loadAdminPicker(); }catch(e){} }
+}
+async function confirmDeal(id,turnOn){
+  if(!sbReady()) return;
+  const now=new Date().toISOString(), by=cfAsAdmin()?'admin':'owner';
+  const pl={confirmed_at:now,confirmed_by:by}; if(turnOn) pl.enabled=true;
+  const {error}=await sb.from('recurring_deals').update(pl).eq('id',id).select('id');
+  if(error){ console.error(error); return; }
+  try{ await sb.from('restaurants').update({confirmed_at:now,confirmed_by:by,confirm_via:null,confirm_note:null}).eq('id',currentRestaurant.id); Object.assign(currentRestaurant,{confirmed_at:now,confirmed_by:by,confirm_via:null}); }catch(e){}
+  await loadRecurringList();
+}
+function cfRowBtn(rd){
+  if(!('confirmed_at' in rd)) return '';
+  const s=rdState(rd);
+  if(s==='off') return `<span class="cf-chip r">${esc(t('cfOff'))}</span><button type="button" class="cf-btn" onclick="confirmDeal('${rd.id}',true)">${esc(t('cfTurnOn'))}</button>`;
+  if(s==='paused') return `<span class="cf-chip r">${esc(t('cfPaused'))}</span><button type="button" class="cf-btn" onclick="confirmDeal('${rd.id}')">${esc(t('cfResume'))}</button>`;
+  if(s==='due') return `<span class="cf-chip a">${esc(t('cfConfirm'))}</span><button type="button" class="cf-btn" onclick="confirmDeal('${rd.id}')">${esc(t('cfStill'))}</button>`;
+  return `<span class="cf-chip g">${esc(t('cfLive'))} ✓</span>`;
+}
+async function touchActivity(){
+  try{ if(!currentRestaurant||!sbReady()) return; const now=new Date().toISOString(); await sb.from('restaurants').update({confirmed_at:now}).eq('id',currentRestaurant.id); currentRestaurant.confirmed_at=now; }catch(e){}
+}
+/* ---- admin list helpers ---- */
+var adminDealsByRest={}, adminCfSel=new Set(), adminSortStale=false;
+async function loadAdminDeals(){
+  adminDealsByRest={};
+  try{
+    const {data,error}=await sb.from('recurring_deals').select('restaurant_id,confirmed_at,enabled');
+    if(error||!data) return;
+    data.forEach(d=>{ if(d.enabled===false) return; const a=adminDealsByRest[d.restaurant_id]||(adminDealsByRest[d.restaurant_id]={n:0,worst:0,hasCol:false}); a.n++; if('confirmed_at' in d) a.hasCol=true; a.worst=Math.max(a.worst,daysSince(d.confirmed_at)||0); });
+  }catch(e){}
+}
+function adminCfInfo(r){
+  const a=adminDealsByRest[r.id];
+  if(!a||!a.hasCol) return null;
+  const w=a.worst, st=w>=CONFIRM_PAUSE_DAYS?'paused':w>=CONFIRM_DUE_DAYS?'due':'fresh';
+  return {w,st};
+}
+function adminCfChip(r){
+  const i=adminCfInfo(r); if(!i) return '';
+  const days=Math.floor(i.w);
+  const lab=(i.st==='paused'?t('cfPaused'):i.st==='due'?'Due':'Fresh')+' · '+days+'d';
+  return `<span class="cf-chip ${i.st==='paused'?'r':i.st==='due'?'a':'g'}" style="margin-top:4px;">${esc(lab)}</span>`;
+}
+function adminCfToggle(id,on){ if(on) adminCfSel.add(id); else adminCfSel.delete(id); renderAdminCfBar(); }
+function adminToggleSort(){ adminSortStale=!adminSortStale; renderAdminList(); }
+function renderAdminCfBar(){
+  const el=document.getElementById('adminCfBar'); if(!el) return;
+  const any=Object.values(adminDealsByRest).some(a=>a.hasCol);
+  if(!any){ el.innerHTML=''; return; }
+  const n=adminCfSel.size;
+  el.innerHTML=`<button type="button" class="cf-btn" ${n?'':'disabled'} onclick="adminConfirmSelected()">${esc(n?t('cfBulkBtn').replace('{n}',n):t('cfConfirm'))}</button><button type="button" class="cf-btn ghost" onclick="adminToggleSort()">${adminSortStale?'✓ ':''}Stalest first</button>`;
+}
+/* ---- push ---- */
+function pushSupported(){ return ('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window); }
+function pushIsIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1); }
+function pushIsStandalone(){ try{ return (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true; }catch(e){ return false; } }
+function pushNeedsInstall(){ return pushIsIOS() && !pushIsStandalone(); }
+function b64ToU8(b){ const p='='.repeat((4-b.length%4)%4); const s=(b+p).replace(/-/g,'+').replace(/_/g,'/'); const r=atob(s); const u=new Uint8Array(r.length); for(let i=0;i<r.length;i++) u[i]=r.charCodeAt(i); return u; }
+async function pushStatus(){
+  const st={supported:pushSupported(),needsInstall:pushNeedsInstall(),perm:(window.Notification?Notification.permission:'denied'),sub:null,row:null};
+  if(!st.supported) return st;
+  try{
+    const reg=await navigator.serviceWorker.ready; st.sub=await reg.pushManager.getSubscription();
+    if(st.sub && sbReady()){ const {data}=await sb.from('push_subscriptions').select('*').eq('endpoint',st.sub.endpoint).maybeSingle(); st.row=data||null; }
+  }catch(e){}
+  return st;
+}
+async function pushEnable(flags){
+  if(!pushSupported()) return {ok:false,why:'unsupported'};
+  if(pushNeedsInstall()) return {ok:false,why:'install'};
+  let perm=Notification.permission; if(perm==='default') perm=await Notification.requestPermission();
+  if(perm!=='granted') return {ok:false,why:'denied'};
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub) sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(PUSH_PUBLIC_KEY)});
+    const j=sub.toJSON(); const {data:{session}}=await sb.auth.getSession(); if(!session) return {ok:false,why:'signin'};
+    const {data:ex}=await sb.from('push_subscriptions').select('*').eq('endpoint',j.endpoint).maybeSingle();
+    const row=Object.assign({favs:false,reminders:false,quiet:true},ex||{},flags,{user_id:session.user.id,email:session.user.email,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||'America/New_York')});
+    delete row.id; delete row.created_at;
+    const {error}=await sb.from('push_subscriptions').upsert(row,{onConflict:'endpoint'});
+    if(error){ console.error(error); return {ok:false,why:'save'}; }
+    return {ok:true};
+  }catch(e){ console.error(e); return {ok:false,why:'error'}; }
+}
+async function pushFlag(field,on){
+  const st=await pushStatus();
+  if(on && !(st.sub&&st.row)) { await pushEnable({[field]:true}); }
+  else if(st.row){ await sb.from('push_subscriptions').update({[field]:on}).eq('endpoint',st.sub.endpoint); }
+  renderPushCards();
+}
+async function renderPushCards(){
+  const dEl=document.getElementById('favPushCard'), oEl=document.getElementById('dashPushCard');
+  const diner=!!currentDiner&&!cfAsAdmin(), owner=!!currentRestaurant&&!cfAsAdmin();
+  if(dEl) dEl.style.display=diner?'':'none'; if(oEl) oEl.style.display=owner?'':'none';
+  if(!diner&&!owner) return;
+  const st=await pushStatus();
+  const sw=(on,fn)=>`<button type="button" class="cf-sw${on?' on':''}" onclick="${fn}" aria-pressed="${on?'true':'false'}"></button>`;
+  const tg=(ti,su,on,fn)=>`<div class="cf-tgl"><div>${esc(t(ti))}<small>${esc(t(su))}</small></div>${sw(on,fn)}</div>`;
+  const body=(kind)=>{
+    if(st.needsInstall) return `<div class="cf-tgl" style="display:block;"><div style="font-weight:700;">${esc(t('pushIos'))}</div><small style="display:block;color:var(--muted);font-size:12.5px;margin-top:3px;">${esc(t('pushIosS'))}</small></div>`;
+    if(!st.supported) return '';
+    if(st.perm==='denied') return `<div class="hint">${esc(t('pushDenied'))}</div>`;
+    const r=st.row||{};
+    return kind==='diner'
+      ? tg('pushFavs','pushFavsS',!!r.favs,`pushFlag('favs',${!r.favs})`)+tg('pushQuiet','pushQuietS',r.quiet!==false,`pushFlag('quiet',${r.quiet===false})`)
+      : tg('pushRem','pushRemS',!!r.reminders,`pushFlag('reminders',${!r.reminders})`);
+  };
+  if(diner&&dEl){ const b=body('diner'); dEl.style.display=b?'':'none'; dEl.innerHTML=`<div class="th-h">${esc(t('pushTitle'))}</div>`+b; }
+  if(owner&&oEl){ const b=body('owner'); oEl.style.display=b?'':'none'; oEl.innerHTML=`<div class="th-h">${esc(t('pushTitle'))}</div>`+b; }
+}
+async function maybeAskPush(rid){
+  try{ if(localStorage.getItem('dt_push_asked')) return; }catch(e){}
+  if(cfAsAdmin()||!currentDiner) return;
+  if(!pushSupported()&&!pushNeedsInstall()) return;
+  if(window.Notification && Notification.permission==='denied') return;
+  const st=await pushStatus(); if(st.row&&st.row.favs) return;
+  let name=(detailR&&String(detailR.id)===String(rid)&&detailR.name)||'';
+  if(!name){ const r=(typeof exploreData!=='undefined'?exploreData:[]).find(x=>String(x.id)===String(rid)); name=r&&r.name||''; }
+  name=name||t('pushThis');
+  try{ localStorage.setItem('dt_push_asked','1'); }catch(e){}
+  const inst=st.needsInstall;
+  document.getElementById('pushBody').innerHTML=
+    `<div class="pv-title" style="font-size:18px;">${esc(inst?t('pushIos'):t('pushAsk').replace('{name}',name))}</div><div class="hint" style="margin:4px 0 12px;line-height:1.45;">${esc(inst?t('pushIosS'):t('pushAskS'))}</div>`+
+    `<div class="pv-actions" style="margin-top:4px;">${inst?`<button type="button" class="btn btn-sea" onclick="pushAskNo()">${esc(t('pushGot'))}</button>`:`<button type="button" class="btn btn-sea" onclick="pushAskYes()">${esc(t('pushOn'))}</button><button type="button" class="btn pv-share" onclick="pushAskNo()">${esc(t('pushNot'))}</button>`}</div>`;
+  document.getElementById('pushSheet').classList.add('on'); document.getElementById('pushScrim').classList.add('on');
+}
+function pushAskNo(){ document.getElementById('pushSheet').classList.remove('on'); document.getElementById('pushScrim').classList.remove('on'); }
+async function pushAskYes(){ pushAskNo(); await pushEnable({favs:true}); try{ renderPushCards(); }catch(e){} }
 /* ══════════ DELETE ACCOUNT (required by Apple / Google) ══════════ */
 let delKind='diner';
 function updateDeleteCards(){
