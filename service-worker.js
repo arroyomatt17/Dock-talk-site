@@ -1,6 +1,6 @@
-// Dock Talk service worker v2 — offline shell + last-seen public feed.
+// Dock Talk service worker v3 — offline shell + last-seen public feed + push alerts.
 // Bump CACHE_VERSION to force every phone to drop old caches.
-const CACHE_VERSION = 'dt-v2';
+const CACHE_VERSION = 'dt-v3';
 const C_STATIC = CACHE_VERSION + '-static';
 const C_DATA   = CACHE_VERSION + '-data';
 const C_IMG    = CACHE_VERSION + '-img';
@@ -79,4 +79,31 @@ self.addEventListener('fetch', e => {
     e.respondWith(cacheFirst(req, C_STATIC));
   }
   // everything else (auth, favorites, admin, analytics) goes straight to the network
+});
+
+
+// ── Push alerts ──────────────────────────────────────────────────────────
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (_) { d = { title: 'Dock Talk', body: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'Dock Talk', {
+    body: d.body || '',
+    icon: '/images/icon-192.png',
+    badge: '/images/icon-96.png',
+    tag: d.tag || undefined,
+    data: { url: d.url || '/' }
+  }));
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/';
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) {
+        if ('focus' in c) { try { c.navigate(url); } catch (_) {} return c.focus(); }
+      }
+      return self.clients.openWindow(url);
+    })
+  );
 });
