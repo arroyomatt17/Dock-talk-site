@@ -4258,7 +4258,8 @@ function renderAdminCfBar(){
 }
 
 /* ---- admin: Live now board ---- */
-var liveTab='live', liveItems=[], liveOpenNoDeal=[], liveBusy=false;
+var liveTab='live', liveItems=[], liveOpenNoDeal=[], liveBusy=false, liveMsg=null, liveMsgT=null;
+function liveSay(txt,err){ liveMsg={txt,err:!!err}; clearTimeout(liveMsgT); liveMsgT=setTimeout(()=>{ liveMsg=null; adminLiveRender(); },4000); adminLiveRender(); }
 function liveHead(d){ return dealHeadline(d)||'(no headline)'; }
 function liveNorm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
 function liveTimesText(rd){
@@ -4315,6 +4316,7 @@ function adminLiveRender(){
   const freshIds=L.filter(i=>i.kind==='rd'&&i.state==='fresh').length;
   let h=`<div style="font-size:12.5px;color:var(--muted);margin:2px 0 0;">${esc(stamp)} · everything diners can see right now</div>`;
   h+=`<div class="cf-bar ${nAtt?'soon':'good'}"><span class="cf-t"><b>${L.length} live · ${nAtt?nAtt+' need a look':'all clear'}</b>${nAtt?'Tap Needs attention to fix them first.':'Nothing flagged.'}</span>${freshIds?`<button type="button" class="cf-btn" ${liveBusy?'disabled':''} onclick="adminLiveConfirmFresh()">Confirm all fresh</button>`:''}</div>`;
+  if(liveMsg) h+=`<div class="status-msg ${liveMsg.err?'err':''}" style="${liveMsg.err?'':'color:#2f7d4f;font-weight:700;'}margin:8px 0 0;">${esc(liveMsg.txt)}</div>`;
   const tabs=[['live','Live now',L.length],['later','Later',Lt.length],['paused','Paused',P.length],['attn','Needs attention',nAtt]];
   h+=`<div class="dash-tabs" style="margin:12px 0 4px;">${tabs.map(x=>`<button type="button" class="dash-tab-btn${liveTab===x[0]?' active':''}" onclick="adminLiveTab('${x[0]}')">${x[1]} ${x[2]}</button>`).join('')}</div>`;
   const list=liveTab==='live'?L:liveTab==='later'?Lt:liveTab==='paused'?P:N;
@@ -4324,7 +4326,8 @@ function adminLiveRender(){
     body+=`<div style="display:flex;justify-content:space-between;align-items:baseline;margin:16px 0 0;gap:8px;"><b style="font-size:15px;">${esc(g.rest.name)}</b><span style="font-size:12px;color:var(--muted);">${esc(g.rest.town||'')} · ${g.rows.length} deal${g.rows.length>1?'s':''}</span></div>`;
     g.rows.forEach(i=>{
       const chips=(i.kind==='rd'?liveAgeChip(i.rd):'')+(i.when?`<span class="cf-chip a">${i.when.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()}</span>`:'')+i.flags.map(f=>`<span class="cf-chip r">${esc(f)}</span>`).join('');
-      const conf=i.kind==='rd'&&i.state!=='fresh'?`<button type="button" class="cf-btn" style="padding:6px 12px;" onclick="adminLiveConfirm('${i.id}')">${i.state==='paused'?'Resume':'Confirm'}</button>`:(i.kind==='rd'?`<button type="button" class="cf-btn ghost" style="padding:6px 12px;" onclick="adminLiveConfirm('${i.id}')">Confirm</button>`:'');
+      const doneToday=i.kind==='rd'&&i.state==='fresh'&&(daysSince(i.rd.confirmed_at)||0)<0.5;
+      const conf=doneToday?`<span class="cf-chip g" style="text-align:center;padding:7px 10px;">✓ Confirmed today</span>`:i.kind==='rd'&&i.state!=='fresh'?`<button type="button" class="cf-btn" style="padding:6px 12px;" onclick="adminLiveConfirm('${i.id}')">${i.state==='paused'?'Resume':'Confirm'}</button>`:(i.kind==='rd'?`<button type="button" class="cf-btn ghost" style="padding:6px 12px;" onclick="adminLiveConfirm('${i.id}')">Confirm</button>`:'');
       body+=`<div class="posted-item" style="align-items:center;"><div style="min-width:0;flex:1;"><div style="font-weight:700;font-size:14.5px;">${esc(i.head)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(i.meta)}</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">${chips}</div></div><div style="display:flex;flex-direction:column;gap:6px;">${conf}<button type="button" class="cf-btn ghost" style="padding:6px 12px;" onclick="adminLiveEdit('${i.rid}','${i.kind}','${i.id}')">Edit</button></div></div>`;
     });
   });
@@ -4338,10 +4341,10 @@ function adminLiveRender(){
 async function adminLiveConfirm(id){
   const it=liveItems.find(x=>x.kind==='rd'&&String(x.id)===String(id)); if(!it||!sbReady()) return;
   const now=new Date().toISOString(), pl={confirmed_at:now,confirmed_by:'admin'};
-  const {error}=await sb.from('recurring_deals').update(pl).eq('id',id).select('id');
-  if(error){ console.error(error); return; }
+  const {data,error}=await sb.from('recurring_deals').update(pl).eq('id',id).select('id');
+  if(error||!data||!data.length){ console.error(error); liveSay('Not saved. '+((error&&error.message)||'No permission to update this deal.'),true); return; }
   try{ await sb.from('restaurants').update({confirmed_at:now,confirmed_by:'admin',confirm_via:null,confirm_note:null}).eq('id',it.rid); }catch(e){}
-  await adminLiveLoad();
+  await adminLiveLoad(); liveSay('Confirmed ✓ '+it.head+' ('+(it.rest.name||'')+')');
 }
 async function adminLiveConfirmFresh(){
   if(liveBusy||!sbReady()) return;
@@ -4349,9 +4352,11 @@ async function adminLiveConfirmFresh(){
   const rids=[...new Set(liveItems.filter(i=>ids.includes(i.id)).map(i=>i.rid))];
   liveBusy=true; adminLiveRender();
   const now=new Date().toISOString();
-  const {error}=await sb.from('recurring_deals').update({confirmed_at:now,confirmed_by:'admin'}).in('id',ids).select('id');
-  if(!error){ try{ await sb.from('restaurants').update({confirmed_at:now,confirmed_by:'admin',confirm_via:null,confirm_note:null}).in('id',rids); }catch(e){} } else console.error(error);
+  const {data,error}=await sb.from('recurring_deals').update({confirmed_at:now,confirmed_by:'admin'}).in('id',ids).select('id');
+  const ok=!error&&data&&data.length;
+  if(ok){ try{ await sb.from('restaurants').update({confirmed_at:now,confirmed_by:'admin',confirm_via:null,confirm_note:null}).in('id',rids); }catch(e){} } else console.error(error);
   liveBusy=false; await adminLiveLoad();
+  liveSay(ok?('Confirmed ✓ '+data.length+' deal'+(data.length>1?'s':'')):('Not saved. '+((error&&error.message)||'No permission to update these deals.')),!ok);
 }
 async function adminLiveEdit(rid,kind,id){
   await adminSelectRestaurant(rid);
