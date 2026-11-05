@@ -1289,12 +1289,12 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
     <div class="dash-header">
       <div>
         <span class="dash-tag" style="background:var(--sunset);">ADMIN</span>
-        <div class="page-title">Post for a restaurant</div>
-        <div style="font-size:13.5px;color:var(--muted);">Pick any restaurant to post today's special or a recurring deal on its behalf.</div>
+        <div class="page-title" id="adminHdrT">The Big Board of Deals</div>
+        <div style="font-size:13.5px;color:var(--muted);" id="adminHdrS">Every deal, every restaurant, one very powerful glance.</div>
       </div>
       <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
     </div>
-    <div class="an-seg"><button id="anTabLive" class="on" onclick="adminTab('live')">Live now</button><button id="anTabPost" onclick="adminTab('post')">Post for a restaurant</button><button id="anTabAn" onclick="adminTab('an')">Analytics</button></div>
+    <div class="an-seg"><button id="anTabLive" class="on" onclick="adminTab('live')">All deals</button><button id="anTabPost" onclick="adminTab('post')">Post for a restaurant</button><button id="anTabAn" onclick="adminTab('an')">Analytics</button></div>
     <div id="adminLivePane"><div id="adminLiveBody"></div></div>
     <div id="adminPostPane" style="display:none;">
     <div class="card">
@@ -4258,7 +4258,7 @@ function renderAdminCfBar(){
 }
 
 /* ---- admin: Live now board ---- */
-var liveTab='live', liveItems=[], liveOpenNoDeal=[], liveBusy=false, liveMsg=null, liveMsgT=null;
+var liveTab='all', liveItems=[], liveOpenNoDeal=[], liveBusy=false, liveMsg=null, liveMsgT=null;
 function liveSay(txt,err){ liveMsg={txt,err:!!err}; clearTimeout(liveMsgT); liveMsgT=setTimeout(()=>{ liveMsg=null; adminLiveRender(); },4000); adminLiveRender(); }
 function liveHead(d){ return dealHeadline(d)||'(no headline)'; }
 function liveNorm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
@@ -4285,8 +4285,7 @@ async function adminLiveLoad(){
     let bucket=null, when='';
     if('confirmed_at' in rd && rdPaused(rd)) bucket='paused';
     else if(isRecurringActive(rd)) bucket='live';
-    else { const up=upcomingRecurringInfo(rd,endToday); if(up){ bucket='later'; when=up.whenHTML; } }
-    if(!bucket) return;
+    else { const up=upcomingRecurringInfo(rd,endToday); if(up){ bucket='later'; when=up.whenHTML; } else { const far=upcomingRecurringInfo(rd,null); bucket='other'; when=far?far.whenHTML:''; } }
     const noTime=(!rd.days||!rd.days.length)||(!rd.all_day&&!((rd.start_open||rd.start_time)&&(rd.end_close||rd.end_time)));
     items.push({kind:'rd',id:rd.id,rid:r.id,rest:r,town:r.town||'',head:liveHead(rd),meta:'Recurring · '+daysSummary(rd.days)+' · '+liveTimesText(rd),bucket,when,flags:noTime?['No time set']:[],state:('confirmed_at' in rd)?rdState(rd):'fresh',rd});
   });
@@ -4294,7 +4293,7 @@ async function adminLiveLoad(){
     const r=rests[sp.restaurant_id]; if(!r||isExpired(sp.until_time,sp.created_at)) return;
     let bucket='live', when='';
     const up=upcomingSpecialInfo(sp,null);
-    if(up){ if(upcomingSpecialInfo(sp,endToday)){ bucket='later'; when=up.whenHTML; } else return; }
+    if(up){ bucket=upcomingSpecialInfo(sp,endToday)?'later':'other'; when=up.whenHTML; }
     const age=Math.floor(daysSince(sp.created_at)||0);
     items.push({kind:'sp',id:sp.id,rid:r.id,rest:r,town:r.town||'',head:liveHead(sp),meta:'Special · '+(sp.until_time?('until '+formatTime12(sp.until_time)):'no end time')+(age>=1?(' · posted '+age+'d ago'):' · posted today'),bucket,when,flags:(!sp.until_time&&age>=2)?['No end time, posted '+age+'d ago']:[],state:'fresh'});
   });
@@ -4310,22 +4309,22 @@ function liveNeeds(i){ return i.bucket!=='paused' && (i.flags.length||i.state===
 function adminLiveTab(t2){ liveTab=t2; adminLiveRender(); }
 function adminLiveRender(){
   const el=document.getElementById('adminLiveBody'); if(!el) return;
-  const L=liveItems.filter(i=>i.bucket==='live'), Lt=liveItems.filter(i=>i.bucket==='later'), P=liveItems.filter(i=>i.bucket==='paused'), N=liveItems.filter(liveNeeds);
+  const A=liveItems, L=liveItems.filter(i=>i.bucket==='live'), Lt=liveItems.filter(i=>i.bucket==='later'), P=liveItems.filter(i=>i.bucket==='paused'), N=liveItems.filter(liveNeeds);
   const nAtt=N.length+liveOpenNoDeal.length;
   const now=new Date(); const stamp=now.toLocaleDateString('en-US',{weekday:'short'})+' '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  const freshIds=L.filter(i=>i.kind==='rd'&&i.state==='fresh').length;
-  let h=`<div style="font-size:12.5px;color:var(--muted);margin:2px 0 0;">${esc(stamp)} · everything diners can see right now</div>`;
-  h+=`<div class="cf-bar ${nAtt?'soon':'good'}"><span class="cf-t"><b>${L.length} live · ${nAtt?nAtt+' need a look':'all clear'}</b>${nAtt?'Tap Needs attention to fix them first.':'Nothing flagged.'}</span>${freshIds?`<button type="button" class="cf-btn" ${liveBusy?'disabled':''} onclick="adminLiveConfirmFresh()">Confirm all fresh</button>`:''}</div>`;
+  const freshIds=A.filter(i=>i.kind==='rd'&&i.bucket!=='paused'&&i.state==='fresh').length;
+  let h=`<div style="font-size:12.5px;color:var(--muted);margin:2px 0 0;">${esc(stamp)} · every deal that can ever go live, across all restaurants</div>`;
+  h+=`<div class="cf-bar ${nAtt?'soon':'good'}"><span class="cf-t"><b>${A.length} deals · ${L.length} live now · ${nAtt?nAtt+' need a look':'all clear'}</b>${nAtt?'Tap Needs attention to fix them first.':'Nothing flagged.'}</span>${freshIds?`<button type="button" class="cf-btn" ${liveBusy?'disabled':''} onclick="adminLiveConfirmFresh()">Confirm all fresh</button>`:''}</div>`;
   if(liveMsg) h+=`<div class="status-msg ${liveMsg.err?'err':''}" style="${liveMsg.err?'':'color:#2f7d4f;font-weight:700;'}margin:8px 0 0;">${esc(liveMsg.txt)}</div>`;
-  const tabs=[['live','Live now',L.length],['later','Later',Lt.length],['paused','Paused',P.length],['attn','Needs attention',nAtt]];
+  const tabs=[['all','All deals',A.length],['live','Live now',L.length],['later','Later',Lt.length],['paused','Paused',P.length],['attn','Needs attention',nAtt]];
   h+=`<div class="dash-tabs" style="margin:12px 0 4px;">${tabs.map(x=>`<button type="button" class="dash-tab-btn${liveTab===x[0]?' active':''}" onclick="adminLiveTab('${x[0]}')">${x[1]} ${x[2]}</button>`).join('')}</div>`;
-  const list=liveTab==='live'?L:liveTab==='later'?Lt:liveTab==='paused'?P:N;
+  const list=liveTab==='all'?A:liveTab==='live'?L:liveTab==='later'?Lt:liveTab==='paused'?P:N;
   const groups={}; list.forEach(i=>{ (groups[i.rid]=groups[i.rid]||{rest:i.rest,rows:[]}).rows.push(i); });
   let body='';
   Object.values(groups).sort((a,b)=>(a.rest.name||'').localeCompare(b.rest.name||'')).forEach(g=>{
     body+=`<div style="display:flex;justify-content:space-between;align-items:baseline;margin:16px 0 0;gap:8px;"><b style="font-size:15px;">${esc(g.rest.name)}</b><span style="font-size:12px;color:var(--muted);">${esc(g.rest.town||'')} · ${g.rows.length} deal${g.rows.length>1?'s':''}</span></div>`;
     g.rows.forEach(i=>{
-      const chips=(i.kind==='rd'?liveAgeChip(i.rd):'')+(i.when?`<span class="cf-chip a">${i.when.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()}</span>`:'')+i.flags.map(f=>`<span class="cf-chip r">${esc(f)}</span>`).join('');
+      const chips=(i.bucket==='live'?'<span class="cf-chip g">Live now</span>':'')+(i.kind==='rd'?liveAgeChip(i.rd):'')+(i.when?`<span class="cf-chip a">${i.when.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()}</span>`:'')+i.flags.map(f=>`<span class="cf-chip r">${esc(f)}</span>`).join('');
       const doneToday=i.kind==='rd'&&i.state==='fresh'&&(daysSince(i.rd.confirmed_at)||0)<0.5;
       const conf=doneToday?`<span class="cf-chip g" style="text-align:center;padding:7px 10px;">✓ Confirmed today</span>`:i.kind==='rd'&&i.state!=='fresh'?`<button type="button" class="cf-btn" style="padding:6px 12px;" onclick="adminLiveConfirm('${i.id}')">${i.state==='paused'?'Resume':'Confirm'}</button>`:(i.kind==='rd'?`<button type="button" class="cf-btn ghost" style="padding:6px 12px;" onclick="adminLiveConfirm('${i.id}')">Confirm</button>`:'');
       body+=`<div class="posted-item" style="align-items:center;"><div style="min-width:0;flex:1;"><div style="font-weight:700;font-size:14.5px;">${esc(i.head)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(i.meta)}</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">${chips}</div></div><div style="display:flex;flex-direction:column;gap:6px;">${conf}<button type="button" class="cf-btn ghost" style="padding:6px 12px;" onclick="adminLiveEdit('${i.rid}','${i.kind}','${i.id}')">Edit</button></div></div>`;
@@ -4348,7 +4347,7 @@ async function adminLiveConfirm(id){
 }
 async function adminLiveConfirmFresh(){
   if(liveBusy||!sbReady()) return;
-  const ids=liveItems.filter(i=>i.bucket==='live'&&i.kind==='rd'&&i.state==='fresh').map(i=>i.id); if(!ids.length) return;
+  const ids=liveItems.filter(i=>i.bucket!=='paused'&&i.kind==='rd'&&i.state==='fresh').map(i=>i.id); if(!ids.length) return;
   const rids=[...new Set(liveItems.filter(i=>ids.includes(i.id)).map(i=>i.rid))];
   liveBusy=true; adminLiveRender();
   const now=new Date().toISOString();
@@ -4920,6 +4919,8 @@ function trackContext(){
 let anRange=7, anRegion=null, anRest=null;
 
 function adminTab(which){
+  const HD={live:['The Big Board of Deals','Every deal, every restaurant, one very powerful glance.'],post:['The Ghostwriter Desk','Pick a restaurant and post as them. Specials, recurring deals, all in their name.'],an:['The Receipts','Who showed up, who left, and who kept coming back.']};
+  try{ document.getElementById('adminHdrT').textContent=HD[which][0]; document.getElementById('adminHdrS').textContent=HD[which][1]; }catch(e){}
   document.getElementById('anTabLive').classList.toggle('on',which==='live');
   document.getElementById('anTabPost').classList.toggle('on',which==='post');
   document.getElementById('anTabAn').classList.toggle('on',which==='an');
