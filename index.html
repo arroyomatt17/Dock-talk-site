@@ -1294,8 +1294,9 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       </div>
       <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
     </div>
-    <div class="an-seg"><button id="anTabPost" class="on" onclick="adminTab('post')">Post for a restaurant</button><button id="anTabAn" onclick="adminTab('an')">Analytics</button></div>
-    <div id="adminPostPane">
+    <div class="an-seg"><button id="anTabLive" class="on" onclick="adminTab('live')">Live now</button><button id="anTabPost" onclick="adminTab('post')">Post for a restaurant</button><button id="anTabAn" onclick="adminTab('an')">Analytics</button></div>
+    <div id="adminLivePane"><div id="adminLiveBody"></div></div>
+    <div id="adminPostPane" style="display:none;">
     <div class="card">
       <div class="field">
         <label>Search restaurants</label>
@@ -2799,6 +2800,7 @@ async function loadAdminPicker(){
   }
   await loadAdminDeals();
   renderAdminList();
+  try{ const lp=document.getElementById('adminLivePane'); if(lp && lp.style.display!=='none') await adminLiveLoad(); }catch(e){ console.error(e); }
 }
 function renderAdminList(){
   const q=(document.getElementById('adminSearch')?.value||'').toLowerCase();
@@ -4254,6 +4256,107 @@ function renderAdminCfBar(){
   const n=adminCfSel.size;
   el.innerHTML=`<button type="button" class="cf-btn" ${n?'':'disabled'} onclick="adminConfirmSelected()">${esc(n?t('cfBulkBtn').replace('{n}',n):t('cfConfirm'))}</button><button type="button" class="cf-btn ghost" onclick="adminToggleSort()">${adminSortStale?'✓ ':''}Stalest first</button>`;
 }
+
+/* ---- admin: Live now board ---- */
+var liveTab='live', liveItems=[], liveOpenNoDeal=[], liveBusy=false;
+function liveHead(d){ return dealHeadline(d)||'(no headline)'; }
+function liveNorm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
+function liveTimesText(rd){
+  if(rd.all_day) return 'all day';
+  const a=rd.start_open?'Open':(rd.start_time?formatTime12(rd.start_time):''), b=rd.end_close?'Close':(rd.end_time?formatTime12(rd.end_time):'');
+  return (a&&b)?(a+' – '+b):'no time set';
+}
+function liveAgeChip(rd){
+  if(!('confirmed_at' in rd)) return '';
+  const d=Math.floor(daysSince(rd.confirmed_at)||0), st=rdState(rd);
+  return `<span class="cf-chip ${st==='paused'?'r':st==='due'?'a':'g'}">${st==='paused'?'Paused':st==='due'?'Due':'Fresh'} · ${d}d</span>`;
+}
+async function adminLiveLoad(){
+  const el=document.getElementById('adminLiveBody'); if(!el||!sbReady()) return;
+  if(!liveItems.length) el.innerHTML='<div class="hint" style="padding:14px 0;">…</div>';
+  const [rr,sr]=await Promise.all([sb.from('recurring_deals').select('*'), sb.from('specials').select('*')]);
+  const rests={}; (adminRestaurants||[]).filter(r=>r.status==='approved').forEach(r=>{ rests[r.id]=r; });
+  const endToday=new Date(); endToday.setDate(endToday.getDate()+1); endToday.setHours(0,0,0,0);
+  const items=[];
+  (rr.data||[]).forEach(rd=>{
+    const r=rests[rd.restaurant_id]; if(!r||rd.enabled===false||!rd.text) return;
+    rd._hours=r.hours_json;
+    let bucket=null, when='';
+    if('confirmed_at' in rd && rdPaused(rd)) bucket='paused';
+    else if(isRecurringActive(rd)) bucket='live';
+    else { const up=upcomingRecurringInfo(rd,endToday); if(up){ bucket='later'; when=up.whenHTML; } }
+    if(!bucket) return;
+    const noTime=(!rd.days||!rd.days.length)||(!rd.all_day&&!((rd.start_open||rd.start_time)&&(rd.end_close||rd.end_time)));
+    items.push({kind:'rd',id:rd.id,rid:r.id,rest:r,town:r.town||'',head:liveHead(rd),meta:'Recurring · '+daysSummary(rd.days)+' · '+liveTimesText(rd),bucket,when,flags:noTime?['No time set']:[],state:('confirmed_at' in rd)?rdState(rd):'fresh',rd});
+  });
+  (sr.data||[]).forEach(sp=>{
+    const r=rests[sp.restaurant_id]; if(!r||isExpired(sp.until_time,sp.created_at)) return;
+    let bucket='live', when='';
+    const up=upcomingSpecialInfo(sp,null);
+    if(up){ if(upcomingSpecialInfo(sp,endToday)){ bucket='later'; when=up.whenHTML; } else return; }
+    const age=Math.floor(daysSince(sp.created_at)||0);
+    items.push({kind:'sp',id:sp.id,rid:r.id,rest:r,town:r.town||'',head:liveHead(sp),meta:'Special · '+(sp.until_time?('until '+formatTime12(sp.until_time)):'no end time')+(age>=1?(' · posted '+age+'d ago'):' · posted today'),bucket,when,flags:(!sp.until_time&&age>=2)?['No end time, posted '+age+'d ago']:[],state:'fresh'});
+  });
+  // same headline at two different restaurants
+  const byHead={}; items.filter(i=>i.bucket!=='paused').forEach(i=>{ const k=liveNorm(i.head); if(!k||k==='no headline') return; (byHead[k]=byHead[k]||[]).push(i); });
+  Object.values(byHead).forEach(g=>{ const names=[...new Set(g.map(i=>i.rest.name))]; if(names.length>1) g.forEach(i=>{ const other=names.find(n=>n!==i.rest.name); i.flags.push('Same headline as '+other); }); });
+  liveItems=items;
+  const liveIds=new Set(items.filter(i=>i.bucket==='live').map(i=>i.rid));
+  liveOpenNoDeal=Object.values(rests).filter(r=>isOpenNowR(r)&&!liveIds.has(r.id));
+  adminLiveRender();
+}
+function liveNeeds(i){ return i.bucket!=='paused' && (i.flags.length||i.state==='due'); }
+function adminLiveTab(t2){ liveTab=t2; adminLiveRender(); }
+function adminLiveRender(){
+  const el=document.getElementById('adminLiveBody'); if(!el) return;
+  const L=liveItems.filter(i=>i.bucket==='live'), Lt=liveItems.filter(i=>i.bucket==='later'), P=liveItems.filter(i=>i.bucket==='paused'), N=liveItems.filter(liveNeeds);
+  const nAtt=N.length+liveOpenNoDeal.length;
+  const now=new Date(); const stamp=now.toLocaleDateString('en-US',{weekday:'short'})+' '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const freshIds=L.filter(i=>i.kind==='rd'&&i.state==='fresh').length;
+  let h=`<div style="font-size:12.5px;color:var(--muted);margin:2px 0 0;">${esc(stamp)} · everything diners can see right now</div>`;
+  h+=`<div class="cf-bar ${nAtt?'soon':'good'}"><span class="cf-t"><b>${L.length} live · ${nAtt?nAtt+' need a look':'all clear'}</b>${nAtt?'Tap Needs attention to fix them first.':'Nothing flagged.'}</span>${freshIds?`<button type="button" class="cf-btn" ${liveBusy?'disabled':''} onclick="adminLiveConfirmFresh()">Confirm all fresh</button>`:''}</div>`;
+  const tabs=[['live','Live now',L.length],['later','Later',Lt.length],['paused','Paused',P.length],['attn','Needs attention',nAtt]];
+  h+=`<div class="dash-tabs" style="margin:12px 0 4px;">${tabs.map(x=>`<button type="button" class="dash-tab-btn${liveTab===x[0]?' active':''}" onclick="adminLiveTab('${x[0]}')">${x[1]} ${x[2]}</button>`).join('')}</div>`;
+  const list=liveTab==='live'?L:liveTab==='later'?Lt:liveTab==='paused'?P:N;
+  const groups={}; list.forEach(i=>{ (groups[i.rid]=groups[i.rid]||{rest:i.rest,rows:[]}).rows.push(i); });
+  let body='';
+  Object.values(groups).sort((a,b)=>(a.rest.name||'').localeCompare(b.rest.name||'')).forEach(g=>{
+    body+=`<div style="display:flex;justify-content:space-between;align-items:baseline;margin:16px 0 0;gap:8px;"><b style="font-size:15px;">${esc(g.rest.name)}</b><span style="font-size:12px;color:var(--muted);">${esc(g.rest.town||'')} · ${g.rows.length} deal${g.rows.length>1?'s':''}</span></div>`;
+    g.rows.forEach(i=>{
+      const chips=(i.kind==='rd'?liveAgeChip(i.rd):'')+(i.when?`<span class="cf-chip a">${i.when.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()}</span>`:'')+i.flags.map(f=>`<span class="cf-chip r">${esc(f)}</span>`).join('');
+      const conf=i.kind==='rd'&&i.state!=='fresh'?`<button type="button" class="cf-btn" style="padding:6px 12px;" onclick="adminLiveConfirm('${i.id}')">${i.state==='paused'?'Resume':'Confirm'}</button>`:(i.kind==='rd'?`<button type="button" class="cf-btn ghost" style="padding:6px 12px;" onclick="adminLiveConfirm('${i.id}')">Confirm</button>`:'');
+      body+=`<div class="posted-item" style="align-items:center;"><div style="min-width:0;flex:1;"><div style="font-weight:700;font-size:14.5px;">${esc(i.head)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(i.meta)}</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">${chips}</div></div><div style="display:flex;flex-direction:column;gap:6px;">${conf}<button type="button" class="cf-btn ghost" style="padding:6px 12px;" onclick="adminLiveEdit('${i.rid}','${i.kind}','${i.id}')">Edit</button></div></div>`;
+    });
+  });
+  if(liveTab==='attn' && liveOpenNoDeal.length){
+    body+=`<div style="margin:18px 0 0;"><b style="font-size:15px;">Open now, no live deal</b></div>`;
+    liveOpenNoDeal.forEach(r=>{ body+=`<div class="posted-item" style="align-items:center;"><div style="min-width:0;flex:1;"><div style="font-weight:700;font-size:14.5px;">${esc(r.name)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(r.town||'')}</div></div><button type="button" class="cf-btn ghost" style="padding:6px 12px;" onclick="adminSelectRestaurant('${r.id}')">Post for this</button></div>`; });
+  }
+  h+=body||`<div class="hint" style="padding:14px 0;">Nothing here.</div>`;
+  el.innerHTML=h;
+}
+async function adminLiveConfirm(id){
+  const it=liveItems.find(x=>x.kind==='rd'&&String(x.id)===String(id)); if(!it||!sbReady()) return;
+  const now=new Date().toISOString(), pl={confirmed_at:now,confirmed_by:'admin'};
+  const {error}=await sb.from('recurring_deals').update(pl).eq('id',id).select('id');
+  if(error){ console.error(error); return; }
+  try{ await sb.from('restaurants').update({confirmed_at:now,confirmed_by:'admin',confirm_via:null,confirm_note:null}).eq('id',it.rid); }catch(e){}
+  await adminLiveLoad();
+}
+async function adminLiveConfirmFresh(){
+  if(liveBusy||!sbReady()) return;
+  const ids=liveItems.filter(i=>i.bucket==='live'&&i.kind==='rd'&&i.state==='fresh').map(i=>i.id); if(!ids.length) return;
+  const rids=[...new Set(liveItems.filter(i=>ids.includes(i.id)).map(i=>i.rid))];
+  liveBusy=true; adminLiveRender();
+  const now=new Date().toISOString();
+  const {error}=await sb.from('recurring_deals').update({confirmed_at:now,confirmed_by:'admin'}).in('id',ids).select('id');
+  if(!error){ try{ await sb.from('restaurants').update({confirmed_at:now,confirmed_by:'admin',confirm_via:null,confirm_note:null}).in('id',rids); }catch(e){} } else console.error(error);
+  liveBusy=false; await adminLiveLoad();
+}
+async function adminLiveEdit(rid,kind,id){
+  await adminSelectRestaurant(rid);
+  if(kind==='rd'){ showDashTab('recurring'); editRecurringDeal(id); } else { showDashTab('post'); editSpecial(id); }
+}
 /* ---- push ---- */
 function pushSupported(){ return ('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window); }
 function pushIsIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1); }
@@ -4812,8 +4915,11 @@ function trackContext(){
 let anRange=7, anRegion=null, anRest=null;
 
 function adminTab(which){
+  document.getElementById('anTabLive').classList.toggle('on',which==='live');
   document.getElementById('anTabPost').classList.toggle('on',which==='post');
   document.getElementById('anTabAn').classList.toggle('on',which==='an');
+  document.getElementById('adminLivePane').style.display=which==='live'?'':'none';
+  if(which==='live') adminLiveLoad();
   document.getElementById('adminPostPane').style.display=which==='post'?'':'none';
   document.getElementById('adminAnalyticsPane').style.display=which==='an'?'':'none';
   if(which==='an'){ anRest=null; loadAnalytics(); }
