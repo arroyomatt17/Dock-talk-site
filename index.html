@@ -3,7 +3,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dock Talk </title>
+<title>Dock Talk | Today's restaurant specials and happy hours on the South Fork</title>
+<meta name="description" content="Find today's restaurant specials, happy hours and recurring deals on the South Fork: Sag Harbor, Southampton, East Hampton, Hampton Bays and more.">
+<link rel="canonical" href="https://docktalk.chat/">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://docktalk.chat/#site","url":"https://docktalk.chat/","name":"Dock Talk","description":"Find today's restaurant specials, happy hours and recurring deals on the South Fork: Sag Harbor, Southampton, East Hampton, Hampton Bays and more.","inLanguage":"en"},{"@type":"Organization","@id":"https://docktalk.chat/#org","name":"Dock Talk","url":"https://docktalk.chat/","logo":"https://docktalk.chat/images/icon-512.png","areaServed":"South Fork, Long Island, New York"}]}</script>
   <meta name="apple-mobile-web-app-title" content="Dock Talk">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" id="metaTheme" content="#F3EEE3">
@@ -21,6 +24,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>try{var __m=localStorage.getItem("dt_theme")||"light";document.documentElement.setAttribute("data-theme",__m);}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
 <style>
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --ink:#0F3B3A;
@@ -660,6 +664,8 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
 </style>
 </head>
 <body>
+<h1 class="sr-only">Dock Talk: today's restaurant specials and happy hours on the South Fork</h1>
+<noscript><p style="padding:16px;font-family:sans-serif">Dock Talk shows today's restaurant specials, happy hours and recurring deals in Sag Harbor, Southampton, East Hampton, Hampton Bays and the rest of the South Fork. Turn on JavaScript to see what's on tonight.</p></noscript>
 
 <div class="nav">
   <div class="wordmark" id="navWordmark" role="button" tabindex="0" onclick="goHome()" onkeydown="if(event.key==='Enter')goHome()" style="cursor:pointer;">DOCK <em>TALK</em></div>
