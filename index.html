@@ -17,6 +17,9 @@
   <meta property="og:image" content="https://docktalk.chat/images/share-card-light.png">
   <meta property="og:url" content="https://docktalk.chat/">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" sizes="96x96" href="/images/icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png">
+  <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/images/icon-180.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -930,9 +933,6 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
         <span data-i18n="newRestaurant"></span>
         <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepSignup')" data-i18n="restaurantSignUpCta"></span>
       </p>
-      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:10px;">
-        Already listed by us? <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepClaim')">Claim your listing</span>
-      </p>
       <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:16px;text-align:center;">
         <p style="margin-top:14px;">
           <span style="color:var(--sea);cursor:pointer;font-weight:600;font-size:12.5px;" onclick="showStep('stepDiner')" data-i18n="backToDiner"></span>
@@ -975,40 +975,6 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       <br>
       <button class="btn btn-sea" onclick="submitNewPassword()" data-i18n="saveNewPasswordCta"></button>
       <div class="status-msg" id="setNewPasswordStatus"></div>
-    </div>
-
-    <div class="r-card step" id="stepClaim">
-      <h2>Claim your restaurant</h2>
-      <div class="r-sub">Already on Dock Talk? Enter the claim code we sent you to set up your own login.</div>
-      <div class="field">
-        <label>Claim code</label>
-        <input id="ccCode" type="text" placeholder="e.g. 8f3a1c2b">
-      </div>
-      <div class="field">
-        <label data-i18n="email"></label>
-        <input id="ccEmail" type="email" placeholder="you@restaurant.com">
-      </div>
-      <div class="field">
-        <label data-i18n="password"></label>
-        <div class="pw-wrap">
-          <input id="ccPassword" type="password" placeholder="••••••••">
-          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('ccPassword',this)" data-i18n="showPw"></button>
-        </div>
-      </div>
-      <div class="field">
-        <label data-i18n="confirmPassword"></label>
-        <div class="pw-wrap">
-          <input id="ccPassword2" type="password" placeholder="••••••••">
-          <button type="button" class="pw-toggle" onclick="togglePasswordVisibility('ccPassword2',this)" data-i18n="showPw"></button>
-        </div>
-      </div>
-      <br>
-      <button class="btn btn-sea" onclick="submitClaim()">Claim this listing</button>
-      <div class="status-msg" id="claimStatus"></div>
-      <p style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;">
-        <span data-i18n="alreadyHaveAccount"></span>
-        <span style="color:var(--sea);cursor:pointer;font-weight:600;" onclick="showStep('stepLogin')" data-i18n="logIn"></span>
-      </p>
     </div>
 
     <div class="r-card step" id="stepSignup">
@@ -1321,7 +1287,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       </div>
       <div class="field"><label data-i18n="restaurantPhone"></label><input id="admNewPhone" type="tel"></div>
       <br>
-      <button class="btn btn-sunset" onclick="adminCreateRestaurant()">Add restaurant &amp; get claim link</button>
+      <button class="btn btn-sunset" onclick="adminCreateRestaurant()">Add restaurant</button>
       <div class="status-msg" id="adminCreateStatus"></div>
     </div>
     </div>
@@ -2833,10 +2799,9 @@ function renderAdminList(){
     <div class="posted-item"${grp?' style="border-left:3px solid var(--accent);padding-left:10px;"':''}>
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;">${r.status==='approved'&&adminCfInfo(r)?`<input type="checkbox" ${adminCfSel.has(r.id)?'checked':''} onchange="adminCfToggle('${r.id}',this.checked)" style="width:auto;margin:0 8px 0 0;vertical-align:-2px;">`:''}${esc(r.name)}${r.status==='pending'?' <span class="rsw-pill" style="margin-left:6px;">PENDING</span>':''}</div>
-        <div style="font-size:12.5px;color:var(--muted);">${esc(r.town||'')} · ${esc(r.status)} · ${r.claimed===false?'unclaimed':'claimed'}</div>
+        <div style="font-size:12.5px;color:var(--muted);">${esc(r.town||'')} · ${esc(r.status)}</div>
         ${r.email?`<div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(r.email)}${perOwner[r.email]>1?` · <span style="color:var(--accent);font-weight:700;">${perOwner[r.email]} restaurants</span>`:''}</div>`:''}
         ${r.status==='approved'?adminCfChip(r):''}
-        ${r.claimed===false && r.claim_code ? `<div style="font-size:12px;color:var(--sea);cursor:pointer;margin-top:4px;" onclick="copyClaimLink('${r.claim_code}')">Copy claim link</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
         ${r.status==='pending'?`<button class="btn btn-sea btn-sm" style="width:auto;" onclick="adminApproveRestaurant('${r.id}',this)">Approve</button>`:''}
@@ -2908,42 +2873,9 @@ async function adminCreateRestaurant(){
   if(error){ console.error(error); st.textContent='Could not add restaurant.'; st.className='status-msg err'; return; }
   document.getElementById('admNewName').value='';
   document.getElementById('admNewPhone').value='';
-  st.textContent='Added — find it in the list above to copy its claim link.'; st.className='status-msg';
+  st.textContent='Added — find it in the list above.'; st.className='status-msg';
   await loadAdminPicker();
 }
-function copyClaimLink(code){
-  const url=`https://docktalk.chat/#claim=${code}`;
-  const st=document.getElementById('adminListStatus');
-  navigator.clipboard?.writeText(url).then(()=>{
-    if(st){ st.textContent='Claim link copied: '+url; st.className='status-msg'; }
-  }).catch(()=>{
-    if(st){ st.textContent='Claim link: '+url; st.className='status-msg'; }
-  });
-}
-async function submitClaim(){
-  const code=document.getElementById('ccCode').value.trim();
-  const email=document.getElementById('ccEmail').value.trim();
-  const password=document.getElementById('ccPassword').value;
-  const password2=document.getElementById('ccPassword2').value;
-  const st=document.getElementById('claimStatus');
-  if(!code){ st.textContent='Enter your claim code.'; st.className='status-msg err'; return; }
-  if(!email || !email.includes('@') || !password){ st.textContent=t('fillAll'); st.className='status-msg err'; return; }
-  if(password.length<6){ st.textContent=t('passwordTooShort'); st.className='status-msg err'; return; }
-  if(password!==password2){ st.textContent=t('passwordMismatch'); st.className='status-msg err'; return; }
-  if(!sbReady()){ st.textContent=t('loadError'); st.className='status-msg err'; return; }
-  st.textContent=t('checking'); st.className='status-msg';
-  const {data:signUpData, error:signUpError} = await sb.auth.signUp({email, password});
-  if(signUpError){ console.error(signUpError); st.textContent=t('loadError'); st.className='status-msg err'; return; }
-  if(signUpData?.user && Array.isArray(signUpData.user.identities) && signUpData.user.identities.length===0){
-    st.textContent=t('emailInUse'); st.className='status-msg err'; return;
-  }
-  const {error:claimError} = await sb.rpc('claim_restaurant',{p_claim_code:code});
-  if(claimError){ console.error(claimError); st.textContent='That claim code is invalid or already used — double check it or contact us.'; st.className='status-msg err'; return; }
-  await sb.auth.signOut();
-  st.textContent='';
-  showStep('stepRestaurantWelcome');
-}
-
 /* ══════════ AUTH (Supabase, email+password for both diners and restaurants — magic link reserved for future use) ══════════ */
 function showStep(id){
   document.querySelectorAll('.r-card.step').forEach(s=>s.classList.remove('active'));
@@ -4613,16 +4545,6 @@ setLang(lang);
 // navStack is back down to the intro screen does a further back press fall through
 // to the browser's real, default back behavior (actually leaving the site).
 window.addEventListener('popstate', goBack);
-// Deep link so an admin can text/email a restaurant a link like
-// https://docktalk.chat/#claim=CODE that drops them straight on the claim form.
-(function(){
-  const m = location.hash.match(/claim=([^&]+)/);
-  if(m){
-    goScreen('screenGate'); showStep('stepClaim');
-    document.getElementById('ccCode').value = decodeURIComponent(m[1]);
-    history.replaceState(null,'',location.pathname+location.search);
-  }
-})();
 // Supabase redirects back with "#error=...&error_code=otp_expired..." when a
 // password-reset (or magic-link) link is expired or has already been used —
 // most often because it's single-use and either sat too long before being
