@@ -4917,6 +4917,40 @@ async function loadAnalytics(){
 }
 
 
+/* ══════════ ANALYTICS: growth cards (weekly actives, come-back rate, sources) ══════════ */
+async function renderGrowth(){
+  const body=document.getElementById('anBody'); if(!body||anRest||!sbReady()) return;
+  const {data:g,error}=await sb.rpc('analytics_growth',{p_region:anRegion});
+  if(error||!g){ console.warn('Dock Talk: growth cards need analytics_growth.sql run in Supabase',error); return; }
+  if(anRest) return;
+  const old=document.getElementById('anGrowth'); if(old) old.remove();
+  const wk=g.weekly||[], co=g.cohorts||[], so=g.sources||[];
+  const cur=wk.length?wk[wk.length-1].n:0, prev=wk.length>1?wk[wk.length-2].n:0;
+  const md=s=>String(s||'').slice(5);
+  const soon='<span style="color:var(--muted)">too soon</span>';
+  const pct=(n,d)=>(n===null||n===undefined)?soon:(d?Math.round(n/d*100)+'%':'–');
+  const srcName=s=>{ const x=String(s||'direct').toLowerCase();
+    if(x==='direct') return 'Typed the address or home screen';
+    if(x.indexOf('instagram')>-1) return 'Instagram';
+    if(x.indexOf('facebook')>-1||x==='fb.com'||x.indexOf('fb.me')>-1) return 'Facebook';
+    if(x.indexOf('google')>-1) return 'Google';
+    return s; };
+  const th='font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;';
+  const grid='display:grid;grid-template-columns:1.2fr .7fr 1fr 1fr;gap:6px;align-items:center;';
+  const html=`<div id="anGrowth">
+  <div class="an-card"><div class="an-ct">Weekly active diners</div><div class="an-cs">Different devices that opened the app each week · this week so far <b style="color:var(--ink);">${cur}</b>, last week ${prev}</div>
+    ${wk.length?anBars(wk.map(x=>x.n),(i,v)=>'Week of '+md(wk[i].w)+' · '+v):'<div class="an-empty">No data yet.</div>'}
+    <div class="an-axis"><span>${wk.length?'Week of '+md(wk[0].w):''}</span><span>This week</span></div></div>
+  <div class="an-card"><div class="an-ct">Do they come back?</div><div class="an-cs">Of the people who first showed up each week</div>
+    <div style="${grid}${th}padding-bottom:6px;"><span>First visit</span><span style="text-align:right;">New</span><span style="text-align:right;">Back in 1 wk</span><span style="text-align:right;">Back in 4 wks</span></div>
+    ${co.length?co.map(c=>`<div style="${grid}padding:8px 0;border-top:1px solid var(--line-soft);font-size:13.5px;"><span style="font-weight:600;">${esc(md(c.w))}</span><span style="text-align:right;">${c.new}</span><span style="text-align:right;">${pct(c.back1,c.new)}</span><span style="text-align:right;">${pct(c.back4,c.new)}</span></div>`).join(''):'<div class="an-empty">No data yet.</div>'}</div>
+  <div class="an-card"><div class="an-ct">Where visitors came from</div><div class="an-cs">First visit in the last 30 days</div>${anRows(so.map(x=>[srcName(x.src),x.n]))}</div>
+  </div>`;
+  const foot=body.lastElementChild;
+  if(foot) foot.insertAdjacentHTML('beforebegin',html); else body.insertAdjacentHTML('beforeend',html);
+}
+(function(){ const _la=loadAnalytics; loadAnalytics=async function(){ const r=await _la.apply(this,arguments); renderGrowth(); return r; }; })();
+
 async function renderRestStats(){
   const el=document.getElementById('restStats'); if(!el) return;
   if(!currentRestaurant||!sbReady()) return;
