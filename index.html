@@ -565,6 +565,48 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
 .tr-ic{display:inline-flex;vertical-align:-5px;width:20px;height:20px;border:1px solid var(--line);border-radius:6px;align-items:center;justify-content:center;margin:0 2px;}
 .tr-ic svg{width:13px;height:13px;}
 
+
+/* ── photo feed cards + photo preview sheet ── */
+html body .feed-card.fc-ph{position:relative;min-height:172px;padding:0;border:none;overflow:hidden;color:#fff;background-color:#222;background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:flex-end;border-radius:18px;}
+html body .feed-card.fc-ph:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.78) 0%,rgba(0,0,0,.28) 55%,rgba(0,0,0,.14) 100%);pointer-events:none;}
+html body .feed-card.fc-ph.ending{box-shadow:0 0 0 2px var(--sunset);}
+html body .fc-ph>*{position:relative;z-index:1;}
+html body .fc-ph>.fc-tag{position:absolute;left:12px;top:10px;background:rgba(255,255,255,.92);color:#0F3B3A;border:none;z-index:2;}
+html body .fc-ph>.fc-row,.fc-ph>.fc-headline,.fc-ph>.fc-meta,.fc-ph>.mdeal-slides{margin-left:14px;margin-right:14px;}
+html body .fc-ph>.fc-meta{margin-bottom:12px;}
+html body .fc-ph .fc-name-link{color:#fff;font-size:20px;text-shadow:0 1px 6px rgba(0,0,0,.4);}
+html body .fc-ph .fc-name-link:hover{color:#fff;}
+html body .fc-ph .fc-text,.fc-ph .fc-headline{color:#fff;font-size:15.5px;font-weight:600;}
+html body .fc-ph .fc-meta{color:rgba(255,255,255,.88);}
+html body .fc-ph>.fc-row .fav-btn{position:absolute;right:8px;top:6px;color:#fff;font-size:22px;text-shadow:0 1px 4px rgba(0,0,0,.45);}
+html body .fc-ph>.fc-row .fav-btn.active{color:#ff6b5a;}
+html body .fc-ph .fc-end{background:#E5372A;color:#fff;border-radius:100px;padding:2px 9px;font-size:11px;}
+html body .fc-ph .fc-end:before{background:#fff;}
+html body .fc-ph.mdeal-card{min-height:196px;}
+html body .fc-ph.mdeal-card>.fc-row:first-child{position:absolute;left:0;right:0;top:0;margin:0;padding:10px 12px;z-index:2;}
+html body .fc-ph.mdeal-card>.fc-row:first-child .fc-tag{background:rgba(255,255,255,.92);color:#0F3B3A;border:none;}
+html body .fc-ph.mdeal-card>.fc-row:first-child .mdeal-count-pill{color:#fff;background:rgba(0,0,0,.45);border-radius:100px;padding:3px 9px;margin-right:34px;}
+html body .fc-ph .mdeal-nav{border-top:none;margin:0 14px 10px;padding-top:4px;}
+html body .fc-ph .mdeal-arrow{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.55);color:#fff;}
+html body .fc-ph .mdeal-dot{background:rgba(255,255,255,.5);}
+html body .fc-ph .mdeal-dot.active{background:#fff;}
+#pvSheet{overflow:hidden;}
+#pvSheet .pv-grab{position:absolute;left:50%;top:8px;transform:translateX(-50%);margin:0;background:rgba(255,255,255,.85);z-index:3;}
+#pvSheet .pv-top{position:relative;margin:-10px -20px 0;height:176px;align-items:flex-end;padding:14px 18px;background:linear-gradient(135deg,#0E9A9A,#7FD6D0) center/cover;}
+#pvSheet .pv-top:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.78),rgba(0,0,0,.05) 72%);}
+#pvSheet .pv-top>*{position:relative;z-index:1;}
+#pvSheet .pv-top>.pv-x{position:absolute;right:12px;top:12px;width:32px;height:32px;background:rgba(0,0,0,.5);color:#fff;border:none;z-index:3;}
+#pvSheet .pv-name{color:#fff;font-size:24px;letter-spacing:-.5px;white-space:normal;}
+#pvSheet .pv-sub{color:rgba(255,255,255,.92);}
+#pvSheet .pv-open{color:#fff;}
+.pv-live{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;background:#E5372A;color:#fff;border-radius:100px;padding:3px 9px;margin-bottom:6px;}
+.pv-live:before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;}
+.pv-live:empty{display:none;}
+.pv-menu{display:flex;align-items:center;gap:10px;margin-top:10px;padding:7px 10px 7px 7px;border:1px solid var(--line);border-radius:12px;font-weight:600;font-size:13px;cursor:pointer;flex:none;}
+.pv-menu[hidden]{display:none;}
+.pv-menu .pv-thumb{width:42px;height:42px;border-radius:8px;}
+.pv-menu .pv-chev{margin-left:auto;color:var(--muted);}
+.pv-items .pv-hd{display:block;border-bottom:none;padding:12px 0 2px;font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);}
 .pv-actions{display:flex;gap:10px;margin-top:12px;flex:none;}
 .pv-actions .btn{margin:0;flex:1;}
 .pv-share{display:flex;align-items:center;justify-content:center;gap:7px;background:transparent;border:1.5px solid var(--accent);color:var(--accent);font-weight:700;border-radius:14px;cursor:pointer;font-family:inherit;font-size:15px;}
@@ -734,8 +776,9 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
 <div class="pv-scrim" id="pvScrim" onclick="closePreview()"></div>
 <div class="pv" id="pvSheet" role="dialog" aria-modal="true">
   <div class="pv-grab"></div>
-  <div class="pv-top"><div id="pvThumbWrap"></div><div style="min-width:0"><div class="pv-name" id="pvName"></div><div class="pv-sub" id="pvSub"></div></div><button type="button" class="pv-x" onclick="closePreview()" aria-label="Close">✕</button></div>
+  <div class="pv-top" id="pvTop"><div style="min-width:0"><span class="pv-live" id="pvLive"></span><div class="pv-name" id="pvName"></div><div class="pv-sub" id="pvSub"></div></div><button type="button" class="pv-x" onclick="closePreview()" aria-label="Close">✕</button></div>
   <div class="pv-scroll"><div class="pv-title" id="pvTitle"></div><div class="pv-items" id="pvItems"></div><div class="pv-meta" id="pvMetaRow"></div></div>
+  <div class="pv-menu" id="pvMenuRow" hidden role="button" tabindex="0"><span id="pvThumbWrap"></span><span data-i18n="pvMenuPhoto"></span><span class="pv-chev">›</span></div>
   <div class="mdeal-nav pv-nav" id="pvNav" hidden>
     <button type="button" class="mdeal-arrow" onclick="pvStep(-1)" aria-label="Previous deal">‹</button>
     <div class="mdeal-dots" id="pvDots"></div>
@@ -1390,7 +1433,7 @@ myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No fa
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
 dashProfileTitle:"Restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead.",
 scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",saveBlocked:"Couldn't save — your account doesn't have permission to edit this restaurant.",pickTitle:"Which restaurant?",pickSub:"Pick one to manage — you can switch anytime.",pickSignedInAs:"Signed in as",pickPending:"Pending approval",pickAdd:"+ Add another restaurant",managing:"Managing",addRestTitle:"Add another restaurant",addRestSub:"It'll be linked to your account. We'll review it and let you know when it's live.",addRestSubmit:"Submit for approval",addRestDone:"Submitted — we'll review it and it'll show up here once approved.",restPendingTag:"PENDING",switchedTo:"Switched to",
-recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Add recurring deal",recurringSaved:"Added.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing",recurringListTitle:"Your recurring deals",noRecurringDeals:"No recurring deals yet.",everyDay:"Every day",comingUpLabel:"Coming up",upcomingStartsAt:"Starts at {time}",menuNamePh:"Menu name, e.g. Breakfast",addMenu:"+ Add another menu",removeMenu:"Remove menu",menuTimesHint:"Times are optional. Leave them blank for a menu that is always available.",servingNow:"Serving now",mUntil:"until {t}",mFrom:"from {t}",allDayCheck:"All day (uses hours from Restaurant info)",allDayNote:"Follows your Restaurant info hours:",editHours:"Edit hours →",noHoursYet:"No hours yet. Add them in Restaurant info.",mTodayHrs:"Today {t}",allDayPost:"All day (until closing, from Restaurant info)",allDayPostNote:"Live now until closing today:",allDayCloseToday:"Closes today at {t}",allDayRecNote:"Runs during your Restaurant info hours:",allDayShort:"All day",photoFailed:"The photo could not be uploaded, so nothing was saved. Try again.",pdfFailed:"Couldn't read that PDF. Try a screenshot or photo of it instead.",offlineBar:"You're offline. Showing the last update.",delTitle:"Delete account",delDinerBody:"Permanently delete your account and saved favorites. This can't be undone.",delRestBody:"Permanently delete your account and your restaurant, including all deals, menus and photos. This can't be undone.",delBtn:"Delete my account",delConfD:"Delete your account?",delConfR:"Delete your account and restaurant?",delSubD:"This permanently removes your account. It can't be undone.",delSubR:"This permanently removes your account and your restaurant from Dock Talk. It can't be undone.",delWhat:"What gets deleted",delItLogin:"Your login and profile",delItFav:"Your saved favorites",delItList:"Your restaurant listing, hours and menus",delItDeals:"All your deals, including recurring ones",delItPhotos:"Your uploaded photos",delType:"Type DELETE to confirm.",delGo:"Delete forever",delCancel:"Cancel",delWorking:"Deleting…",delErr:"Couldn't delete your account. Try again, or email southforkdocktalk@gmail.com.",delDone:"Account deleted",delDoneSub:"Your account and data have been removed.",delOk:"OK",headlineLabel:"Headline",headlineHint:"Shows on the feed. Keep it short, like “Taco Tuesday”.",detailsLabel:"Details",detailsHint:"Shows when someone taps the card. One item per line. End a line with “- $3” to show the price.",viewRestaurant:"View restaurant →",pvClose:"Close",tourSkip:"Skip",tourNext:"Next",tourGo:"Let's go",tourHow:"How it works",t1T:"See what's on tonight",t1P:"Deals from restaurants nearby, sorted by what ends soonest. Red means it ends within the hour.",t2T:"Tap for the details",t2P:"Every deal opens a quick preview with the full menu items and prices. Swipe down to close.",t3T:"Find a place to go",t3P:"The Explore tab lists every restaurant. Filter by town, deals today, or what's open now.",t4T:"Keep it close",t4P:"Save your favorites and we'll alert you when they post or a deal goes live. Add Dock Talk to your home screen to get alerts (required on iPhone).",tourHeart:"Tap the heart on any restaurant to save it",tourAddIos:"Add to Home Screen · For iPhone",tourAddAnd:"Add to Home Screen · For Android",tourIos1:"Open docktalk.chat in <u>Safari</u>",tourIos2:"Tap Share {share} at the bottom",tourIos3:"Scroll down, tap <u>Add to Home Screen</u>",tourIos4:"Tap <u>Add</u> in the top corner",tourAnd1:"Open docktalk.chat in <u>Chrome</u>",tourAnd2:"Tap the menu {menu} top right",tourAnd3:"Tap <u>Install app</u> (or <u>Add to Home screen</u>)",tourAnd4:"Tap <u>Install</u>",tourWarnIos:"Won't work from inside Instagram, Facebook or Gmail links. Open in Safari first.",tourWarnAnd:"Won't work from inside Instagram, Facebook or Gmail links. Open in Chrome first.",shareBtn:"Share",shareTitle:"Share this deal",shareText:"Text",shareEmail:"Email",shareCopy:"Copy link",shareCopied:"Link copied",shareMsg:"Hey, check out this {deal} deal at {rest} on Dock Talk 🍽️",shareEnded:"This deal has ended.",rt1T:"Post a deal in 30 seconds",rt1P:"Tap ＋ Post. Add a short headline, the details, and a photo if you have one. It goes live right away, or at the start time you set.",rt2T:"Set it once, run every week",rt2P:"Weekly deals like Taco Tuesday go under Recurring deal. Pick the days and times and it shows up on its own. No need to log in.",rt3T:"Hours and menu, once",rt3P:"Add your hours (lunch and dinner splits too) and scan your menu from a photo or PDF. Set a deal to start at Open or end at Close and it follows your hours.",rt5T:"Tap Confirm to keep deals live",rt5P:"Every deal needs a quick confirm. Post, edit or confirm within 10 days or your deals are hidden from diners until you tap Resume. We'll remind you on day 7.",rt4T:"Short headline, full details",rt4P:"The feed shows only your headline. Diners tap the card to see the itemized details and photo, and can share it with friends. Keep the headline short.",navAdmin:"Admin ›",navDash:"Dashboard ›",themeTitle:"Appearance",themeSub:"Light is the default. Dark is easier on the eyes at night.",themeLight:"Light",themeDark:"Dark",guestCta:"Create an account",guestTitle:"Profile",guestH:"Save the places you love",guestSub:"Create a free account to save your favorite restaurants and see what's coming up.",endsIn:"Ends in {dur}",fDeal:"Deal today",fOpen:"Open now",fNone:"No restaurants match those filters.",upcomingToday:"Today · {time}",upcomingIn:"in {dur}",upcomingNextIn:"next one in {dur}",upcomingSetByRestaurant:"(set by the restaurant when they posted it)",startTimeLabel:"Starts at",startTimeHint:"Leave blank to keep today's behavior — live the moment you post it.",recurringPhotoHint:"Entirely optional — a text-only recurring deal works exactly as it does today if you skip this."},
+recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Add recurring deal",recurringSaved:"Added.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing",recurringListTitle:"Your recurring deals",noRecurringDeals:"No recurring deals yet.",everyDay:"Every day",comingUpLabel:"Coming up",upcomingStartsAt:"Starts at {time}",menuNamePh:"Menu name, e.g. Breakfast",addMenu:"+ Add another menu",removeMenu:"Remove menu",menuTimesHint:"Times are optional. Leave them blank for a menu that is always available.",servingNow:"Serving now",mUntil:"until {t}",mFrom:"from {t}",allDayCheck:"All day (uses hours from Restaurant info)",allDayNote:"Follows your Restaurant info hours:",editHours:"Edit hours →",noHoursYet:"No hours yet. Add them in Restaurant info.",mTodayHrs:"Today {t}",allDayPost:"All day (until closing, from Restaurant info)",allDayPostNote:"Live now until closing today:",allDayCloseToday:"Closes today at {t}",allDayRecNote:"Runs during your Restaurant info hours:",allDayShort:"All day",photoFailed:"The photo could not be uploaded, so nothing was saved. Try again.",pdfFailed:"Couldn't read that PDF. Try a screenshot or photo of it instead.",offlineBar:"You're offline. Showing the last update.",delTitle:"Delete account",delDinerBody:"Permanently delete your account and saved favorites. This can't be undone.",delRestBody:"Permanently delete your account and your restaurant, including all deals, menus and photos. This can't be undone.",delBtn:"Delete my account",delConfD:"Delete your account?",delConfR:"Delete your account and restaurant?",delSubD:"This permanently removes your account. It can't be undone.",delSubR:"This permanently removes your account and your restaurant from Dock Talk. It can't be undone.",delWhat:"What gets deleted",delItLogin:"Your login and profile",delItFav:"Your saved favorites",delItList:"Your restaurant listing, hours and menus",delItDeals:"All your deals, including recurring ones",delItPhotos:"Your uploaded photos",delType:"Type DELETE to confirm.",delGo:"Delete forever",delCancel:"Cancel",delWorking:"Deleting…",delErr:"Couldn't delete your account. Try again, or email southforkdocktalk@gmail.com.",delDone:"Account deleted",delDoneSub:"Your account and data have been removed.",delOk:"OK",headlineLabel:"Headline",headlineHint:"Shows on the feed. Keep it short, like “Taco Tuesday”.",detailsLabel:"Details",detailsHint:"Shows when someone taps the card. One item per line. End a line with “- $3” to show the price.",viewRestaurant:"View restaurant →",pvClose:"Close",tourSkip:"Skip",tourNext:"Next",tourGo:"Let's go",tourHow:"How it works",t1T:"See what's on tonight",t1P:"Deals from restaurants nearby, sorted by what ends soonest. Red means it ends within the hour.",t2T:"Tap for the details",t2P:"Every deal opens a quick preview with the full menu items and prices. Swipe down to close.",t3T:"Find a place to go",t3P:"The Explore tab lists every restaurant. Filter by town, deals today, or what's open now.",t4T:"Keep it close",t4P:"Save your favorites and we'll alert you when they post or a deal goes live. Add Dock Talk to your home screen to get alerts (required on iPhone).",tourHeart:"Tap the heart on any restaurant to save it",tourAddIos:"Add to Home Screen · For iPhone",tourAddAnd:"Add to Home Screen · For Android",tourIos1:"Open docktalk.chat in <u>Safari</u>",tourIos2:"Tap Share {share} at the bottom",tourIos3:"Scroll down, tap <u>Add to Home Screen</u>",tourIos4:"Tap <u>Add</u> in the top corner",tourAnd1:"Open docktalk.chat in <u>Chrome</u>",tourAnd2:"Tap the menu {menu} top right",tourAnd3:"Tap <u>Install app</u> (or <u>Add to Home screen</u>)",tourAnd4:"Tap <u>Install</u>",tourWarnIos:"Won't work from inside Instagram, Facebook or Gmail links. Open in Safari first.",tourWarnAnd:"Won't work from inside Instagram, Facebook or Gmail links. Open in Chrome first.",shareBtn:"Share",shareTitle:"Share this deal",shareText:"Text",shareEmail:"Email",shareCopy:"Copy link",shareCopied:"Link copied",shareMsg:"Hey, check out this {deal} deal at {rest} on Dock Talk 🍽️",shareEnded:"This deal has ended.",rt1T:"Post a deal in 30 seconds",rt1P:"Tap ＋ Post. Add a short headline, the details, and a photo if you have one. It goes live right away, or at the start time you set.",rt2T:"Set it once, run every week",rt2P:"Weekly deals like Taco Tuesday go under Recurring deal. Pick the days and times and it shows up on its own. No need to log in.",rt3T:"Hours and menu, once",rt3P:"Add your hours (lunch and dinner splits too) and scan your menu from a photo or PDF. Set a deal to start at Open or end at Close and it follows your hours.",rt5T:"Tap Confirm to keep deals live",rt5P:"Every deal needs a quick confirm. Post, edit or confirm within 10 days or your deals are hidden from diners until you tap Resume. We'll remind you on day 7.",rt4T:"Short headline, full details",rt4P:"The feed shows only your headline. Diners tap the card to see the itemized details and photo, and can share it with friends. Keep the headline short.",navAdmin:"Admin ›",navDash:"Dashboard ›",themeTitle:"Appearance",themeSub:"Light is the default. Dark is easier on the eyes at night.",themeLight:"Light",themeDark:"Dark",guestCta:"Create an account",guestTitle:"Profile",guestH:"Save the places you love",guestSub:"Create a free account to save your favorite restaurants and see what's coming up.",endsIn:"Ends in {dur}",fDeal:"Deal today",fOpen:"Open now",fNone:"No restaurants match those filters.",upcomingToday:"Today · {time}",upcomingIn:"in {dur}",upcomingNextIn:"next one in {dur}",upcomingSetByRestaurant:"(set by the restaurant when they posted it)",startTimeLabel:"Starts at",startTimeHint:"Leave blank to keep today's behavior — live the moment you post it.",recurringPhotoHint:"Entirely optional — a text-only recurring deal works exactly as it does today if you skip this.",pvMenuPhoto:"View full menu photo",pvLive:"Live now"},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
 heroSub:"Los restaurantes de Guanacaste publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
@@ -1991,9 +2034,16 @@ function dealMetaHTMLSoon(s){
 }
 // Feed shows only the headline. Deals posted before headlines existed fall back to their text, trimmed by CSS to two lines.
 function dealHeadline(d){ return (d.title&&d.title.trim()) || String(d.text||'').trim().split('\n')[0]; }
+const PH_GRAD=[['#F2683C','#FFB36B'],['#0E9A9A','#7FD6D0'],['#C9A227','#F5D76E'],['#2E8B57','#9BD6A8'],['#7A5CC9','#B9A6F0']];
+function phBgStyle(s){
+  const img=(s.rphotos&&s.rphotos[0])||s.photo||'';
+  if(img){ const u=String(img).replace(/'/g,'%27').replace(/"/g,'%22').replace(/\)/g,'%29').replace(/\(/g,'%28'); return `background-image:url(&quot;${u}&quot;)`; }
+  let h=0; const n=String(s.restaurant||''); for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0;
+  const g=PH_GRAD[h%PH_GRAD.length]; return `background-image:linear-gradient(135deg,${g[0]},${g[1]})`;
+}
 function renderSingleDealCardHTML(s){
   const fav=favoritesSet.has(s.rid);
-  return `<div class="feed-card${endingSoonMs(s)!==null?' ending':''}" data-rid="${s.rid}" data-did="${s.id}">
+  return `<div class="feed-card fc-ph${endingSoonMs(s)!==null?' ending':''}" data-rid="${s.rid}" data-did="${s.id}" style="${phBgStyle(s)}">
       <span class="fc-tag">${dealTagHTML(s)}</span>
       <div class="fc-row">
         <span class="fc-name-link">${esc(s.restaurant)}</span>
@@ -2016,7 +2066,7 @@ function renderMultiDealCardHTML(rid, deals){
       <div class="fc-meta">${dealMetaHTMLSoon(d)}</div>
     </div>`).join('');
   const dots = deals.map((_,i)=>`<button class="mdeal-dot${i===0?' active':''}" onclick="mdealGoTo('${rid}',${i})" aria-label="Deal ${i+1}"></button>`).join('');
-  return `<div class="feed-card mdeal-card${deals.some(d=>endingSoonMs(d)!==null)?' ending':''}" data-rid="${rid}">
+  return `<div class="feed-card fc-ph mdeal-card${deals.some(d=>endingSoonMs(d)!==null)?' ending':''}" data-rid="${rid}" style="${phBgStyle(deals.find(d=>(d.rphotos&&d.rphotos[0]))||deals[0])}">
       <div class="fc-row" style="margin-bottom:9px;">
         <span class="fc-tag" id="mdTag-${rid}">${tags[0]}</span>
         <span class="mdeal-count-pill" id="mdCount-${rid}">1/${deals.length}</span>
@@ -4441,16 +4491,27 @@ let previewDeals={}, pvRid=null, pvSeq=0;
 function pvRegister(d){ const k='u'+(++pvSeq); previewDeals[k]=d; return k; }
 function pvRows(text){
   return String(text||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
-    const m=l.match(/^(.*?)\s+[-–—]\s+(\$?\d[\d.,]*\S*|free)\s*$/i);
-    return m ? `<div><span>${esc(m[1])}</span><b>${esc(m[2])}</b></div>` : `<div><span>${esc(l)}</span></div>`;
+    const m=l.match(/^(.*?)\s+[-–—]\s+(\$?\d[\d.,]*\S*|free)\s*$/i) || l.match(/^(.*?)\s*[-–—:]?\s*(\$\s?\d[\d.,]*)\s*$/);
+    if(m && m[1].trim()) return `<div><span>${esc(m[1].replace(/[\s\-–—:]+$/,''))}</span><b>${esc(m[2].replace(/\.00$/,''))}</b></div>`;
+    if(/:$/.test(l) && l.length<40) return `<div class="pv-hd"><span>${esc(l.replace(/:$/,''))}</span></div>`;
+    return `<div><span>${esc(l)}</span></div>`;
   }).join('');
 }
 let pvCtx=null, pvCur=null;
 function pvFill(d){
   pvRid=d.rid; pvCur=d;
   { const sb_=document.getElementById('pvShare'); if(sb_) sb_.style.display=(d.id===undefined||d.id===null||d.id==='')?'none':''; }
-  const img = d.photo || (d.rphotos&&d.rphotos[0]) || '';
-  document.getElementById('pvThumbWrap').innerHTML = img ? `<img class="pv-thumb" src="${esc(img)}" alt="" role="button" tabindex="0" onclick="openLightbox(this.src)">` : '';
+  const heroImg=(d.rphotos&&d.rphotos[0])||d.photo||'';
+  const top=document.getElementById('pvTop');
+  if(top){ if(heroImg){ const u=String(heroImg).replace(/'/g,'%27').replace(/"/g,'%22').replace(/\)/g,'%29').replace(/\(/g,'%28'); top.style.backgroundImage=`url("${u}")`; } else top.style.backgroundImage=''; }
+  const menuRow=document.getElementById('pvMenuRow');
+  if(menuRow){
+    const showMenu=!!(d.photo && d.photo!==heroImg);
+    menuRow.hidden=!showMenu;
+    document.getElementById('pvThumbWrap').innerHTML = showMenu ? `<img class="pv-thumb" src="${esc(d.photo)}" alt="">` : '';
+    menuRow.onclick = showMenu ? ()=>openLightbox(d.photo) : null;
+  }
+  { const lv=document.getElementById('pvLive'); if(lv) lv.textContent = d.whenHTML ? '' : t('pvLive'); }
   document.getElementById('pvName').textContent=d.restaurant||'';
   const open = d.rhours ? isOpenNowR({hours_json:d.rhours}) : false;
   document.getElementById('pvSub').innerHTML = (open?`<span class="pv-open">${esc(t('hOpen'))}</span> · `:'')+esc(d.town||'');
@@ -4916,40 +4977,6 @@ async function loadAnalytics(){
   <div style="font-size:12px;color:var(--muted);line-height:1.5;">Visitors are counted from a random anonymous ID on their phone, with no names, emails or IPs. Your own admin visits are not counted.</div>`;
 }
 
-
-/* ══════════ ANALYTICS: growth cards (weekly actives, come-back rate, sources) ══════════ */
-async function renderGrowth(){
-  const body=document.getElementById('anBody'); if(!body||anRest||!sbReady()) return;
-  const {data:g,error}=await sb.rpc('analytics_growth',{p_region:anRegion});
-  if(error||!g){ console.warn('Dock Talk: growth cards need analytics_growth.sql run in Supabase',error); return; }
-  if(anRest) return;
-  const old=document.getElementById('anGrowth'); if(old) old.remove();
-  const wk=g.weekly||[], co=g.cohorts||[], so=g.sources||[];
-  const cur=wk.length?wk[wk.length-1].n:0, prev=wk.length>1?wk[wk.length-2].n:0;
-  const md=s=>String(s||'').slice(5);
-  const soon='<span style="color:var(--muted)">too soon</span>';
-  const pct=(n,d)=>(n===null||n===undefined)?soon:(d?Math.round(n/d*100)+'%':'–');
-  const srcName=s=>{ const x=String(s||'direct').toLowerCase();
-    if(x==='direct') return 'Typed the address or home screen';
-    if(x.indexOf('instagram')>-1) return 'Instagram';
-    if(x.indexOf('facebook')>-1||x==='fb.com'||x.indexOf('fb.me')>-1) return 'Facebook';
-    if(x.indexOf('google')>-1) return 'Google';
-    return s; };
-  const th='font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;';
-  const grid='display:grid;grid-template-columns:1.2fr .7fr 1fr 1fr;gap:6px;align-items:center;';
-  const html=`<div id="anGrowth">
-  <div class="an-card"><div class="an-ct">Weekly active diners</div><div class="an-cs">Different devices that opened the app each week · this week so far <b style="color:var(--ink);">${cur}</b>, last week ${prev}</div>
-    ${wk.length?anBars(wk.map(x=>x.n),(i,v)=>'Week of '+md(wk[i].w)+' · '+v):'<div class="an-empty">No data yet.</div>'}
-    <div class="an-axis"><span>${wk.length?'Week of '+md(wk[0].w):''}</span><span>This week</span></div></div>
-  <div class="an-card"><div class="an-ct">Do they come back?</div><div class="an-cs">Of the people who first showed up each week</div>
-    <div style="${grid}${th}padding-bottom:6px;"><span>First visit</span><span style="text-align:right;">New</span><span style="text-align:right;">Back in 1 wk</span><span style="text-align:right;">Back in 4 wks</span></div>
-    ${co.length?co.map(c=>`<div style="${grid}padding:8px 0;border-top:1px solid var(--line-soft);font-size:13.5px;"><span style="font-weight:600;">${esc(md(c.w))}</span><span style="text-align:right;">${c.new}</span><span style="text-align:right;">${pct(c.back1,c.new)}</span><span style="text-align:right;">${pct(c.back4,c.new)}</span></div>`).join(''):'<div class="an-empty">No data yet.</div>'}</div>
-  <div class="an-card"><div class="an-ct">Where visitors came from</div><div class="an-cs">First visit in the last 30 days</div>${anRows(so.map(x=>[srcName(x.src),x.n]))}</div>
-  </div>`;
-  const foot=body.lastElementChild;
-  if(foot) foot.insertAdjacentHTML('beforebegin',html); else body.insertAdjacentHTML('beforeend',html);
-}
-(function(){ const _la=loadAnalytics; loadAnalytics=async function(){ const r=await _la.apply(this,arguments); renderGrowth(); return r; }; })();
 
 async function renderRestStats(){
   const el=document.getElementById('restStats'); if(!el) return;
