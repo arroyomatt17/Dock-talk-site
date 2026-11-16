@@ -567,17 +567,72 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(85%) sepia(5
 
 
 /* ── photo feed cards + photo preview sheet ── */
+
+/* ── coming up timeline + time machine + town sheet ── */
+.tm-hd{display:flex;align-items:center;gap:8px;margin:22px 0 8px;}
+.tm-hd .l{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:var(--accent);white-space:nowrap;}
+.tm-hd .line{flex:1;height:1px;background:var(--line);}
+.tm-pill{background:var(--ink);color:var(--sand);border-radius:100px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.tm-slider{margin:2px 4px 6px;}
+.tm-slider input[type=range]{width:100%;margin:6px 0 0;accent-color:var(--accent);height:28px;cursor:pointer;}
+.tm-lab{font-size:12.5px;color:var(--muted);margin:0 0 10px;}
+.tm-lab b{color:var(--ink);}
+.tm-ends{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:var(--muted);margin:-2px 4px 0;}
+.zu-day{font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 8px 74px;}
+.zu-list{position:relative;}
+.zu-list:before{content:"";position:absolute;left:73px;top:20px;bottom:30px;width:2px;background:repeating-linear-gradient(to bottom,var(--accent) 0 4px,transparent 4px 8px);opacity:.55;}
+.zu{display:flex;gap:8px;margin-bottom:10px;position:relative;}
+.zu .tmc{width:66px;flex:none;text-align:right;padding-top:10px;padding-right:14px;position:relative;}
+.zu .tmc b{display:block;font-size:13px;font-weight:800;color:var(--ink);line-height:1.1;white-space:nowrap;}
+.zu .tmc small{font-size:10.5px;font-weight:600;color:var(--accent);white-space:nowrap;}
+.zu .tmc:after{content:"";position:absolute;right:0;top:14px;width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--sand-light);}
+html body .feed-card.zu-card{flex:1;min-width:0;position:relative;height:96px;min-height:96px;padding:0;margin:0 0 0 6px;border:none;border-radius:14px;overflow:hidden;color:#fff;background-color:#222;background-size:cover;background-position:center;display:block;}
+html body .feed-card.zu-card:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.72) 42%,rgba(0,0,0,.25) 100%);pointer-events:none;}
+.zu-card .n{position:absolute;left:12px;bottom:30px;right:12px;font-size:17px;font-weight:700;text-shadow:0 2px 6px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.zu-card .d{position:absolute;left:12px;bottom:9px;right:76px;font-size:13.5px;font-weight:700;text-shadow:0 1px 4px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.zu-card .mr{position:absolute;right:8px;top:8px;font-size:10.5px;font-weight:700;background:rgba(255,255,255,.9);color:#0F3B3A;border-radius:100px;padding:3px 9px;}
+.zu-card .tw{position:absolute;right:10px;bottom:10px;font-size:10.5px;font-weight:500;opacity:.92;text-shadow:0 1px 4px #000;}
+.zu-lock{position:relative;}
+.zu-blur{filter:blur(5px) saturate(.8);opacity:.75;pointer-events:none;user-select:none;max-height:210px;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,#000 30%,transparent 100%);mask-image:linear-gradient(to bottom,#000 30%,transparent 100%);}
+.zu-lockcard{margin-top:-120px;position:relative;z-index:3;background:var(--sand);border:2px solid var(--ink);border-radius:18px;padding:16px 16px 14px;box-shadow:6px 6px 0 var(--accent);color:var(--ink);}
+.zu-lockcard .k{display:inline-flex;gap:6px;align-items:center;font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;background:var(--ink);color:var(--sand);border-radius:100px;padding:4px 10px;}
+.zu-lockcard h4{font-size:20px;font-weight:700;letter-spacing:-.4px;margin:8px 0 4px;}
+.zu-lockcard p{font-size:13px;line-height:1.4;margin:0 0 12px;opacity:.8;}
+.zu-lockcard .b1{display:block;width:100%;text-align:center;background:var(--accent);color:#0A0A0A;border:0;border-radius:14px;padding:12px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;}
+html[data-theme="light"] .zu-lockcard .b1{color:#fff;}
+.zu-lockcard .b2{display:block;width:100%;background:none;border:0;text-align:center;font-size:13px;font-weight:600;padding:10px 0 0;opacity:.75;color:var(--ink);font-family:inherit;cursor:pointer;}
+.tm-empty{font-size:13.5px;color:var(--muted);padding:18px 4px;text-align:center;}
+.f-town{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--ink);border-radius:100px;padding:8px 14px;font-size:13px;font-weight:700;background:var(--sand);color:var(--ink);font-family:inherit;cursor:pointer;}
+.f-town small{opacity:.6;font-weight:600;}
+.f-town.on{background:var(--ink);color:var(--sand);}
+.f-seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;}
+.f-seg button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 7px;border-radius:14px;border:1px solid var(--line);background:var(--sand);color:var(--ink);font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;line-height:1.15;text-align:center;}
+.f-seg button i{font-style:normal;font-size:19px;line-height:1;}
+.f-seg button.on{background:var(--accent);color:#0A0A0A;border-color:var(--accent);}
+html[data-theme="light"] .f-seg button.on{color:#fff;}
+#tsSheet{padding:10px 18px 18px;}
+#tsSheet h4{font-size:19px;font-weight:700;margin:8px 0 12px;letter-spacing:-.3px;}
+.ts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow-y:auto;}
+.ts-opt{display:flex;align-items:center;justify-content:space-between;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font-size:14px;font-weight:600;background:transparent;color:var(--ink);font-family:inherit;cursor:pointer;text-align:left;}
+.ts-opt.on{border-color:var(--ink);background:var(--line-soft);font-weight:700;}
+.ts-opt .ck{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;}
+.ts-opt.on .ck{background:var(--ink);color:var(--sand);border-color:var(--ink);}
+.ts-btns{display:flex;gap:10px;margin-top:14px;flex:none;}
+.ts-btns button{flex:1;border-radius:14px;padding:13px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;}
+.ts-btns .c{background:transparent;border:1.5px solid var(--line);color:var(--ink);}
+.ts-btns .d{background:var(--accent);border:0;color:#0A0A0A;}
+html[data-theme="light"] .ts-btns .d{color:#fff;}
 html body .feed-card.fc-ph{position:relative;min-height:172px;padding:0;border:none;overflow:hidden;color:#fff;background-color:#222;background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:flex-end;border-radius:18px;}
-html body .feed-card.fc-ph:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.78) 0%,rgba(0,0,0,.28) 55%,rgba(0,0,0,.14) 100%);pointer-events:none;}
+html body .feed-card.fc-ph:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.78) 38%,rgba(0,0,0,.2) 75%);pointer-events:none;}
 html body .feed-card.fc-ph.ending{box-shadow:0 0 0 2px var(--sunset);}
 html body .fc-ph>*{position:relative;z-index:1;}
 html body .fc-ph>.fc-tag{position:absolute;left:12px;top:10px;background:rgba(255,255,255,.92);color:#0F3B3A;border:none;z-index:2;}
 html body .fc-ph>.fc-row,.fc-ph>.fc-headline,.fc-ph>.fc-meta,.fc-ph>.mdeal-slides{margin-left:14px;margin-right:14px;}
 html body .fc-ph>.fc-meta{margin-bottom:12px;}
-html body .fc-ph .fc-name-link{color:#fff;font-size:20px;text-shadow:0 1px 6px rgba(0,0,0,.4);}
+html body .fc-ph .fc-name-link{color:#fff;font-size:21px;text-shadow:0 2px 8px #000;}
 html body .fc-ph .fc-name-link:hover{color:#fff;}
-html body .fc-ph .fc-text,.fc-ph .fc-headline{color:#fff;font-size:15.5px;font-weight:600;}
-html body .fc-ph .fc-meta{color:rgba(255,255,255,.88);}
+html body .fc-ph .fc-text,html body .fc-ph .fc-headline{color:#fff;font-size:16px;font-weight:700;text-shadow:0 1px 6px #000;}
+html body .fc-ph .fc-meta{color:rgba(255,255,255,.92);text-shadow:0 1px 4px #000;}
 html body .fc-ph>.fc-row .fav-btn{position:absolute;right:8px;top:6px;color:#fff;font-size:22px;text-shadow:0 1px 4px rgba(0,0,0,.45);}
 html body .fc-ph>.fc-row .fav-btn.active{color:#ff6b5a;}
 html body .fc-ph .fc-end{background:#E5372A;color:#fff;border-radius:100px;padding:2px 9px;font-size:11px;}
@@ -593,10 +648,10 @@ html body .fc-ph .mdeal-dot.active{background:#fff;}
 #pvSheet{overflow:hidden;}
 #pvSheet .pv-grab{position:absolute;left:50%;top:8px;transform:translateX(-50%);margin:0;background:rgba(255,255,255,.85);z-index:3;}
 #pvSheet .pv-top{position:relative;margin:-10px -20px 0;height:176px;align-items:flex-end;padding:14px 18px;background:linear-gradient(135deg,#0E9A9A,#7FD6D0) center/cover;}
-#pvSheet .pv-top:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.78),rgba(0,0,0,.05) 72%);}
+#pvSheet .pv-top:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.7) 40%,rgba(0,0,0,.15) 80%);}
 #pvSheet .pv-top>*{position:relative;z-index:1;}
 #pvSheet .pv-top>.pv-x{position:absolute;right:12px;top:12px;width:32px;height:32px;background:rgba(0,0,0,.5);color:#fff;border:none;z-index:3;}
-#pvSheet .pv-name{color:#fff;font-size:24px;letter-spacing:-.5px;white-space:normal;}
+#pvSheet .pv-name{color:#fff;font-size:24px;letter-spacing:-.5px;white-space:normal;text-shadow:0 2px 8px #000;}
 #pvSheet .pv-sub{color:rgba(255,255,255,.92);}
 #pvSheet .pv-open{color:#fff;}
 .pv-live{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;background:#E5372A;color:#fff;border-radius:100px;padding:3px 9px;margin-bottom:6px;}
@@ -786,6 +841,9 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
   </div>
   <div class="pv-actions"><button type="button" class="btn pv-share" id="pvShare" onclick="shareDeal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span data-i18n="shareBtn"></span></button><button type="button" class="btn btn-sea pv-go" id="pvGo" data-i18n="viewRestaurant"></button></div>
 </div>
+
+<div class="pv-scrim" id="tsScrim" onclick="closeTownSheet(false)"></div>
+<div class="pv" id="tsSheet" role="dialog" aria-modal="true"><div class="pv-grab"></div><h4 id="tsTitle"></h4><div class="ts-grid" id="tsGrid"></div><div class="ts-btns"><button type="button" class="c" id="tsClear" onclick="tsClear()"></button><button type="button" class="d" id="tsDone" onclick="closeTownSheet(true)"></button></div></div>
 
 <div class="pv-scrim" id="cfScrim" onclick="closeConfirmSheet()"></div>
 <div class="pv" id="cfSheet" role="dialog" aria-modal="true">
@@ -1433,7 +1491,7 @@ myFavorites:"My Favorites",favoritesTitle:"Your favorites",favoritesEmpty:"No fa
 favoriteAdd:"Save to favorites",favoriteRemove:"Remove from favorites",
 dashProfileTitle:"Restaurant info",saveProfile:"Save info",profileSaved:"Saved.",emailInUse:"That email already has an account — try logging in instead.",
 scanMenuLabel:"Scan your menu",scanMenu:"Scan menu pages",scanningMenu:"Reading menu photos...",scanDone:"Got it — check the text below and clean up anything that looks off.",menuEditLabel:"Menu",menuFormatHint:"One category per line, then its items below as \"Item — Price\" (blank line between categories). Scanning pulls in most of what's on the page — just fix anything that looks off before saving.",saveMenu:"Save menu",menuSaved:"Menu saved.",saveBlocked:"Couldn't save — your account doesn't have permission to edit this restaurant.",pickTitle:"Which restaurant?",pickSub:"Pick one to manage — you can switch anytime.",pickSignedInAs:"Signed in as",pickPending:"Pending approval",pickAdd:"+ Add another restaurant",managing:"Managing",addRestTitle:"Add another restaurant",addRestSub:"It'll be linked to your account. We'll review it and let you know when it's live.",addRestSubmit:"Submit for approval",addRestDone:"Submitted — we'll review it and it'll show up here once approved.",restPendingTag:"PENDING",switchedTo:"Switched to",
-recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Add recurring deal",recurringSaved:"Added.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing",recurringListTitle:"Your recurring deals",noRecurringDeals:"No recurring deals yet.",everyDay:"Every day",comingUpLabel:"Coming up",upcomingStartsAt:"Starts at {time}",menuNamePh:"Menu name, e.g. Breakfast",addMenu:"+ Add another menu",removeMenu:"Remove menu",menuTimesHint:"Times are optional. Leave them blank for a menu that is always available.",servingNow:"Serving now",mUntil:"until {t}",mFrom:"from {t}",allDayCheck:"All day (uses hours from Restaurant info)",allDayNote:"Follows your Restaurant info hours:",editHours:"Edit hours →",noHoursYet:"No hours yet. Add them in Restaurant info.",mTodayHrs:"Today {t}",allDayPost:"All day (until closing, from Restaurant info)",allDayPostNote:"Live now until closing today:",allDayCloseToday:"Closes today at {t}",allDayRecNote:"Runs during your Restaurant info hours:",allDayShort:"All day",photoFailed:"The photo could not be uploaded, so nothing was saved. Try again.",pdfFailed:"Couldn't read that PDF. Try a screenshot or photo of it instead.",offlineBar:"You're offline. Showing the last update.",delTitle:"Delete account",delDinerBody:"Permanently delete your account and saved favorites. This can't be undone.",delRestBody:"Permanently delete your account and your restaurant, including all deals, menus and photos. This can't be undone.",delBtn:"Delete my account",delConfD:"Delete your account?",delConfR:"Delete your account and restaurant?",delSubD:"This permanently removes your account. It can't be undone.",delSubR:"This permanently removes your account and your restaurant from Dock Talk. It can't be undone.",delWhat:"What gets deleted",delItLogin:"Your login and profile",delItFav:"Your saved favorites",delItList:"Your restaurant listing, hours and menus",delItDeals:"All your deals, including recurring ones",delItPhotos:"Your uploaded photos",delType:"Type DELETE to confirm.",delGo:"Delete forever",delCancel:"Cancel",delWorking:"Deleting…",delErr:"Couldn't delete your account. Try again, or email southforkdocktalk@gmail.com.",delDone:"Account deleted",delDoneSub:"Your account and data have been removed.",delOk:"OK",headlineLabel:"Headline",headlineHint:"Shows on the feed. Keep it short, like “Taco Tuesday”.",detailsLabel:"Details",detailsHint:"Shows when someone taps the card. One item per line. End a line with “- $3” to show the price.",viewRestaurant:"View restaurant →",pvClose:"Close",tourSkip:"Skip",tourNext:"Next",tourGo:"Let's go",tourHow:"How it works",t1T:"See what's on tonight",t1P:"Deals from restaurants nearby, sorted by what ends soonest. Red means it ends within the hour.",t2T:"Tap for the details",t2P:"Every deal opens a quick preview with the full menu items and prices. Swipe down to close.",t3T:"Find a place to go",t3P:"The Explore tab lists every restaurant. Filter by town, deals today, or what's open now.",t4T:"Keep it close",t4P:"Save your favorites and we'll alert you when they post or a deal goes live. Add Dock Talk to your home screen to get alerts (required on iPhone).",tourHeart:"Tap the heart on any restaurant to save it",tourAddIos:"Add to Home Screen · For iPhone",tourAddAnd:"Add to Home Screen · For Android",tourIos1:"Open docktalk.chat in <u>Safari</u>",tourIos2:"Tap Share {share} at the bottom",tourIos3:"Scroll down, tap <u>Add to Home Screen</u>",tourIos4:"Tap <u>Add</u> in the top corner",tourAnd1:"Open docktalk.chat in <u>Chrome</u>",tourAnd2:"Tap the menu {menu} top right",tourAnd3:"Tap <u>Install app</u> (or <u>Add to Home screen</u>)",tourAnd4:"Tap <u>Install</u>",tourWarnIos:"Won't work from inside Instagram, Facebook or Gmail links. Open in Safari first.",tourWarnAnd:"Won't work from inside Instagram, Facebook or Gmail links. Open in Chrome first.",shareBtn:"Share",shareTitle:"Share this deal",shareText:"Text",shareEmail:"Email",shareCopy:"Copy link",shareCopied:"Link copied",shareMsg:"Hey, check out this {deal} deal at {rest} on Dock Talk 🍽️",shareEnded:"This deal has ended.",rt1T:"Post a deal in 30 seconds",rt1P:"Tap ＋ Post. Add a short headline, the details, and a photo if you have one. It goes live right away, or at the start time you set.",rt2T:"Set it once, run every week",rt2P:"Weekly deals like Taco Tuesday go under Recurring deal. Pick the days and times and it shows up on its own. No need to log in.",rt3T:"Hours and menu, once",rt3P:"Add your hours (lunch and dinner splits too) and scan your menu from a photo or PDF. Set a deal to start at Open or end at Close and it follows your hours.",rt5T:"Tap Confirm to keep deals live",rt5P:"Every deal needs a quick confirm. Post, edit or confirm within 10 days or your deals are hidden from diners until you tap Resume. We'll remind you on day 7.",rt4T:"Short headline, full details",rt4P:"The feed shows only your headline. Diners tap the card to see the itemized details and photo, and can share it with friends. Keep the headline short.",navAdmin:"Admin ›",navDash:"Dashboard ›",themeTitle:"Appearance",themeSub:"Light is the default. Dark is easier on the eyes at night.",themeLight:"Light",themeDark:"Dark",guestCta:"Create an account",guestTitle:"Profile",guestH:"Save the places you love",guestSub:"Create a free account to save your favorite restaurants and see what's coming up.",endsIn:"Ends in {dur}",fDeal:"Deal today",fOpen:"Open now",fNone:"No restaurants match those filters.",upcomingToday:"Today · {time}",upcomingIn:"in {dur}",upcomingNextIn:"next one in {dur}",upcomingSetByRestaurant:"(set by the restaurant when they posted it)",startTimeLabel:"Starts at",startTimeHint:"Leave blank to keep today's behavior — live the moment you post it.",recurringPhotoHint:"Entirely optional — a text-only recurring deal works exactly as it does today if you skip this.",pvMenuPhoto:"View full menu photo",pvLive:"Live now"},
+recurringTab:"Recurring deal",recurringEnabled:"Enabled",recurringToggleHint:"Shows on your page as an ongoing deal during the days/times below.",recurringTextLabel:"The deal",recurringDaysLabel:"Days",recurringStartLabel:"Starts",recurringEndLabel:"Ends",saveRecurring:"Add recurring deal",recurringSaved:"Added.",recurringNote:"This shows automatically on your page during the days and hours you set below — no need to log in each day.",recurringTag:"Recurring",recurringMetaLabel:"Ongoing",recurringListTitle:"Your recurring deals",noRecurringDeals:"No recurring deals yet.",everyDay:"Every day",comingUpLabel:"Coming up",upcomingStartsAt:"Starts at {time}",menuNamePh:"Menu name, e.g. Breakfast",addMenu:"+ Add another menu",removeMenu:"Remove menu",menuTimesHint:"Times are optional. Leave them blank for a menu that is always available.",servingNow:"Serving now",mUntil:"until {t}",mFrom:"from {t}",allDayCheck:"All day (uses hours from Restaurant info)",allDayNote:"Follows your Restaurant info hours:",editHours:"Edit hours →",noHoursYet:"No hours yet. Add them in Restaurant info.",mTodayHrs:"Today {t}",allDayPost:"All day (until closing, from Restaurant info)",allDayPostNote:"Live now until closing today:",allDayCloseToday:"Closes today at {t}",allDayRecNote:"Runs during your Restaurant info hours:",allDayShort:"All day",photoFailed:"The photo could not be uploaded, so nothing was saved. Try again.",pdfFailed:"Couldn't read that PDF. Try a screenshot or photo of it instead.",offlineBar:"You're offline. Showing the last update.",delTitle:"Delete account",delDinerBody:"Permanently delete your account and saved favorites. This can't be undone.",delRestBody:"Permanently delete your account and your restaurant, including all deals, menus and photos. This can't be undone.",delBtn:"Delete my account",delConfD:"Delete your account?",delConfR:"Delete your account and restaurant?",delSubD:"This permanently removes your account. It can't be undone.",delSubR:"This permanently removes your account and your restaurant from Dock Talk. It can't be undone.",delWhat:"What gets deleted",delItLogin:"Your login and profile",delItFav:"Your saved favorites",delItList:"Your restaurant listing, hours and menus",delItDeals:"All your deals, including recurring ones",delItPhotos:"Your uploaded photos",delType:"Type DELETE to confirm.",delGo:"Delete forever",delCancel:"Cancel",delWorking:"Deleting…",delErr:"Couldn't delete your account. Try again, or email southforkdocktalk@gmail.com.",delDone:"Account deleted",delDoneSub:"Your account and data have been removed.",delOk:"OK",headlineLabel:"Headline",headlineHint:"Shows on the feed. Keep it short, like “Taco Tuesday”.",detailsLabel:"Details",detailsHint:"Shows when someone taps the card. One item per line. End a line with “- $3” to show the price.",viewRestaurant:"View restaurant →",pvClose:"Close",tourSkip:"Skip",tourNext:"Next",tourGo:"Let's go",tourHow:"How it works",t1T:"See what's on tonight",t1P:"Deals from restaurants nearby, sorted by what ends soonest. Red means it ends within the hour.",t2T:"Tap for the details",t2P:"Every deal opens a quick preview with the full menu items and prices. Swipe down to close.",t3T:"Find a place to go",t3P:"The Explore tab lists every restaurant. Filter by town, deals today, or what's open now.",t4T:"Keep it close",t4P:"Save your favorites and we'll alert you when they post or a deal goes live. Add Dock Talk to your home screen to get alerts (required on iPhone).",tourHeart:"Tap the heart on any restaurant to save it",tourAddIos:"Add to Home Screen · For iPhone",tourAddAnd:"Add to Home Screen · For Android",tourIos1:"Open docktalk.chat in <u>Safari</u>",tourIos2:"Tap Share {share} at the bottom",tourIos3:"Scroll down, tap <u>Add to Home Screen</u>",tourIos4:"Tap <u>Add</u> in the top corner",tourAnd1:"Open docktalk.chat in <u>Chrome</u>",tourAnd2:"Tap the menu {menu} top right",tourAnd3:"Tap <u>Install app</u> (or <u>Add to Home screen</u>)",tourAnd4:"Tap <u>Install</u>",tourWarnIos:"Won't work from inside Instagram, Facebook or Gmail links. Open in Safari first.",tourWarnAnd:"Won't work from inside Instagram, Facebook or Gmail links. Open in Chrome first.",shareBtn:"Share",shareTitle:"Share this deal",shareText:"Text",shareEmail:"Email",shareCopy:"Copy link",shareCopied:"Link copied",shareMsg:"Hey, check out this {deal} deal at {rest} on Dock Talk 🍽️",shareEnded:"This deal has ended.",rt1T:"Post a deal in 30 seconds",rt1P:"Tap ＋ Post. Add a short headline, the details, and a photo if you have one. It goes live right away, or at the start time you set.",rt2T:"Set it once, run every week",rt2P:"Weekly deals like Taco Tuesday go under Recurring deal. Pick the days and times and it shows up on its own. No need to log in.",rt3T:"Hours and menu, once",rt3P:"Add your hours (lunch and dinner splits too) and scan your menu from a photo or PDF. Set a deal to start at Open or end at Close and it follows your hours.",rt5T:"Tap Confirm to keep deals live",rt5P:"Every deal needs a quick confirm. Post, edit or confirm within 10 days or your deals are hidden from diners until you tap Resume. We'll remind you on day 7.",rt4T:"Short headline, full details",rt4P:"The feed shows only your headline. Diners tap the card to see the itemized details and photo, and can share it with friends. Keep the headline short.",navAdmin:"Admin ›",navDash:"Dashboard ›",themeTitle:"Appearance",themeSub:"Light is the default. Dark is easier on the eyes at night.",themeLight:"Light",themeDark:"Dark",guestCta:"Create an account",guestTitle:"Profile",guestH:"Save the places you love",guestSub:"Create a free account to save your favorite restaurants and see what's coming up.",endsIn:"Ends in {dur}",fDeal:"Deal today",fOpen:"Open now",fNone:"No restaurants match those filters.",upcomingToday:"Today · {time}",upcomingIn:"in {dur}",upcomingNextIn:"next one in {dur}",upcomingSetByRestaurant:"(set by the restaurant when they posted it)",startTimeLabel:"Starts at",startTimeHint:"Leave blank to keep today's behavior — live the moment you post it.",recurringPhotoHint:"Entirely optional — a text-only recurring deal works exactly as it does today if you skip this.",pvMenuPhoto:"View full menu photo",pvLive:"Live now",tsTitle:"Where are you?",tsClear:"Clear",tsDone:"Done",tmName:"Time machine",tmAcct:"Account",tmLockH:"See what's coming, hours ahead",tmLockP:"Peek at later today and tomorrow, plan your night, never miss a happy hour. Free with an account.",tmCta:"Create a free account",tmLogin:"Already have one? Log in",tmLater:"Later today",tmTomorrow:"Tomorrow",tmComing:"Showing what's coming up",tmAt:"Live at {t}",tmNone:"Nothing live then. Try another time.",tmNow:"Now",tmUntil:"Until {t}",tmUntilWord:"until",tmMore:"+{n} more",tmDayTomorrow:"tomorrow"},
 
 es:{region:"Guanacaste, Costa Rica",heroTitle:"Sabé qué está bueno hoy — <em>antes de salir.</em>",
 heroSub:"Los restaurantes de Guanacaste publican sus especiales del día acá. Seguí los lugares que te gustan y enterate primero.",
@@ -1925,11 +1983,33 @@ function buildFilters(){
     fw.style.display='none';
   }
   const tw=document.getElementById('townFilters'); tw.innerHTML='';
-  addChip(tw,t('allTowns'),selTowns.size===0,()=>{selTowns.clear();buildFilters();loadFeed();});
-  TOWNS.forEach(x=>addChip(tw,x,selTowns.has(x),()=>{selTowns.has(x)?selTowns.delete(x):selTowns.add(x);buildFilters();loadFeed();}));
+  const names=[...selTowns]; const tl = names.length===0 ? t('allTowns') : (names.length===1 ? names[0] : names[0]+' +'+(names.length-1));
+  const tb=document.createElement('button'); tb.type='button'; tb.className='f-town'+(names.length?' on':'');
+  tb.innerHTML='📍 '+esc(tl)+' <small>▾</small>'; tb.onclick=openTownSheet; tw.appendChild(tb);
   const sw=document.getElementById('slotFilters'); sw.innerHTML='';
-  addChip(sw,t('allTimes'),selSlots.size===0,()=>{selSlots.clear();buildFilters();loadFeed();});
-  t('slots').forEach((x,i)=>addChip(sw,x,selSlots.has(i),()=>{selSlots.has(i)?selSlots.delete(i):selSlots.add(i);buildFilters();loadFeed();}));
+  const seg=document.createElement('div'); seg.className='f-seg'; sw.appendChild(seg);
+  const SLOT_ICONS=['☀️','🥪','🍹','🌙'];
+  t('slots').forEach((x,i)=>{ const b=document.createElement('button'); b.type='button'; b.className=selSlots.has(i)?'on':''; b.innerHTML='<i>'+SLOT_ICONS[i]+'</i>'+esc(x); b.onclick=()=>{selSlots.has(i)?selSlots.delete(i):selSlots.add(i);buildFilters();loadFeed();}; seg.appendChild(b); });
+}
+let tsTemp=null;
+function renderTownSheet(){
+  document.getElementById('tsTitle').textContent=t('tsTitle');
+  document.getElementById('tsClear').textContent=t('tsClear');
+  document.getElementById('tsDone').textContent=t('tsDone');
+  document.getElementById('tsGrid').innerHTML=TOWNS.map(x=>`<button type="button" class="ts-opt${tsTemp.has(x)?' on':''}" data-town="${esc(x)}"><span>${esc(x)}</span><span class="ck">${tsTemp.has(x)?'✓':''}</span></button>`).join('');
+  document.querySelectorAll('#tsGrid .ts-opt').forEach(b=>b.onclick=()=>{ const x=b.dataset.town; tsTemp.has(x)?tsTemp.delete(x):tsTemp.add(x); renderTownSheet(); });
+}
+function openTownSheet(){
+  tsTemp=new Set(selTowns); renderTownSheet();
+  const tb=document.getElementById('tabbar'); const bh=tb&&tb.classList.contains('show')?tb.offsetHeight:0;
+  const sh=document.getElementById('tsSheet'), sc=document.getElementById('tsScrim');
+  sh.style.bottom=bh+'px'; sc.style.bottom=bh+'px'; sh.style.maxHeight='calc(78vh - '+bh+'px)';
+  sc.classList.add('on'); sh.classList.add('on');
+}
+function tsClear(){ tsTemp=new Set(); renderTownSheet(); }
+function closeTownSheet(apply){
+  document.getElementById('tsScrim').classList.remove('on'); document.getElementById('tsSheet').classList.remove('on');
+  if(apply && tsTemp){ selTowns.clear(); tsTemp.forEach(x=>selTowns.add(x)); buildFilters(); loadFeed(); }
 }
 function addChip(parent,label,active,fn){
   const b=document.createElement('button');
@@ -2161,6 +2241,7 @@ async function loadFeed(){
   // openDetail below), since every one of its own deals is useful there.
   const feedCutoff = new Date(); feedCutoff.setDate(feedCutoff.getDate()+2); feedCutoff.setHours(0,0,0,0);
   const notExpired=(data||[]).filter(s=>!isExpired(s.until_time,s.created_at));
+  tmSrc={sp:notExpired, rd:[]};
   let list=notExpired.filter(s=>!upcomingSpecialInfo(s,feedCutoff)).map(s=>({
     id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
     slot:s.slot, slotKeys:slotKeysOf(s), text:s.text, title:s.title||null, until:s.until, until_time:s.until_time, photo:s.photo_url, created_at:s.created_at,
@@ -2169,7 +2250,7 @@ async function loadFeed(){
   let upcomingSpecials = notExpired.map(s=>{
     const info=upcomingSpecialInfo(s,feedCutoff); if(!info) return null;
     return { id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town,
-      slot:s.slot, slotKeys:slotKeysOf(s), text:s.text, title:s.title||null, photo:s.photo_url, rphotos:s.restaurants.photos||[], rhours:s.restaurants.hours_json||null, sortKey:info.sortKey, whenHTML:info.whenHTML };
+      slot:s.slot, slotKeys:slotKeysOf(s), text:s.text, title:s.title||null, photo:s.photo_url, rphotos:s.restaurants.photos||[], rhours:s.restaurants.hours_json||null, sortKey:info.sortKey, startMs:info.startMs, whenHTML:info.whenHTML };
   }).filter(Boolean);
   if(selTowns.size) list=list.filter(s=>selTowns.has(s.town));
   if(selSlots.size) list=list.filter(matchSlots);
@@ -2190,8 +2271,9 @@ async function loadFeed(){
       (rdata||[]).forEach(rd=>{
         const info=upcomingRecurringInfo(rd,feedCutoff); if(!info) return;
         upcomingRecurring.push({ id:'rd-'+rd.id, rid:rd.restaurant_id, restaurant:rd.restaurants.name, town:rd.restaurants.town,
-          text:rd.text, title:rd.title||null, photo:rd.photo_url||null, rphotos:rd.restaurants.photos||[], rhours:rd.restaurants.hours_json||null, recurring:true, slotKeys:slotKeysOf(rd), sortKey:info.sortKey, whenHTML:info.whenHTML });
+          text:rd.text, title:rd.title||null, photo:rd.photo_url||null, rphotos:rd.restaurants.photos||[], rhours:rd.restaurants.hours_json||null, recurring:true, slotKeys:slotKeysOf(rd), sortKey:info.sortKey, startMs:info.startMs, whenHTML:info.whenHTML });
       });
+      tmSrc.rd=rdata;
     }
   }catch(e){ console.error(e); }
   if(selTowns.size) recurringList=recurringList.filter(s=>selTowns.has(s.town));
@@ -3226,11 +3308,11 @@ function rdTimesForDay(rd,day){
   const end=rd.end_close?(hv&&hLast(hv)):rd.end_time;
   return (start&&end)?{start,end}:null;
 }
-function isRecurringActive(rd){
+function isRecurringActive(rd,at){
   if(!rd || rd.enabled===false || !rd.text) return false;
   if(rdPaused(rd)) return false;
   if(rd.all_day||rd.start_open||rd.end_close){
-    const n0=new Date(); const d0=(n0.getDay()+6)%7;
+    const n0=at instanceof Date?at:new Date(); const d0=(n0.getDay()+6)%7;
     if(rd.days&&rd.days.length&&!rd.days.includes(d0)) return false;
     const tm=rdTimesForDay(rd,d0); if(!tm) return false;
     const [a,b]=tm.start.split(':').map(Number), [c,d]=tm.end.split(':').map(Number);
@@ -3238,7 +3320,7 @@ function isRecurringActive(rd){
     return en>st ? (cur>=st&&cur<en) : (cur>=st||cur<en);
   }
   if(!rd.days || !rd.days.length || !rd.start_time || !rd.end_time) return true;
-  const now=new Date();
+  const now=at instanceof Date?at:new Date();
   const day=(now.getDay()+6)%7;
   if(!rd.days.includes(day)) return false;
   const [sh,sm]=rd.start_time.split(':').map(Number);
@@ -3271,7 +3353,7 @@ function upcomingSpecialInfo(s, cutoff){
   if(startsAt <= now) return null;
   if(cutoff && startsAt > cutoff) return null;
   const whenHTML = `<span>${t('upcomingToday').replace('{time}', esc(formatTime12(s.start_time)))}</span><span class="up-pill">${t('upcomingIn').replace('{dur}', formatDurationUntil(startsAt-now))}</span>`;
-  return { sortKey: startsAt-now, whenHTML };
+  return { sortKey: startsAt-now, whenHTML, startMs: startsAt.getTime() };
 }
 // A recurring deal that is not currently active — either it runs today but
 // hasn't started yet, or its next occurrence is on a future day of the week.
@@ -3294,7 +3376,7 @@ function upcomingRecurringInfo(rd, cutoff){
     const startsAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), sh, sm, 0, 0);
     if(cutoff && startsAt > cutoff) return null;
     const whenHTML = `<span>${t('upcomingToday').replace('{time}', esc(formatTime12(todayT.start)))}</span><span class="up-pill">${t('upcomingIn').replace('{dur}', formatDurationUntil(startsAt-now))}</span>`;
-    return { sortKey: startsAt-now, whenHTML, win:[dtMin(todayT.start),dtMin(todayT.end)] };
+    return { sortKey: startsAt-now, whenHTML, startMs: startsAt.getTime(), win:[dtMin(todayT.start),dtMin(todayT.end)] };
   }
   // Otherwise, find the soonest future day (1-7 days out) it runs on.
   const sortedDays=[...rd.days].sort((a,b)=>a-b);
@@ -3311,7 +3393,7 @@ function upcomingRecurringInfo(rd, cutoff){
   if(cutoff && nextDate > cutoff) return null;
   const dayLbl = daysOut===1 ? 'Tomorrow' : DAY_ABBR[(curDay+daysOut)%7];
   const whenHTML = esc('Next: '+dayLbl+', '+formatTime12(nextT.start)+'–'+formatTime12(nextT.end));
-  return { sortKey: nextDate-now, whenHTML, win:[dtMin(nextT.start),dtMin(nextT.end)] };
+  return { sortKey: nextDate-now, whenHTML, startMs: nextDate.getTime(), win:[dtMin(nextT.start),dtMin(nextT.end)] };
 }
 // One upcoming feed-card's markup — visually dimmed, no favorite/fav-count
 // chrome needed since these aren't live yet; tapping the name still opens
@@ -3389,7 +3471,109 @@ function mdealUpcomingGoTo(rid,i){
 // Groups the incoming upcoming list by restaurant (preserving soonest-first
 // order at each restaurant's first appearance), same pattern as
 // renderFeedCardsInto for the live section.
+
+/* ══════════ COMING UP (timeline) + TIME MACHINE ══════════ */
+let tmSrc={sp:[],rd:[]}, tmStep=0, upGroups={}, tmUpcomingCache=[];
+function tmUnlocked(){ return !!(currentDiner||isAdmin||currentRestaurant); }
+function hhmmOf(d){ return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function tmDayName(d){ return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]; }
+// Time machine stops: every 30 min from the next half hour through the end of tomorrow.
+function tmStopsMax(){ const n=new Date(); const end=new Date(n.getFullYear(),n.getMonth(),n.getDate()+2,0,0,0,0); return Math.max(1,Math.floor((end-n)/1800000)-1); }
+function tmDateAt(step){ const n=new Date(); if(!step) return n; const base=new Date(n); base.setSeconds(0,0); base.setMinutes(base.getMinutes()<30?30:60); return new Date(base.getTime()+(step-1)*1800000); }
+function tmLabelAt(d){ const n=new Date(); const same=d.toDateString()===n.toDateString(); return (same?'':(tmDayName(d)+' '))+formatTime12(hhmmOf(d)); }
+function specialLiveAt(sp,at){
+  const c=new Date(sp.created_at); let start=c;
+  if(sp.start_time){ const [h,m]=sp.start_time.split(':').map(Number); start=new Date(c.getFullYear(),c.getMonth(),c.getDate(),h,m,0,0); if(start<=c) start.setDate(start.getDate()+1); }
+  if(at<start) return false;
+  if(!sp.until_time) return true;
+  const [h,m]=sp.until_time.split(':').map(Number); let end=new Date(c.getFullYear(),c.getMonth(),c.getDate(),h,m,0,0); if(end<=c) end.setDate(end.getDate()+1);
+  while(end<=start) end.setDate(end.getDate()+1);
+  return at<end;
+}
+function tmDealsAt(at){
+  const label=tmLabelAt(at), when=`<span>${esc(t('tmAt').replace('{t}',label))}</span>`;
+  const out=[];
+  (tmSrc.sp||[]).forEach(s=>{ if(!specialLiveAt(s,at)) return; out.push({ id:s.id, rid:s.restaurant_id, restaurant:s.restaurants.name, town:s.restaurants.town, slot:s.slot, slotKeys:slotKeysOf(s), text:s.text, title:s.title||null, photo:s.photo_url, rphotos:s.restaurants.photos||[], rhours:s.restaurants.hours_json||null, endLabel:s.until_time?formatTime12(s.until_time):'', whenHTML:when }); });
+  const day=(at.getDay()+6)%7;
+  (tmSrc.rd||[]).forEach(rd=>{ if(!isRecurringActive(rd,at)) return; const tt=rdTimesForDay(rd,day);
+    out.push({ id:'rd-'+rd.id, rid:rd.restaurant_id, restaurant:rd.restaurants.name, town:rd.restaurants.town, slotKeys:slotKeysOf(rd), text:rd.text, title:rd.title||null, photo:rd.photo_url||null, rphotos:rd.restaurants.photos||[], rhours:rd.restaurants.hours_json||null, recurring:true, endLabel:tt?formatTime12(tt.end):'', whenHTML:when }); });
+  let r=out;
+  if(selTowns.size) r=r.filter(x=>selTowns.has(x.town));
+  if(selSlots.size) r=r.filter(matchSlots);
+  if(showFavoritesOnly) r=r.filter(x=>favoritesSet.has(x.rid));
+  return r;
+}
+function upRowHTML(g,key,mode){
+  upGroups[key]=g.deals;
+  const d=g.deals[0];
+  let top,sub;
+  if(mode==='at'){ top=d.endLabel||''; sub=d.endLabel?t('tmUntilWord'):''; }
+  else{ const sd=new Date(g.startMs); const n=new Date(); const today=sd.toDateString()===n.toDateString();
+    top=formatTime12(hhmmOf(sd)); sub=today?t('upcomingIn').replace('{dur}',formatDurationUntil(g.startMs-n.getTime())):t('tmDayTomorrow'); }
+  const more=g.deals.length>1?`<span class="mr">${esc(t('tmMore').replace('{n}',g.deals.length-1))}</span>`:'';
+  return `<div class="zu"><div class="tmc"><b>${esc(top)}</b><small>${esc(sub)}</small></div><div class="feed-card zu-card" data-rid="${g.rid}" data-upg="${key}" style="${phBgStyle(d)}">${more}<div class="n">${esc(d.restaurant)}</div><div class="d">${esc(dealHeadline(d))}</div><span class="tw">${esc(d.town||'')}</span></div></div>`;
+}
+function upGroupBy(list,startKey){
+  const by={}, order=[];
+  list.forEach(u=>{ if(!by[u.rid]){ by[u.rid]={rid:u.rid,deals:[],startMs:u.startMs||0}; order.push(u.rid); } by[u.rid].deals.push(u); });
+  return order.map(r=>by[r]);
+}
+function renderComingUpFeed(upcomingList){
+  const el=document.getElementById('feedUpcoming'); if(!el) return;
+  upGroups={};
+  tmUpcomingCache=upcomingList.slice().sort((a,b)=>a.sortKey-b.sortKey);
+  const unlocked=tmUnlocked();
+  if(unlocked){
+    const max=tmStopsMax(); if(tmStep>max) tmStep=0;
+    const lab=document.createElement('div');
+    el.innerHTML=`<div class="tm-hd"><span class="l">⏳ ${esc(t('tmName'))}</span><span class="tm-pill">${esc(t('tmAcct'))}</span><div class="line"></div></div>
+      <div class="tm-slider"><input type="range" id="tmRange" min="0" max="${max}" step="1" value="${tmStep}" aria-label="${esc(t('tmName'))}"><div class="tm-ends"><span>${esc(t('tmNow'))}</span><span>${esc(t('tmTomorrow'))}</span></div></div>
+      <div class="tm-lab" id="tmLab"></div><div id="tmBody"></div>`;
+    const r=document.getElementById('tmRange');
+    r.oninput=()=>{ tmStep=+r.value; tmRenderBody(); };
+    r.onchange=()=>{ try{ trackEvent('tm_slide',{meta:{s:tmStep}}); }catch(e){} };
+    tmRenderBody();
+    return;
+  }
+  const groups=upGroupBy(tmUpcomingCache);
+  if(!groups.length){ el.innerHTML=''; return; }
+  const rows=groups.map((g,i)=>({g,html:null}));
+  let html=`<div class="tm-hd"><span class="l">${esc(t('comingUpLabel'))}</span><div class="line"></div></div>`;
+  html+=upDayHTML(groups,0,Math.min(2,groups.length));
+  if(groups.length>2){
+    html+=`<div class="zu-lock"><div class="zu-blur" aria-hidden="true">${upDayHTML(groups,2,Math.min(5,groups.length),true)}</div><div class="zu-lockcard"><span class="k">⏳ ${esc(t('tmName'))}</span><h4>${esc(t('tmLockH'))}</h4><p>${esc(t('tmLockP'))}</p><button type="button" class="b1" onclick="try{trackEvent('tm_cta',{meta:{a:'signup'}})}catch(e){} goScreen('screenGate');showStep('stepDinerSignup')">${esc(t('tmCta'))}</button><button type="button" class="b2" onclick="goScreen('screenGate');showStep('stepDiner')">${esc(t('tmLogin'))}</button></div></div>`;
+  }
+  el.innerHTML=html;
+}
+// A run of timeline rows, with a "Later today" / "Tomorrow" label whenever the day changes.
+function upDayHTML(groups,from,to,blur){
+  let out='',lastDay=null;
+  const n=new Date();
+  groups.slice(from,to).forEach((g,i)=>{
+    const sd=new Date(g.startMs); const day=sd.toDateString()===n.toDateString()?'today':'tomorrow';
+    if(day!==lastDay){ if(lastDay!==null) out+='</div>'; out+=`<div class="zu-day">${esc(t(day==='today'?'tmLater':'tmTomorrow'))}</div><div class="zu-list">`; lastDay=day; }
+    out+=upRowHTML(g,(blur?'b':'u')+(from+i),'up');
+  });
+  return out+(lastDay!==null?'</div>':'');
+}
+function tmRenderBody(){
+  const body=document.getElementById('tmBody'), lab=document.getElementById('tmLab'); if(!body||!lab) return;
+  upGroups={};
+  if(!tmStep){
+    lab.textContent=t('tmComing');
+    const groups=upGroupBy(tmUpcomingCache);
+    body.innerHTML=groups.length?upDayHTML(groups,0,groups.length):`<div class="tm-empty">${esc(t('tmNone'))}</div>`;
+    return;
+  }
+  const at=tmDateAt(tmStep);
+  lab.innerHTML=esc(t('tmAt').replace('{t}','\u0001')).replace('\u0001','<b>'+esc(tmLabelAt(at))+'</b>');
+  const deals=tmDealsAt(at);
+  const by={},order=[];
+  deals.forEach(d=>{ if(!by[d.rid]){ by[d.rid]={rid:d.rid,deals:[],startMs:0}; order.push(d.rid); } by[d.rid].deals.push(d); });
+  body.innerHTML=order.length?`<div class="zu-list">${order.map((r,i)=>upRowHTML(by[r],'t'+i,'at')).join('')}</div>`:`<div class="tm-empty">${esc(t('tmNone'))}</div>`;
+}
 function renderUpcomingSectionInto(elId, upcomingList){
+  if(elId==='feedUpcoming') return renderComingUpFeed(upcomingList);
   const el=document.getElementById(elId); if(!el) return;
   Object.keys(mdealUpcomingState).filter(k=>k.startsWith(elId+'~')).forEach(k=>delete mdealUpcomingState[k]);
   if(!upcomingList.length){ el.innerHTML=''; return; }
@@ -4870,7 +5054,9 @@ function trackContext(){
         if(card.classList.contains('mdeal-card')){ const st=mdealState[rid]; d=st&&st.deals[st.idx]; if(st) ctx={deals:st.deals,idx:st.idx,sync:i=>mdealGoTo(rid,i)}; }
         else d=previewDeals[String(card.dataset.did)];
       } else if(card.closest('#feedUpcoming')){
-        if(card.classList.contains('mdeal-card')){ const tg=card.querySelector('[id^="mduTag-"]'); const ukey=tg?tg.id.slice(7):''; const st=ukey&&mdealUpcomingState[ukey]; d=st&&st.deals[st.idx]; if(st) ctx={deals:st.deals,idx:st.idx,sync:i=>mdealUpcomingGoTo(ukey,i)}; }
+        const gk=card.dataset.upg; const gd=gk&&upGroups[gk];
+        if(gd){ d=gd[0]; ctx=gd.length>1?{deals:gd,idx:0,sync:()=>{}}:null; }
+        else if(card.classList.contains('mdeal-card')){ const tg=card.querySelector('[id^="mduTag-"]'); const ukey=tg?tg.id.slice(7):''; const st=ukey&&mdealUpcomingState[ukey]; d=st&&st.deals[st.idx]; if(st) ctx={deals:st.deals,idx:st.idx,sync:i=>mdealUpcomingGoTo(ukey,i)}; }
         else d=previewDeals[card.dataset.uid];
       }
       if(d){ trackEvent('preview_open',{restaurant_id:rid}); openPreview(d,ctx); return; }
