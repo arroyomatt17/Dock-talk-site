@@ -639,6 +639,15 @@ html body .fc-ph>.fc-row .fav-btn.active{color:#ff6b5a;}
 html body .fc-ph .fc-end{background:#E5372A;color:#fff;border-radius:100px;padding:2px 9px;font-size:11px;}
 html body .fc-ph .fc-end:before{background:#fff;}
 html body .fc-ph.mdeal-card{min-height:196px;}
+html body .feed-card.fc-ph.x-ph{min-height:124px;margin-bottom:10px;}
+html body .x-ph .fc-name-link{font-size:20px;text-align:left;}
+html body .x-ph>.fc-row{position:static;}
+#rdUpcoming .feed-card.upcoming{opacity:1;}
+.up-hl{font-weight:700;font-size:19px;line-height:1.15;letter-spacing:-.2px;margin:8px 0 4px;color:var(--ink);}
+.up-bd{font-size:13.5px;line-height:1.4;color:var(--ink);opacity:.82;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.up-bd.open{display:block;-webkit-line-clamp:unset;}
+.up-more{background:none;border:0;padding:6px 0 0;font:inherit;font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;}
+html[data-theme="light"] .up-more{color:var(--sunset);}
 html body .fc-ph.mdeal-card>.fc-row:first-child{position:absolute;left:0;right:0;top:0;margin:0;padding:10px 12px;z-index:2;}
 html body .fc-ph.mdeal-card>.fc-row:first-child .fc-tag{background:rgba(255,255,255,.92);color:#0F3B3A;border:none;}
 html body .fc-ph.mdeal-card>.fc-row:first-child .mdeal-count-pill{color:#fff;background:rgba(0,0,0,.45);border-radius:100px;padding:3px 9px;margin-right:34px;}
@@ -2304,7 +2313,7 @@ async function loadExplore(){
   const el=document.getElementById('exploreList'); if(!el) return;
   if(!sbReady()){ el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
   el.innerHTML=`<div class="empty-feed"><div class="ef-sub">…</div></div>`;
-  const {data,error} = await sb.from('restaurants').select('id,name,town,hours_json').eq('status','approved').eq('region',region).order('name');
+  const {data,error} = await sb.from('restaurants').select('id,name,town,hours_json,photos').eq('status','approved').eq('region',region).order('name');
   if(error){ console.error(error); el.innerHTML=`<div class="empty-feed"><div class="ef-title">${t('loadError')}</div></div>`; return; }
   exploreData=data||[];
   exploreDealSet=new Set();
@@ -2346,12 +2355,13 @@ function renderExplore(){
   el.innerHTML=list.map(r=>{
     const fav=favoritesSet.has(r.id);
     const head=r.town!==lastTown?`<div class="x-town">${esc(r.town||'')}</div>`:''; lastTown=r.town;
-    return head+`<div class="feed-card" data-open="${r.id}">
+    let hs=''; try{ if(Array.isArray(r.hours_json)&&r.hours_json.length===7){ const n=new Date(); const st=hoursStatus(r.hours_json,(n.getDay()+6)%7,n.getHours()*60+n.getMinutes()); if(st) hs=' · '+(st.c==='closed'?st.a+' · '+st.b:st.b); } }catch(e){}
+    return head+`<div class="feed-card fc-ph x-ph" data-open="${r.id}" style="${phBgStyle({rphotos:r.photos,restaurant:r.name})}">
       <div class="fc-row">
         <button class="fc-name-link" onclick="openDetail('${r.id}')">${esc(r.name)}</button>
         <button class="fav-btn${fav?' active':''}" onclick="toggleFavorite('${r.id}',event)" title="${fav?t('favoriteRemove'):t('favoriteAdd')}">${fav?'♥':'♡'}</button>
       </div>
-      <div class="fc-meta"><span>${esc(r.town||'')}</span></div>
+      <div class="fc-meta"><span>${esc(r.town||'')}${esc(hs)}</span></div>
     </div>`;
   }).join('');
 }
@@ -2496,11 +2506,11 @@ async function openDetail(rid){
   const upcomingHere=[
     ...notExpiredSpecials.map(s=>{
       const info=upcomingSpecialInfo(s); if(!info) return null;
-      return { rid, restaurant:info.name, text:s.text, sortKey:info.sortKey, whenHTML:info.whenHTML };
+      return { rid, restaurant:info.name, text:s.text, title:s.title||null, sortKey:info.sortKey, whenHTML:info.whenHTML };
     }).filter(Boolean),
     ...(rdRows||[]).map(rd=>{
       const info=upcomingRecurringInfo(rd); if(!info) return null;
-      return { rid, restaurant:info.name, text:rd.text, recurring:true, sortKey:info.sortKey, whenHTML:info.whenHTML };
+      return { rid, restaurant:info.name, text:rd.text, title:rd.title||null, recurring:true, sortKey:info.sortKey, whenHTML:info.whenHTML };
     }).filter(Boolean)
   ];
   renderUpcomingSectionInto('rdUpcoming', upcomingHere);
@@ -3403,7 +3413,22 @@ function upcomingTagHTML(u){
   const label = u.recurring ? t('recurringTag') : esc(slotTagText(u));
   return u.town ? `${label} · ${esc(u.town)}` : label;
 }
-function renderUpcomingCardHTML(u,hl){
+function upParts(u){
+  const t0=String(u.text||'').trim(); const ti=(u.title&&String(u.title).trim())||'';
+  if(ti) return {head:ti,body:t0};
+  const ls=t0.split('\n'); return {head:ls[0]||'',body:ls.slice(1).join('\n').trim()};
+}
+function upDetailTextHTML(u){
+  const p=upParts(u);
+  const long=p.body && (p.body.split('\n').length>3 || p.body.length>110);
+  return `<div class="up-hl">${esc(p.head)}</div>`+(p.body?`<div class="up-bd">${esc(p.body)}</div>`+(long?`<button type="button" class="up-more" onclick="upToggleMore(this,event)">More ▾</button>`:''):'');
+}
+function upToggleMore(btn,ev){
+  if(ev) ev.stopPropagation();
+  const bd=btn.previousElementSibling; if(!bd) return;
+  const open=bd.classList.toggle('open'); btn.textContent=open?'Less ▴':'More ▾';
+}
+function renderUpcomingCardHTML(u,hl,detail){
   const uid = hl ? pvRegister(u) : '';
   const nameRow = u.town
     ? `<div class="fc-row"><span class="fc-name-link">${esc(u.restaurant)}</span></div>`
@@ -3411,7 +3436,7 @@ function renderUpcomingCardHTML(u,hl){
   return `<div class="feed-card upcoming" data-rid="${u.rid}"${uid?` data-uid="${uid}"`:''}>
       <span class="fc-tag upcoming-tag">${upcomingTagHTML(u)}</span>
       ${nameRow}
-      <div class="fc-text${hl?' fc-headline':''}">${esc(hl?dealHeadline(u):u.text)}</div>
+      ${detail?upDetailTextHTML(u):`<div class="fc-text${hl?' fc-headline':''}">${esc(hl?dealHeadline(u):u.text)}</div>`}
       <div class="upcoming-when"><span class="dot"></span>${u.whenHTML}</div>
     </div>`;
 }
@@ -3422,6 +3447,7 @@ function renderUpcomingCardHTML(u,hl){
 // with a same-restaurant card in the live section above it.
 let mdealUpcomingState={};
 function renderUpcomingMultiDealCardHTML(rid, deals, scope){
+  const detail = scope==='rdUpcoming';
   // The same restaurant can appear in the feed AND on its own page at once, so every id and state key is scoped to its container.
   const key=(scope||'u')+'~'+rid;
   const hl = scope==='feedUpcoming';
@@ -3432,7 +3458,7 @@ function renderUpcomingMultiDealCardHTML(rid, deals, scope){
     : '';
   const slides = deals.map((d,i)=>`
     <div class="mdeal-slide${i===0?' active':''}" data-idx="${i}">
-      <div class="fc-text${hl?' fc-headline':''}">${esc(hl?dealHeadline(d):d.text)}</div>
+      ${detail?upDetailTextHTML(d):`<div class="fc-text${hl?' fc-headline':''}">${esc(hl?dealHeadline(d):d.text)}</div>`}
       <div class="upcoming-when"><span class="dot"></span>${d.whenHTML}</div>
     </div>`).join('');
   const dots = deals.map((_,i)=>`<button class="mdeal-dot${i===0?' active':''}" onclick="mdealUpcomingGoTo('${key}',${i})" aria-label="Deal ${i+1}"></button>`).join('');
@@ -3587,7 +3613,7 @@ function renderUpcomingSectionInto(elId, upcomingList){
   el.innerHTML = `<div class="section-label upcoming"><div class="line"></div><span>${t('comingUpLabel')}</span><div class="line"></div></div>` +
     order.map(rid=>{
       const deals=groups[rid];
-      return deals.length>1 ? renderUpcomingMultiDealCardHTML(rid,deals,elId) : renderUpcomingCardHTML(deals[0], elId==='feedUpcoming');
+      return deals.length>1 ? renderUpcomingMultiDealCardHTML(rid,deals,elId) : renderUpcomingCardHTML(deals[0], elId==='feedUpcoming', elId==='rdUpcoming');
     }).join('');
 }
 async function saveRecurring(){
