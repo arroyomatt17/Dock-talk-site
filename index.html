@@ -624,22 +624,31 @@ html[data-theme="light"] .f-seg button.on{color:#fff;}
 .ts-btns .d{background:var(--accent);border:0;color:#0A0A0A;}
 html[data-theme="light"] .ts-btns .d{color:#fff;}
 html body .feed-card.fc-ph{position:relative;min-height:172px;padding:0;border:none;overflow:hidden;color:#fff;background-color:#222;background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:flex-end;border-radius:18px;}
-html body .feed-card.fc-ph:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.78) 38%,rgba(0,0,0,.2) 75%);pointer-events:none;}
+html body .feed-card.fc-ph:before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.66) 0%,rgba(0,0,0,.36) 40%,rgba(0,0,0,0) 75%);pointer-events:none;}
 html body .feed-card.fc-ph.ending{box-shadow:0 0 0 2px var(--sunset);}
 html body .fc-ph>*{position:relative;z-index:1;}
 html body .fc-ph>.fc-tag{position:absolute;left:12px;top:10px;background:rgba(255,255,255,.92);color:#0F3B3A;border:none;z-index:2;}
 html body .fc-ph>.fc-row,.fc-ph>.fc-headline,.fc-ph>.fc-meta,.fc-ph>.mdeal-slides{margin-left:14px;margin-right:14px;}
 html body .fc-ph>.fc-meta{margin-bottom:12px;}
-html body .fc-ph .fc-name-link{color:#fff;font-size:21px;text-shadow:0 2px 8px #000;}
+html body .fc-ph .fc-name-link{color:#fff;font-size:21px;text-shadow:0 1px 3px rgba(0,0,0,.6),0 2px 12px rgba(0,0,0,.55);}
 html body .fc-ph .fc-name-link:hover{color:#fff;}
-html body .fc-ph .fc-text,html body .fc-ph .fc-headline{color:#fff;font-size:16px;font-weight:700;text-shadow:0 1px 6px #000;}
-html body .fc-ph .fc-meta{color:rgba(255,255,255,.92);text-shadow:0 1px 4px #000;}
+html body .fc-ph .fc-text,html body .fc-ph .fc-headline{color:#fff;font-size:16px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.6),0 1px 10px rgba(0,0,0,.5);}
+html body .fc-ph .fc-meta{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7),0 1px 8px rgba(0,0,0,.5);}
 html body .fc-ph>.fc-row .fav-btn{position:absolute;right:8px;top:6px;color:#fff;font-size:22px;text-shadow:0 1px 4px rgba(0,0,0,.45);}
 html body .fc-ph>.fc-row .fav-btn.active{color:#ff6b5a;}
 html body .fc-ph .fc-end{background:#E5372A;color:#fff;border-radius:100px;padding:2px 9px;font-size:11px;}
 html body .fc-ph .fc-end:before{background:#fff;}
 html body .fc-ph.mdeal-card{min-height:196px;}
 html body .feed-card.fc-ph.x-ph{min-height:124px;margin-bottom:10px;}
+.intro-mos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0 34px;position:relative;}
+.intro-mos:empty{display:none;}
+.intro-mos div{height:92px;border-radius:14px;background:#222 center/cover;}
+.intro-mos div:nth-child(2),.intro-mos div:nth-child(5){transform:translateY(14px);}
+.intro-mos:after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:66px;background:linear-gradient(to top,var(--intro-bg,var(--sand-light)),rgba(0,0,0,0));pointer-events:none;}
+.intro-stats{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px;}
+.intro-stats:empty{display:none;}
+.intro-stats span{font-size:11.5px;font-weight:700;border:1.5px solid var(--ink);border-radius:100px;padding:5px 12px;color:var(--ink);}
+.intro-stats b{color:var(--sunset);}
 html body .x-ph .fc-name-link{font-size:20px;text-align:left;}
 html body .x-ph>.fc-row{position:static;}
 #rdUpcoming .feed-card.upcoming{opacity:1;}
@@ -870,9 +879,9 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
 <div class="screen active" id="screenIntro">
   <div class="intro">
     <div class="eyebrow" data-i18n="region"></div>
+    <div class="intro-mos" id="introMos"></div>
     <div class="intro-headline" data-i18n="heroTitle"></div>
-    <div class="intro-sub" data-i18n="heroSub"></div>
-    <div class="sample-cards" id="sampleCards"></div>
+    <div class="intro-stats" id="introStats"></div>
     <div class="cta-block">
       <button class="btn-enter btn-enter-diner" onclick="goScreen('screenDiner')" data-i18n="browseCta"></button>
       <div class="own-restaurant">
@@ -1466,7 +1475,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
 const I18N = {
 en:{region:"Guanacaste, Costa Rica",heroTitle:"Know what's good tonight — <em>before you head out.</em>",
 heroSub:"Guanacaste restaurants post their daily specials here. Follow the places you trust, hear about it first.",
-browseCta:"Browse deals",ownRestaurant:"Have an account? Login →",
+browseCta:"Browse tonight's deals",introLive:"live now",introRest:"restaurants",introTowns:"towns",ownRestaurant:"Have an account? Login →",
 tonightEyebrow:"Guanacaste · Tonight",feedTitle:"What's on right now",
 feedSub:"From restaurants that actually posted today — not a database, not ads.",
 refresh:"Refresh",allTowns:"All towns",allTimes:"All times",
@@ -1871,6 +1880,22 @@ async function loadIntroSample(forRegion){
   const finalPool = mapped.length ? mapped : [staticSampleAsDeal(forRegion)];
   introSampleCache[forRegion]=finalPool;
   startIntroSampleRotation(finalPool);
+  loadIntroHook(forRegion, rows);
+}
+async function loadIntroHook(forRegion, rows){
+  const mos=document.getElementById('introMos'), stats=document.getElementById('introStats');
+  if(!mos||!stats||!sbReady()) return;
+  try{
+    const {data} = await sb.from('restaurants').select('id,name,town,photos').eq('status','approved').eq('region',forRegion);
+    if(forRegion!==region) return;
+    const rs=data||[];
+    const pics=rs.filter(r=>r.photos&&r.photos.length).map(r=>r.photos[r.photos.length>=4?1:0]);
+    for(let i=pics.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pics[i],pics[j]]=[pics[j],pics[i]]; }
+    mos.innerHTML = pics.length>=6 ? pics.slice(0,6).map(u=>`<div style="background-image:url(&quot;${String(u).replace(/"/g,'%22').replace(/\(/g,'%28').replace(/\)/g,'%29')}&quot;)"></div>`).join('') : '';
+    const live=new Set(rows.filter(isRecurringActive).map(x=>x.restaurant_id)).size;
+    const towns=new Set(rs.map(r=>r.town).filter(Boolean)).size;
+    stats.innerHTML = rs.length ? [live?`<span><b>${live}</b> ${esc(t('introLive'))}</span>`:'', `<span><b>${rs.length}</b> ${esc(t('introRest'))}</span>`, towns>1?`<span><b>${towns}</b> ${esc(t('introTowns'))}</span>`:''].join('') : '';
+  }catch(e){ console.error(e); }
 }
 
 /* ══════════ NAV ══════════ */
