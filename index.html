@@ -640,6 +640,31 @@ html body .fc-ph .fc-end{background:#E5372A;color:#fff;border-radius:100px;paddi
 html body .fc-ph .fc-end:before{background:#fff;}
 html body .fc-ph.mdeal-card{min-height:196px;}
 html body .feed-card.fc-ph.x-ph{min-height:124px;margin-bottom:10px;}
+.gw{margin-top:26px;border:2px solid var(--ink);border-radius:22px;overflow:hidden;background:var(--sand);box-shadow:5px 5px 0 var(--sunset);}
+.gw-top{background:var(--sunset);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:14px;}
+.gw-amt{font-weight:800;font-size:44px;line-height:1;letter-spacing:-2px;}
+.gw-t{font-weight:800;font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.92;}
+.gw-s{font-weight:700;font-size:15px;line-height:1.2;margin-top:3px;}
+.gw-b{padding:14px 18px 16px;}
+.gw-st{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;font-weight:600;font-size:13.5px;line-height:1.3;color:var(--ink);}
+.gw-st b{flex:0 0 22px;height:22px;border-radius:50%;background:var(--ink);color:var(--sand-light);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;}
+.gw-fine{font-size:10.5px;line-height:1.4;color:var(--muted);margin-top:8px;}
+.gw-fine button{background:none;border:0;padding:0;font:inherit;color:var(--muted);text-decoration:underline;cursor:pointer;}
+.gw-bar{display:none;align-items:center;gap:10px;border:2px solid var(--ink);border-radius:16px;padding:10px 12px;background:var(--sand);margin:0 0 14px;box-shadow:3px 3px 0 var(--sunset);}
+.gw-bar .a{font-weight:800;font-size:24px;color:var(--sunset);letter-spacing:-1px;}
+.gw-bar .t{flex:1;font-weight:700;font-size:13px;line-height:1.25;color:var(--ink);}
+.gw-bar .t span{display:block;font-weight:500;font-size:11.5px;color:var(--muted);margin-top:2px;}
+.gw-toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);width:min(340px,calc(100% - 32px));background:var(--ink);color:var(--sand-light);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center;font-weight:700;font-size:14px;line-height:1.3;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:400;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;}
+.gw-toast.on{opacity:1;transform:translate(-50%,0);}
+.gw-toast i{font-style:normal;font-size:26px;}
+.gw-toast span{display:block;font-weight:500;font-size:12px;opacity:.8;margin-top:2px;}
+#gwSheet{padding:10px 18px 18px;}
+#gwSheet h4{font-size:19px;font-weight:700;margin:8px 0 10px;letter-spacing:-.3px;}
+#gwSheet .gw-rules{overflow-y:auto;max-height:52vh;font-size:13.5px;line-height:1.5;color:var(--ink);}
+#gwSheet .gw-rules p{margin:0 0 10px;}
+#gwSheet .gw-rules b{font-weight:700;}
+.gw-win{border:2px solid var(--ink);border-radius:16px;padding:14px;margin-top:12px;background:var(--sand);}
+.gw-win .e{font-weight:800;font-size:17px;word-break:break-all;}
 .intro-mos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0 34px;position:relative;}
 .intro-mos:empty{display:none;}
 .intro-mos div{height:92px;border-radius:14px;background:#222 center/cover;}
@@ -864,6 +889,17 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
 <div class="pv-scrim" id="tsScrim" onclick="closeTownSheet(false)"></div>
 <div class="pv" id="tsSheet" role="dialog" aria-modal="true"><div class="pv-grab"></div><h4 id="tsTitle"></h4><div class="ts-grid" id="tsGrid"></div><div class="ts-btns"><button type="button" class="c" id="tsClear" onclick="tsClear()"></button><button type="button" class="d" id="tsDone" onclick="closeTownSheet(true)"></button></div></div>
 
+<div class="pv-scrim" id="gwScrim" onclick="gwRulesClose()"></div>
+<div class="pv" id="gwSheet" role="dialog" aria-modal="true"><div class="pv-grab"></div><h4>Giveaway rules</h4><div class="gw-rules">
+<p><b>No purchase necessary.</b> Entry is free.</p>
+<p><b>How to enter.</b> Log in to your Dock Talk account from the Dock Talk app on your Home Screen before 11:59 PM Eastern on December 5, 2026. One entry per account. Logging in from a web browser does not count.</p>
+<p><b>Who can enter.</b> Anyone 13 or older with a Dock Talk account. If a winner is under 18, a parent or guardian must claim the prize.</p>
+<p><b>Prize.</b> One $25 gift card.</p>
+<p><b>Winner.</b> One winner is picked at random from all entries on December 6, 2026, and contacted at the email on their account. If we can't reach them within 7 days, we draw again.</p>
+<p><b>Sponsor.</b> Dock Talk LLC. We use your email only to run the drawing and contact the winner. This giveaway is not sponsored or endorsed by Apple or Google.</p>
+</div><div class="ts-btns"><button type="button" class="d" onclick="gwRulesClose()">Got it</button></div></div>
+<div class="gw-toast" id="gwToast"><i>🎉</i><div>You're entered in the $25 giveaway<span>Drawing Dec 6. Good luck!</span></div></div>
+
 <div class="pv-scrim" id="cfScrim" onclick="closeConfirmSheet()"></div>
 <div class="pv" id="cfSheet" role="dialog" aria-modal="true">
   <div class="pv-grab"></div>
@@ -886,6 +922,15 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       <button class="btn-enter btn-enter-diner" onclick="goScreen('screenDiner')" data-i18n="browseCta"></button>
       <div class="own-restaurant">
         <button onclick="goScreen('screenGate');showStep('stepDiner')" data-i18n="ownRestaurant"></button>
+      </div>
+    </div>
+    <div class="gw" id="gwIntro" style="display:none">
+      <div class="gw-top"><div class="gw-amt">$25</div><div><div class="gw-t">Giveaway · ends Dec 5</div><div class="gw-s">Win a $25 gift card</div></div></div>
+      <div class="gw-b">
+        <div class="gw-st"><b>1</b><span>Add Dock Talk to your Home Screen</span></div>
+        <div class="gw-st"><b>2</b><span>Open it and log in to your account</span></div>
+        <div class="gw-st"><b>3</b><span>You're entered. One winner drawn Dec 6.</span></div>
+        <div class="gw-fine">Free to enter. One entry per account. <button type="button" onclick="gwRules()">See rules</button></div>
       </div>
     </div>
   </div>
@@ -950,6 +995,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
     <div class="r-tagline" id="gateTagline"></div>
 
     <div class="r-card step active" id="stepDiner">
+      <div class="gw-bar"><div class="a">$25</div><div class="t">Log in to enter the giveaway<span>You opened Dock Talk from your Home Screen. Drawing Dec 6. <button type="button" onclick="gwRules()" style="background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer;">Rules</button></span></div></div>
       <h2 data-i18n="dinerAcctTitle"></h2>
       <div class="r-sub" data-i18n="dinerAcctSub"></div>
       <div class="field">
@@ -980,6 +1026,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
     </div>
 
     <div class="r-card step" id="stepDinerSignup">
+      <div class="gw-bar"><div class="a">$25</div><div class="t">Create an account to enter the giveaway<span>You opened Dock Talk from your Home Screen. Drawing Dec 6. <button type="button" onclick="gwRules()" style="background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer;">Rules</button></span></div></div>
       <h2 data-i18n="dinerSignupTitle"></h2>
       <div class="r-sub" data-i18n="dinerSignupSub"></div>
       <div class="field">
@@ -1386,7 +1433,8 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       </div>
       <button class="btn-ghost btn-sm btn" style="width:auto;" onclick="signOut()" data-i18n="signOut"></button>
     </div>
-    <div class="an-seg"><button id="anTabLive" class="on" onclick="adminTab('live')">All deals</button><button id="anTabPost" onclick="adminTab('post')">Post for a restaurant</button><button id="anTabAn" onclick="adminTab('an')">Analytics</button></div>
+    <div class="an-seg"><button id="anTabLive" class="on" onclick="adminTab('live')">All deals</button><button id="anTabPost" onclick="adminTab('post')">Post for a restaurant</button><button id="anTabAn" onclick="adminTab('an')">Analytics</button><button id="anTabGw" onclick="adminTab('gw')">Giveaway</button></div>
+    <div id="adminGwPane" style="display:none;"><div class="card"><div id="gwAdminBody"></div></div></div>
     <div id="adminLivePane"><div id="adminLiveBody"></div></div>
     <div id="adminPostPane" style="display:none;">
     <div class="card">
@@ -1787,7 +1835,7 @@ function setLang(l){
   fillSelect('dsTown',TOWNS,t('selectTown'));
   fillRsRegion();
   fillSelect('rsTown',(REGIONS[document.getElementById('rsRegion').value]||REGIONS[region]).towns,t('selectTown'));
-  buildSample(); buildFilters();
+  buildSample(); buildFilters(); gwRefresh();
   if(document.getElementById('screenDiner').classList.contains('active')) loadFeed();
   if(detailR && document.getElementById('screenDetail').classList.contains('active')) openDetail(detailR.id);
   if(currentRestaurant && document.getElementById('screenDashboard').classList.contains('active')){ loadDashboard(); updatePreview(); }
@@ -2473,7 +2521,51 @@ function returnToDashboard(){
   if(approved.length>1){ renderOwnerPicker(); goScreen('screenPicker'); }
   else if(approved.length===1){ enterRestaurant(approved[0]); }
 }
+/* ══════════ GIVEAWAY (Home Screen login = one entry) ══════════ */
+const GW_END=Date.parse('2026-12-06T05:00:00Z'); // 11:59 PM Eastern, Dec 5 2026
+function gwOpen(){ return Date.now()<GW_END; }
+function gwRefresh(){
+  const open=gwOpen(), sa=tourInstalled();
+  const i=document.getElementById('gwIntro'); if(i) i.style.display=(open&&!sa)?'':'none';
+  document.querySelectorAll('.gw-bar').forEach(e=>{ e.style.display=(open&&sa&&!currentDiner)?'flex':'none'; });
+}
+function gwRules(){
+  const sh=document.getElementById('gwSheet'), sc=document.getElementById('gwScrim');
+  const tb=document.getElementById('tabbar'); const bh=tb&&tb.classList.contains('show')?tb.offsetHeight:0;
+  sh.style.bottom=bh+'px'; sc.style.bottom=bh+'px';
+  sc.classList.add('on'); sh.classList.add('on');
+}
+function gwRulesClose(){ document.getElementById('gwScrim').classList.remove('on'); document.getElementById('gwSheet').classList.remove('on'); }
+function gwToastShow(){
+  const el=document.getElementById('gwToast'); if(!el) return;
+  el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),6500);
+}
+async function gwEnter(){
+  if(!gwOpen()||!tourInstalled()||!currentDiner||!sbReady()) return;
+  try{
+    const {data,error}=await sb.from('giveaway_entries').upsert({user_id:currentDiner.id,email:currentDiner.email},{onConflict:'user_id',ignoreDuplicates:true}).select('user_id');
+    if(error){ console.error(error); return; }
+    if(data&&data.length){ gwToastShow(); trackEvent('giveaway_entry'); }
+  }catch(e){ console.error(e); }
+}
+let gwRows=[];
+async function gwAdminLoad(){
+  const el=document.getElementById('gwAdminBody'); if(!el) return;
+  el.innerHTML='<div class="r-sub">Loading…</div>';
+  const {data,error}=await sb.from('giveaway_entries').select('user_id,email,created_at').order('created_at',{ascending:true}).limit(5000);
+  if(error){ console.error(error); el.innerHTML='<div class="r-sub">Could not load entries. Run giveaway_entries.sql in Supabase first.</div>'; return; }
+  gwRows=data||[];
+  el.innerHTML=`<div style="font-size:34px;font-weight:800;letter-spacing:-1px;">${gwRows.length}</div><div class="r-sub">entries. Entries close ${gwOpen()?'Dec 5, 11:59 PM ET':'(closed)'}. One entry per account.</div><button type="button" class="btn btn-sea" style="margin-top:12px;" onclick="gwDraw()" ${gwRows.length?'':'disabled'}>Draw a winner</button><div id="gwWinner"></div>`;
+}
+function gwDraw(){
+  if(!gwRows.length) return;
+  const n=gwRows.length; const buf=new Uint32Array(1); let r;
+  const lim=Math.floor(4294967296/n)*n; do{ crypto.getRandomValues(buf); r=buf[0]; }while(r>=lim);
+  const w=gwRows[r%n];
+  document.getElementById('gwWinner').innerHTML=`<div class="gw-win"><div class="r-sub" style="margin:0 0 4px;">Winner (1 of ${n})</div><div class="e">${esc(w.email)}</div><div class="r-sub" style="margin:6px 0 0;">Entered ${esc(new Date(w.created_at).toLocaleString())}. Check it is a real person before sending the card. Draw again if not.</div></div>`;
+}
 function refreshNavLogin(){
+  gwRefresh();
   const btn=document.getElementById('navLogin');
   if(!btn) return;
   btn.classList.remove('nav-return');
@@ -3179,6 +3271,7 @@ async function handleSession(session){
   trackEvent('auth_session',{meta:{role:'diner'}});
   await loadFavorites();
   refreshNavLogin();
+  gwEnter();
   const active=document.querySelector('.screen.active')?.id;
   if(active==='screenGate'){ goScreen('screenDiner'); }
   else if(active==='screenDiner'){ buildFilters(); loadFeed(); }
@@ -5146,11 +5239,14 @@ function trackContext(){
 let anRange=7, anRegion=null, anRest=null;
 
 function adminTab(which){
-  const HD={live:['The Big Board of Deals','Every deal, every restaurant, one very powerful glance.'],post:['The Ghostwriter Desk','Pick a restaurant and post as them. Specials, recurring deals, all in their name.'],an:['The Receipts','Who showed up, who left, and who kept coming back.']};
+  const HD={gw:['The Giveaway','Home Screen logins entered in the $25 drawing.'],live:['The Big Board of Deals','Every deal, every restaurant, one very powerful glance.'],post:['The Ghostwriter Desk','Pick a restaurant and post as them. Specials, recurring deals, all in their name.'],an:['The Receipts','Who showed up, who left, and who kept coming back.']};
   try{ document.getElementById('adminHdrT').textContent=HD[which][0]; document.getElementById('adminHdrS').textContent=HD[which][1]; }catch(e){}
   document.getElementById('anTabLive').classList.toggle('on',which==='live');
   document.getElementById('anTabPost').classList.toggle('on',which==='post');
   document.getElementById('anTabAn').classList.toggle('on',which==='an');
+  document.getElementById('anTabGw').classList.toggle('on',which==='gw');
+  document.getElementById('adminGwPane').style.display=which==='gw'?'':'none';
+  if(which==='gw') gwAdminLoad();
   document.getElementById('adminLivePane').style.display=which==='live'?'':'none';
   if(which==='live') adminLiveLoad();
   document.getElementById('adminPostPane').style.display=which==='post'?'':'none';
