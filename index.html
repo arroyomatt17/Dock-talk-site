@@ -894,9 +894,10 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
 <p><b>No purchase necessary.</b> Entry is free.</p>
 <p><b>How to enter.</b> Log in to your Dock Talk account from the Dock Talk app on your Home Screen before 11:59 PM Eastern on December 5, 2026. One entry per account. Logging in from a web browser does not count.</p>
 <p><b>Who can enter.</b> Anyone 13 or older with a Dock Talk account. If a winner is under 18, a parent or guardian must claim the prize.</p>
+<p><b>Bonus entry.</b> Share the giveaway post publicly and tag @docktalk.chat on Instagram, then message us the email on your Dock Talk account. We add one bonus entry to accounts that have entered. One bonus per account, so the most you can have is 2 entries. Sharing is optional and is not required to enter.</p>
 <p><b>Prize.</b> One $25 gift card.</p>
 <p><b>Winner.</b> One winner is picked at random from all entries on December 6, 2026, and contacted at the email on their account. If we can't reach them within 7 days, we draw again.</p>
-<p><b>Sponsor.</b> Dock Talk LLC. We use your email only to run the drawing and contact the winner. This giveaway is not sponsored or endorsed by Apple or Google.</p>
+<p><b>Sponsor.</b> Dock Talk LLC. We use your email only to run the drawing and contact the winner. This giveaway is not sponsored, endorsed or administered by Apple, Google or Instagram.</p>
 </div><div class="ts-btns"><button type="button" class="d" onclick="gwRulesClose()">Got it</button></div></div>
 <div class="gw-toast" id="gwToast"><i>🎉</i><div>You're entered in the $25 giveaway<span>Drawing Dec 6. Good luck!</span></div></div>
 
@@ -928,7 +929,7 @@ html[data-theme="light"] .th-seg button.on{color:#fff}
       <div class="gw-top"><div class="gw-amt">$25</div><div><div class="gw-t">Giveaway · ends Dec 5</div><div class="gw-s">Win a $25 gift card</div></div></div>
       <div class="gw-b">
         <div class="gw-st"><b>1</b><span>Add Dock Talk to your Home Screen</span></div>
-        <div class="gw-st"><b>2</b><span>Open it and log in to your account</span></div>
+        <div class="gw-st"><b>2</b><span>Create a free account or log in</span></div>
         <div class="gw-st"><b>3</b><span>You're entered. One winner drawn Dec 6.</span></div>
         <div class="gw-fine">Free to enter. One entry per account. <button type="button" onclick="gwRules()">See rules</button></div>
       </div>
@@ -2552,17 +2553,32 @@ let gwRows=[];
 async function gwAdminLoad(){
   const el=document.getElementById('gwAdminBody'); if(!el) return;
   el.innerHTML='<div class="r-sub">Loading…</div>';
-  const {data,error}=await sb.from('giveaway_entries').select('user_id,email,created_at').order('created_at',{ascending:true}).limit(5000);
+  const {data,error}=await sb.from('giveaway_entries').select('user_id,email,created_at,bonus').order('created_at',{ascending:true}).limit(5000);
   if(error){ console.error(error); el.innerHTML='<div class="r-sub">Could not load entries. Run giveaway_entries.sql in Supabase first.</div>'; return; }
   gwRows=data||[];
-  el.innerHTML=`<div style="font-size:34px;font-weight:800;letter-spacing:-1px;">${gwRows.length}</div><div class="r-sub">entries. Entries close ${gwOpen()?'Dec 5, 11:59 PM ET':'(closed)'}. One entry per account.</div><button type="button" class="btn btn-sea" style="margin-top:12px;" onclick="gwDraw()" ${gwRows.length?'':'disabled'}>Draw a winner</button><div id="gwWinner"></div>`;
+  const nb=gwRows.filter(r=>r.bonus>0).length;
+  el.innerHTML=`<div style="font-size:34px;font-weight:800;letter-spacing:-1px;">${gwRows.length}</div><div class="r-sub">accounts entered (${nb} with a bonus, ${gwRows.length+nb} total entries). Entries close ${gwOpen()?'Dec 5, 11:59 PM ET':'(closed)'}.</div>
+  <div class="field" style="margin-top:12px;"><label>Add a bonus entry (Instagram tag)</label><input id="gwBonusEmail" type="email" placeholder="email on their Dock Talk account"></div>
+  <button type="button" class="btn btn-ghost" onclick="gwAddBonus()">Add +1 bonus</button><div class="status-msg" id="gwBonusMsg"></div>
+  <button type="button" class="btn btn-sea" style="margin-top:12px;" onclick="gwDraw()" ${gwRows.length?'':'disabled'}>Draw a winner</button><div id="gwWinner"></div>`;
+}
+async function gwAddBonus(){
+  const inp=document.getElementById('gwBonusEmail'), msg=document.getElementById('gwBonusMsg');
+  const em=(inp.value||'').trim().toLowerCase(); if(!em) return;
+  const row=gwRows.find(r=>(r.email||'').toLowerCase()===em);
+  if(!row){ msg.textContent='No entry for that email. They need to log in from the Home Screen app first.'; return; }
+  if(row.bonus>0){ msg.textContent='That account already has the bonus.'; return; }
+  const {error}=await sb.from('giveaway_entries').update({bonus:1}).eq('user_id',row.user_id);
+  if(error){ console.error(error); msg.textContent='Could not save. Run giveaway_bonus.sql in Supabase first.'; return; }
+  await gwAdminLoad(); const m2=document.getElementById('gwBonusMsg'); if(m2) m2.textContent='Bonus added for '+row.email+'.';
 }
 function gwDraw(){
   if(!gwRows.length) return;
-  const n=gwRows.length; const buf=new Uint32Array(1); let r;
+  const pool=[]; gwRows.forEach(r=>{ pool.push(r); if(r.bonus>0) pool.push(r); });
+  const n=pool.length; const buf=new Uint32Array(1); let r;
   const lim=Math.floor(4294967296/n)*n; do{ crypto.getRandomValues(buf); r=buf[0]; }while(r>=lim);
-  const w=gwRows[r%n];
-  document.getElementById('gwWinner').innerHTML=`<div class="gw-win"><div class="r-sub" style="margin:0 0 4px;">Winner (1 of ${n})</div><div class="e">${esc(w.email)}</div><div class="r-sub" style="margin:6px 0 0;">Entered ${esc(new Date(w.created_at).toLocaleString())}. Check it is a real person before sending the card. Draw again if not.</div></div>`;
+  const w=pool[r%n];
+  document.getElementById('gwWinner').innerHTML=`<div class="gw-win"><div class="r-sub" style="margin:0 0 4px;">Winner (drawn from ${n} entries${w.bonus>0?', had a bonus':''})</div><div class="e">${esc(w.email)}</div><div class="r-sub" style="margin:6px 0 0;">Entered ${esc(new Date(w.created_at).toLocaleString())}. Check it is a real person before sending the card. Draw again if not.</div></div>`;
 }
 function refreshNavLogin(){
   gwRefresh();
