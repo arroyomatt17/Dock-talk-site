@@ -663,6 +663,11 @@ html body .feed-card.fc-ph.x-ph{min-height:124px;margin-bottom:10px;}
 #gwSheet .gw-rules{overflow-y:auto;max-height:52vh;font-size:13.5px;line-height:1.5;color:var(--ink);}
 #gwSheet .gw-rules p{margin:0 0 10px;}
 #gwSheet .gw-rules b{font-weight:700;}
+.gw-list-h{font-weight:800;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;}
+.gw-li{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);}
+.gw-le{flex:1;min-width:0;}.gw-le .e{font-weight:700;font-size:14px;word-break:break-all;}.gw-le .d{font-size:11.5px;color:var(--muted);margin-top:2px;}
+.gw-bd{font-weight:800;font-size:11px;background:var(--sunset);color:#fff;border-radius:100px;padding:3px 9px;white-space:nowrap;}
+.gw-add{font-weight:800;font-size:12px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:100px;padding:4px 10px;cursor:pointer;}
 .gw-win{border:2px solid var(--ink);border-radius:16px;padding:14px;margin-top:12px;background:var(--sand);}
 .gw-win .e{font-weight:800;font-size:17px;word-break:break-all;}
 .intro-mos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0 34px;position:relative;}
@@ -2560,8 +2565,11 @@ async function gwAdminLoad(){
   el.innerHTML=`<div style="font-size:34px;font-weight:800;letter-spacing:-1px;">${gwRows.length}</div><div class="r-sub">accounts entered (${nb} with a bonus, ${gwRows.length+nb} total entries). Entries close ${gwOpen()?'Dec 5, 11:59 PM ET':'(closed)'}.</div>
   <div class="field" style="margin-top:12px;"><label>Add a bonus entry (Instagram tag)</label><input id="gwBonusEmail" type="email" placeholder="email on their Dock Talk account"></div>
   <button type="button" class="btn btn-ghost" onclick="gwAddBonus()">Add +1 bonus</button><div class="status-msg" id="gwBonusMsg"></div>
-  <button type="button" class="btn btn-sea" style="margin-top:12px;" onclick="gwDraw()" ${gwRows.length?'':'disabled'}>Draw a winner</button><div id="gwWinner"></div>`;
+  <button type="button" class="btn btn-sea" style="margin-top:12px;" onclick="gwDraw()" ${gwRows.length?'':'disabled'}>Draw a winner</button><div id="gwWinner"></div>
+  <div class="gw-list-h">Entered accounts (newest first)</div>
+  <div class="gw-list">${gwRows.length?gwRows.slice().reverse().map(r=>`<div class="gw-li"><div class="gw-le"><div class="e">${esc(r.email)}</div><div class="d">${esc(new Date(r.created_at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</div></div>${r.bonus>0?'<span class="gw-bd">+1 bonus</span>':`<button type="button" class="gw-add" onclick="gwBonusFor('${esc(r.email)}')">+1</button>`}</div>`).join(''):'<div class="r-sub">No entries yet.</div>'}</div>`;
 }
+function gwBonusFor(em){ document.getElementById('gwBonusEmail').value=em; gwAddBonus(); }
 async function gwAddBonus(){
   const inp=document.getElementById('gwBonusEmail'), msg=document.getElementById('gwBonusMsg');
   const em=(inp.value||'').trim().toLowerCase(); if(!em) return;
