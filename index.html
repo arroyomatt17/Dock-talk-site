@@ -889,6 +889,22 @@ html[data-theme] .dash-tab-btn.active,html[data-theme] .dash-tab-btn.post-tab.ac
 .tm-vals{display:flex;justify-content:space-between;font-weight:700;font-size:15.5px;margin:0 2px;}
 html[data-theme] .tm-ends{font-size:13px;font-weight:400;color:var(--muted);margin:0 2px;}
 html[data-theme] .tm-lab{font-size:14.5px;margin:12px 0 10px;}
+
+html[data-theme] .f-seg{gap:0;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden;}
+html[data-theme] .f-seg button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);font-family:'Source Sans 3',sans-serif;font-size:14.5px;font-weight:600;padding:10px 2px;}
+html[data-theme] .f-seg button:first-child{border-left:0;}
+html[data-theme] .f-seg button i{display:none;}
+html[data-theme] .f-seg button.on,html[data-theme][data-theme] .f-seg button.on{background:var(--ink);color:var(--onink);border-color:var(--ink);}
+html[data-theme] .f-town{font-family:'Source Sans 3',sans-serif;font-size:14.5px;font-weight:600;}
+html[data-theme] .f-town.on{color:var(--onink);}
+html[data-theme] .icon-grid{display:flex;gap:0;border:1.5px solid var(--ink);border-radius:4px;margin:18px 0 8px;}
+html[data-theme] .icon-btn{flex:1;flex-direction:row;justify-content:center;padding:11px 0;border-left:1px solid var(--line);}
+html[data-theme] .icon-btn:first-child{border-left:0;}
+html[data-theme] .icon-circle{display:none;}
+html[data-theme] .icon-label{font-size:15.5px;font-weight:600;}
+html[data-theme] .icon-btn.active{background:var(--ink);}
+html[data-theme] .icon-btn.active .icon-label{color:var(--onink);}
+html[data-theme] .gw-toast i{display:none;}
 </style>
 </head>
 <body>
@@ -983,7 +999,7 @@ html[data-theme] .tm-lab{font-size:14.5px;margin:12px 0 10px;}
 <p><b>Winner.</b> One winner is picked at random from all entries on December 6, 2026, and contacted at the email on their account. If we can't reach them within 7 days, we draw again.</p>
 <p><b>Sponsor.</b> Dock Talk LLC. We use your email only to run the drawing and contact the winner. This giveaway is not sponsored, endorsed or administered by Apple, Google or Instagram.</p>
 </div><div class="ts-btns"><button type="button" class="d" onclick="gwRulesClose()">Got it</button></div></div>
-<div class="gw-toast" id="gwToast"><i>🎉</i><div>You're entered in the $25 giveaway<span>Drawing Dec 6. Good luck!</span></div></div>
+<div class="gw-toast" id="gwToast"><div>You're entered in the $25 giveaway<span>Drawing Dec 6. Good luck!</span></div></div>
 
 <div class="pv-scrim" id="cfScrim" onclick="closeConfirmSheet()"></div>
 <div class="pv" id="cfSheet" role="dialog" aria-modal="true">
@@ -2068,7 +2084,7 @@ function tourRender(){
     else if(n===2){ const days=[0,1,2,3,4].map(i=>{ let w=''; try{ w=new Date(2024,0,1+i).toLocaleDateString(lang,{weekday:'short'}); }catch(e){ w=['Mon','Tue','Wed','Thu','Fri'][i]; } return `<span class="tr-chip${[1,2,3].includes(i)?' on':''}">${esc(w)}</span>`; }).join('');
       ill=tabs(2)+fld(t('recurringTextLabel'),'Happy hour · $2 slices',1)+`<div class="tr-chips">${days}</div>`+fld(t('recurringStartLabel')+' · '+t('recurringEndLabel'),'4 PM · 6 PM &nbsp;/&nbsp; ☑ '+esc(t('allDayShort'))); }
     else if(n===5) ill=`<div class="cf-bar soon" style="margin:0 0 8px"><span class="cf-t"><b>Still running your deals?</b>Confirm by Friday or they pause.</span><button type="button" class="cf-btn">Confirm</button></div><div class="cf-bar late" style="margin:0"><span class="cf-t"><b>2 deals paused</b>Hidden from diners until you resume.</span><button type="button" class="cf-btn">Resume</button></div>`;
-    else if(n===3) ill=tabs(0)+fld(t('dashProfileTitle'),'11 AM – 10 PM',1)+tabs(1)+fld(t('menu'),'📷 '+esc(t('scanMenu')),1);
+    else if(n===3) ill=tabs(0)+fld(t('dashProfileTitle'),'11 AM – 10 PM',1)+tabs(1)+fld(t('menu'),esc(t('scanMenu')),1);
     else ill=`<div class="feed-card"><span class="fc-tag">${esc(t('recurringTag'))} · Sag Harbor</span><div class="fc-row"><span class="fc-name-link">Your Restaurant</span></div><div class="tr-hl">Taco Tuesday</div></div><div class="tr-sheet"><div class="nm">Your Restaurant</div><div class="tr-items"><div><span>Street tacos</span><b>$3</b></div><div><span>Margaritas</span><b>$6</b></div></div></div>`;
   } else if(n===1){
     ill=`<div class="feed-card ending"><span class="fc-tag">Sag Harbor</span><div class="fc-row"><span class="fc-name-link">Sag Pizza</span></div><div class="tr-hl">$2 Slices</div><div class="fc-meta"><span class="fc-end">${t('endsIn').replace('{dur}','45m')}</span></div></div>`+card(esc(t('recurringTag'))+' · Southampton','Funchos','Taco Tuesday');
@@ -2153,7 +2169,7 @@ function buildFilters(){
   const tw=document.getElementById('townFilters'); tw.innerHTML='';
   const names=[...selTowns]; const tl = names.length===0 ? t('allTowns') : (names.length===1 ? names[0] : names[0]+' +'+(names.length-1));
   const tb=document.createElement('button'); tb.type='button'; tb.className='f-town'+(names.length?' on':'');
-  tb.innerHTML='📍 '+esc(tl)+' <small>▾</small>'; tb.onclick=openTownSheet; tw.appendChild(tb);
+  tb.innerHTML=esc(tl)+' <small>▾</small>'; tb.onclick=openTownSheet; tw.appendChild(tb);
   const sw=document.getElementById('slotFilters'); sw.innerHTML='';
   const seg=document.createElement('div'); seg.className='f-seg'; sw.appendChild(seg);
   const SLOT_ICONS=['☀️','🥪','🍹','🌙'];
@@ -3811,7 +3827,7 @@ function renderComingUpFeed(upcomingList){
   let html=`<div class="tm-hd"><span class="l">${esc(t('comingUpLabel'))}</span><div class="line"></div></div>`;
   html+=upDayHTML(groups,0,Math.min(2,groups.length));
   if(groups.length>2){
-    html+=`<div class="zu-lock"><div class="zu-blur" aria-hidden="true">${upDayHTML(groups,2,Math.min(5,groups.length),true)}</div><div class="zu-lockcard"><span class="k">⏳ ${esc(t('tmName'))}</span><h4>${esc(t('tmLockH'))}</h4><p>${esc(t('tmLockP'))}</p><button type="button" class="b1" onclick="try{trackEvent('tm_cta',{meta:{a:'signup'}})}catch(e){} goScreen('screenGate');showStep('stepDinerSignup')">${esc(t('tmCta'))}</button><button type="button" class="b2" onclick="goScreen('screenGate');showStep('stepDiner')">${esc(t('tmLogin'))}</button></div></div>`;
+    html+=`<div class="zu-lock"><div class="zu-blur" aria-hidden="true">${upDayHTML(groups,2,Math.min(5,groups.length),true)}</div><div class="zu-lockcard"><span class="k">${esc(t('tmName'))}</span><h4>${esc(t('tmLockH'))}</h4><p>${esc(t('tmLockP'))}</p><button type="button" class="b1" onclick="try{trackEvent('tm_cta',{meta:{a:'signup'}})}catch(e){} goScreen('screenGate');showStep('stepDinerSignup')">${esc(t('tmCta'))}</button><button type="button" class="b2" onclick="goScreen('screenGate');showStep('stepDiner')">${esc(t('tmLogin'))}</button></div></div>`;
   }
   el.innerHTML=html;
 }
