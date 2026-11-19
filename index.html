@@ -910,6 +910,9 @@ html[data-theme] .an-seg button{border-radius:0;border-left:1px solid var(--line
 html[data-theme] .an-seg button:first-child{border-left:0;}
 html[data-theme] .an-seg button.on{background:var(--ink);color:var(--onink);}
 html[data-theme] .tsw button.on{background:var(--ink);border-color:var(--ink);color:var(--onink);}
+body.pv-lock{position:fixed;left:0;right:0;width:100%;overflow:hidden;}
+.pv-scrim{touch-action:none;}
+.pv{overscroll-behavior:contain;padding-bottom:calc(16px + env(safe-area-inset-bottom));}
 </style>
 </head>
 <body>
@@ -5049,14 +5052,20 @@ function openPreview(d,ctx){
   pvFill(d); pvDotsRender();
   document.getElementById('pvGo').style.display=(ctx&&ctx.hideGo)?'none':'';
   document.getElementById('pvGo').onclick=()=>{ const r=pvRid; closePreview(); openDetail(r); };
-  const tb=document.getElementById('tabbar'); const bh = tb && tb.classList.contains('show') ? tb.offsetHeight : 0;
-  document.getElementById('pvSheet').style.bottom=bh+'px';
-  document.getElementById('pvScrim').style.bottom=bh+'px';
-  document.getElementById('pvSheet').style.maxHeight='calc(78vh - '+bh+'px)';
+  document.getElementById('pvSheet').style.bottom='0';
+  document.getElementById('pvScrim').style.bottom='0';
+  document.getElementById('pvSheet').style.maxHeight='82vh';
   document.getElementById('pvScrim').classList.add('on');
   document.getElementById('pvSheet').classList.add('on');
+  pvLockScroll(true);
 }
-function closePreview(){ document.getElementById('pvScrim').classList.remove('on'); document.getElementById('pvSheet').classList.remove('on'); }
+let pvScrollY=0;
+function pvLockScroll(on){
+  const b=document.body;
+  if(on){ if(b.classList.contains('pv-lock')) return; pvScrollY=window.pageYOffset||document.documentElement.scrollTop||0; b.style.top=(-pvScrollY)+'px'; b.classList.add('pv-lock'); }
+  else{ if(!b.classList.contains('pv-lock')) return; b.classList.remove('pv-lock'); b.style.top=''; window.scrollTo(0,pvScrollY); }
+}
+function closePreview(){ document.getElementById('pvScrim').classList.remove('on'); document.getElementById('pvSheet').classList.remove('on'); pvLockScroll(false); }
 async function signOut(){
   if(sbReady()) await sb.auth.signOut();
   currentRestaurant=null; currentDiner=null; favoritesSet=new Set(); showFavoritesOnly=false;
